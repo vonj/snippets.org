@@ -1,0 +1,36 @@
+  Basically, EVAL.C converts infix notation to postfix notation. If you're
+not familiar with these terms, infix notation is standard human-readable
+equations such as you write in a C program. Postfix notation is most familiar
+as the "reverse Polish" notation used in Hewlett Packard calculators and in
+the Forth language. Internally, all languages work by converting to postfix
+evaluation. Only Forth makes it obvious to the programmer.
+
+  EVAL.C performs this conversion by maintaining 2 stacks, an operand stack
+and an operator stack. As it scans the input, each time it comes across a
+numerical value, it pushes it onto the operand stack. Whenever it comes
+across an operator, it pushes it onto the operator stack. Once the input
+expression has been scanned, it evaluates it by popping operands off the
+operand stack and applying the operators to them.
+
+ For example the simple expression "2+3-7" would push the values 2, 3, and 7
+onto the operand stack and the operators "+" and "-" onto the operator stack.
+When evaluating the expression, it would first pop 3 and 7 off the operand
+stack and then pop the "-" operator off the operator stack and apply it. This
+would leave a value of -4 on the stack. Next the value of 2 would be popped
+from the operand stack and the remaining operator off of the operator stack.
+Applying the "+" operator to the values 2 and -4 would leave the result of
+the evaluation, -2, on the stack to be returned.
+
+  The only complication of this in EVAL.C is that instead of raw operators
+(which would all have to be 1 character long), I use operator tokens which
+allow multicharacter operators and precedence specification. What I push on
+the operator stack is still a single character token, but its the operator
+token which is defined in the 'verbs' array of valid tokens. Multicharacter
+tokens are always assumed to include any leading parentheses. For example, in
+the expression "SQRT(37)", the token is "SQRT(".
+
+  Using parentheses forces evaluation to be performed out of the normal
+sequence. I use the same sort of mechanism to implement precedence rules.
+Unary negation is yet another feature which takes some explicit exception
+processing to process. Other than these exceptions, it's pretty
+straightforward stuff.

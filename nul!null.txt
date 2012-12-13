@@ -1,0 +1,21 @@
+Q: My compiler gives me a warning whenever I try to assign or compare the
+   value of NULL to an integral type (char, short, int, long). What's the
+   matter?
+
+
+A: According to the standard, NULL is a macro defined as a null pointer
+   constant so you should expect warnings (at least!) when trying to assign a
+   pointer to an integral type without a (highly questionable) cast!
+
+   This is a fairly common error since people hear other programmers talking
+   all the time about "a null character". As it turns out, ASCII shorthand
+   notation for '\0' happens to be NUL, hence the confusion. In SNIPPETS, I
+   explicitly work around this common error (in SNIPTYPE.H) with the line...
+
+   #define NUL '\0'
+
+   The moral of this story is to know the difference between ASCII NUL and C
+   NULL, and use whichever is correct for your application. In many cases,
+   the correct "null" may be NUL, not NULL.
+
+   Is this confusing enough? ;-) 

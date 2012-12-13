@@ -1,0 +1,258 @@
+      A Brief Discussion of C Language Storage Modifiers
+      --------------------------------------------------
+  (a public domain tutorial by Carey Bloodworth & Bob Stout)
+
+
+
+There  are  seven basic storage types:  auto, const, extern, global,
+register, static, and volatile.   Static  and  extern  can  also  be
+applied to functions.  (Although global is a basic storage class, it
+is not a keyword, like the other six.)
+
+Put very simply:
+
+auto: a normal stack variable declared and used within a function.
+
+const:  it tells the compiler that you are not going to change  this
+variable  (that  it  is  'const'ant)  and  allows the compiler to do
+additional  type  checking  and  possibly  put  the  variable  in  a
+different  section of memory (such as ROM instead of RAM).  When the
+variable happens to  be  a  pointer,  the  pointer  itself, what the
+pointer points to, or both, can be declared constant.
+
+extern:  it says the  variable  is  'extern'al  to the current file.
+You can use it in this module, but you have to actually  declare  it
+as global somewhere else.
+
+global:  it is  declared  outside  of  any  function  and the entire
+program can 'see' the variable and modify it.
+
+register:  used with a  local  /  auto  variable, it suggests to the
+compiler that it might be more efficient if it kept that variable in
+a CPU register.  The compiler is under no requirement to follow your
+suggestion.  If it doesn't follow your advice, the variable has  the
+same  storage  class  as  whatever it would normall have.  Trying to
+make a variable a 'register'  variable also prevents you from taking
+its address and using a pointer to it, since there is  obviously  no
+way to have a memory pointer point to a CPU register.
+
+static:  Static has two meanings.  Inside a function, it  means  the
+variable  keeps its value between calls to that function.  When used
+with a variable or  function  that  would  other  wise be global, it
+tells the compiler that it is 'private' to that file.   Although  it
+is  'global'  to everything within that same file / module, no other
+file / module knows about it.
+
+volatile:  This tells  the  compiler  not  to  keep  this value in a
+register, that the variable is 'volatile' and  can  change  on  it's
+own,  without  the  program  itself  doing  it.  The change could be
+caused by a multi-tasking program,  or  perhaps its the clock timer,
+or some other  situation  where  the  compiler  must  not  make  any
+assumptions about what the value is.
+
+Here is an example program:
+
+int Global1;
+int Global2=10;
+const int CVar=13;
+const int *Ptr1;
+int * const Ptr2=&Global1;
+const int * const Ptr3=&Global2;
+long volatile * const Clock=some address;
+extern int errno;
+
+void Func1(void)
+{ int Local1;
+  int Local2=5;
+  static int Local3=10;
+
+Local1=17;
+
+/* do stuff */
+
+if (errno != 0 )
+  {int Local4;
+   Local4 = func2();
+   /* do something with Local4 */
+  }
+
+Local1=Local1-1; /* useless */
+Local2=Local2-1; /* useless */
+Local3=Local3-1; /* purposeful */
+}
+
+
+Auto class
+==========
+
+An 'auto' variable is just a normal variable declared within a  pair
+of braces { }.  Generally, that would be normal variable declaration
+at the beginning of a regular function, but  it  can  also  be  done
+within the function itself, if a temp variable is needed in just one
+place, etc.  The term 'auto' is rarely used these days, because it's
+understood  that  a  local variable will be 'auto' unless you say to
+make it static.
+
+
+Examine the sample program  above.   The variables Local1 and Local2
+are local / auto  variables  and  can  be  used anywhere in Func1().
+Local4 is also a local / auto variable, but  it  can  only  be  used
+within  that  inner  set  of  brackets.
+
+Auto / local variables are put on the stack.  They  just  'suddenly'
+appear  when  you  enter  a  function,  and  unless  you  explicitly
+initialize the variable, its  contents  will be pure random garbage.
+Above,  Local1  is  unitialized.   Its  value  is unknown because it
+depends on whatever value happens to already be on the stack at that
+point.   Unlike  global  variables,   an   auto  variable  is  _not_
+automatically initialized to zero.  Auto variables will have garbage
+in them  unless  you  explicitly  initialize  them,  either  in  the
+declaration  itself  (like with Local2) or explicitly in the program
+(like with Local1).
+
+
+Const class
+===========
+
+A  constant variable is one that you are promising (and the compiler
+should be  enforcing)  that  it  will  not  change.   This  lets the
+compiler make certain optimizations,  and  enforce  a  bit  of  type
+checking, etc.  CVar is being initially  set to 13, and it will, for
+the rest of the program, have that value.   You  may  initialize  it
+when you declare it, but that is the only time it may be set.
+
+When   the   variable  is  a  pointer,  things  become  a  bit  more
+complicated.  For example, Ptr1 is a pointer to an integer constant.
+That means that although the pointer  can change, you can not change
+the value of what the pointer points to.  That can  be  useful  when
+you are using the pointer  to  reference a pre-calculated data table
+and you want to be reasonably sure of not modifying it.
+
+On  the other hand Ptr2 itself can not be modified, although what it
+points to can.   It  can  only  point  to  one address, although the
+contents of that address can change.  This has  limited  usefulness,
+although  it  does  let you set up 'aliases' for another variable or
+address.
+
+The  third  type,  Ptr3, is a combination of both.  The value of the
+pointer  can  not  be  changed  after  being  initialized  when it's
+declared, nor can what it points to be changed.   As  you  can't  do
+anything with a pointer like this, it's fairly useless.
+
+
+Note that using 'const' is just  a compiler / language safety check.
+It does not actually prevent you from doing it with  other  methods,
+such  as  by  type  casting  the  'const'  away,  or with some other
+pointer, etc.  As  always,  C  will  let  you  do anything you like,
+provided you are reasonably sure you want to do it.
+
+
+And finally, the 'const' is a bit different in C++.  In that case, a
+const variable can sometimes behave as if you had used a #define  to
+set  it  at  that  value.   In  C,  a 'const' value will always take
+storage, but with C++, if the compiler notices you are only using it
+a certain way, it  can  just  go  ahead  and  use the value of const
+variable, without ever really creating the variable.
+
+
+Extern class
+============
+
+Declaring something is 'extern' just means that you are not actually
+defining  it  at  this  point, that it's done somewhere else, usally
+some other program module.  The extern declaration does not actually
+consume any storage (for a  variable)  or generate any function code
+(if it's a function), it just lets the compiler know that it  really
+does exist, but just not here.
+
+In the example above, we are declaring the variable  'errno'  as  an
+external  integer.   (This  is  rather  bad  form to do it with this
+particular variable, because  that  is  C's error reporting variable
+and it's really declared in the standard library header  <stdlib.h>,
+but I wanted to show something you might recognise.)
+
+This means that the actual declaration (which actually allocates the
+memory  for the global variable) is in some other file (or even in a
+library that you will link in), but that we can _use_ it.
+
+Declaring functions as  'extern'  is  similar.
+
+If you look through your library header files, such as <stdlib.h> or
+<stdio.h> you  will  see  many  examples  of  extern  functions  and
+variables.   They  are  actually defined elsewhere, and put into the
+precompiled libraries, but you can use them just as if they actually
+existed in your file.
+
+
+Register class
+==============
+
+A  register  variable  is  just your hinting to the compiler that it
+might be more efficient if the compiler kept that simple variable in
+a CPU register.  It also  prevents  the  compiler from being able to
+take the address of  that  variable,  meaning  you  can't  have  any
+pointers  to  that  variable,  since it doesn't make sense to have a
+memory pointer trying  to  point  to  a  CPU register, which doesn't
+exist in memory.  Only local, auto variables can be 'register'.
+
+
+Static class
+============
+
+Static has two meanings.  The first is towards local  variables  and
+the second is towards external, non-local identifiers (variables and
+functions.) 
+
+A local variable can also  be  declared  as 'static', as well as the
+implicit or explict declaring of 'auto'.  This is a cross between  a
+global  variable  and  a  local  auto  variable.   Like  all  global
+variables, when the  program  is  first  run,  it  is  automatically
+initialized to 0  if  you  don't  explicitly initialize it yourself.
+The only real difference is that a static local var  is  known  only
+within  that  function  it  is  defined.  Its value is not destroyed
+between calls to that  function.   The  variable Local3 is initially
+being set to 10; And what  ever  I  do  to  that  variable  will  be
+remembered  between  calls  to  it.   For example, at the end of the
+function, right before I  leave,  I  am decrementing Local1, Local2,
+and Local3.  Because Local1 and Local2 are normal auto variables, it
+doesn't matter because the next time I call  Func1(),  their  values
+will   be   undetermined  until  they  are  explicitly  initialized.
+However, the variable Local3 is declared as 'static'.  That means it
+_will_ remember its contents between  calls.  The first time I call,
+it is initialized to what I set it (or initialized to 0 by  default,
+like  global  variables  are).   The second time I call Func1(), the
+value will _not_ be reinitialized.  It  will retain the value it had
+when I  left  the  function  before.   In  this  case,  it  will  be
+decremented by one with each call.
+
+When you use 'static' outside  of  a  function,  it  behaves  a  bit
+differently.   It  means  that  whatever  you  use  it on (whether a
+variable or a function) will not  be  visible outside of that file /
+module you are using  it  in.   This  lets  you  enforce  a  bit  of
+'locality of usage'  in  your  programming.   If  you  have a set of
+related variables and functions, and you keep them in a single file,
+and  feel  that only the functions in that file itself should modify
+those variables or call those  functions,  then you can declare them
+as 'static' to hide them from the rest of the program.
+
+
+Volatile class
+==============
+
+You can also declare a  variable  to  be 'volatile'.  That just lets
+the compiler know that the value of the variable will change due  to
+outside influences.  It might be the clock counter, or some hardware
+port  accessed  via  a  fixed memory location, or whatever.  It just
+tells the compiler not to take any short cuts and to not keep it  in
+a  register.   Every  time  you use that variable, the compiler will
+actually reference that variable  or  location, rather than using an
+older value from a previous access.
+
+In the program example above, I am declaring a pointer  to  be  both
+const  and  volatile.   The  pointer itself is constant, it will not
+change from that address of  where  the  clock is located.  Its also
+declared  as volatile, meaning that the value of what the pointer is
+always point to will change outside of the program's operation.  So,
+every time I do  *clock,  the  compiler  has to always generate code
+that reads that memory address.  If I did  twoclock=*clock + *clock;
+the compiler would have to generate two seperate reads to the clock.

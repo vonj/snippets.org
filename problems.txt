@@ -1,0 +1,358 @@
+=== Portability problems and how to solve some of them ====================
+
+Contents
+
+- Introduction
+- Problems with using the ANSI/ISO standard
+- Adaptations for specific compilers
+  - Turbo C v1.00 (1987)
+  - Turbo C v1.50 (1987)
+  - Turbo C v2.00
+- Some portability notes on specific compilers
+  - Turbo C v1.00 (1987)
+  - Turbo C v1.50 (1987)
+  - Turbo C v2.00
+
+Introduction
+
+When you get sources from someone else, or give sources to someone else,
+you would prefer them to compile without problems and to work right.
+Regrettably that is not always entirely possible, but there are a great
+many things that can be done to make it so. Essentially those many thing
+fall into three groups:
+- Using the ANSI/ISO standard.
+- Using portability #defines for things not addressed by the standard but
+  still common among compilers and operating environments, and Public
+  Domain sources for less common items. Both of which can often -- if not
+  always -- be found in Snippets.
+- Using good coding standards. A good example is contained in the file
+  C_port.txt. I use most of the items mentioned in C_port.txt. I only
+  disagree with one -- the one about using sizeof -- and I have never found
+  problems with indenting pre-processor directives to be any problem.
+
+
+Problems with using the ANSI/ISO standard
+
+Current compilers -- at least for the PC -- have nearly no problems with
+the standard. But older compilers sometimes have severe problems with the
+standard.
+Turbo C v1.5, which I still use often even though I also have a better
+compiler, has problems with multiple inclusion of its own .h files and with
+missing items. So I created a simple utility, SAFEMINX, to created
+'wrappers' for each include file. I could have edited the original .h
+files, but this way makes it possible to easily revert to the original
+state. Then I:
+- renamed TC's include directory to d:\turboc\_include
+- created a new directory with the old name
+- ran SAFEMINX
+- and edited four of the new files.
+
+During testing of a Snippets beta release this reduced the number of
+reported errors (compiling all .C files) from over a thousand to only
+thirty four! As the four manually edited files -- or rather its contents --
+may be of interest to other users of TC1.5 (and probably the even older TC1
+too) I include them here. Separated by a line with hyphens.
+
+/*  STDIO.H
+    Prevention of double inclusions.
+*/
+
+#ifndef SAFE__STDIO_H
+#define SAFE__STDIO_H
+
+#include <d:\turboc\_include\STDIO.H>    /* 'original' */
+
+#ifndef FILENAME_MAX
+  #define FILENAME_MAX  80
+#endif
+#ifndef FOPEN_MAX
+  #define FOPEN_MAX     OPEN_MAX
+#endif
+
+#endif
+------------------------
+/*  SIGNAL.H
+    Prevention of double inclusions.
+*/
+
+#ifndef SAFE__SIGNAL_H
+#define SAFE__SIGNAL_H
+
+#include <d:\turboc\_include\SIGNAL.H>    /* 'original' */
+
+#define signal ssignal
+
+#endif
+------------------------
+/*  ASSERT.H
+    Prevention of double inclusions.
+*/
+
+#ifndef SAFE__ASSERT_H
+#define SAFE__ASSERT_H
+
+#include <d:\turboc\_include\ASSERT.H>    /* 'original' */
+
+#include <stdlib.h> /* for abort() */
+#include <stdio.h>  /* for fprintf() and stderr */
+
+#endif
+------------------------
+/*  TIME.H
+    Prevention of double inclusions.
+*/
+
+#ifndef SAFE__TIME_H
+#define SAFE__TIME_H
+
+#include <d:\turboc\_include\TIME.H>    /* 'original' */
+
+typedef long clock_t;
+#define clock()         *((clock_t far *)0x0040006cL)
+#define CLOCKS_PER_SEC  18.2
+#define CLK_TCK         18.2   /* Non-ANSI/ISO but _very_ common. */
+
+#ifndef _SIZE_T         /* from string.h */
+#define _SIZE_T
+typedef unsigned size_t;
+#endif
+
+/* from Snippets strftime.c: */
+size_t strftime(char *s, size_t maxs, const char *f, const struct tm *t);
+
+#endif
+
+=== Adaptations for specific compilers ===================================
+
+The following sections contain additions to the indicated files for
+specific compilers to make these more compliant with the ANSI/ISO standard.
+At the end there are some notes on various compilers which also may be
+useful to users of other compilers.
+
+You should compile and run SAFEMINX first!
+
+Please note that this currently may be incomplete for any file. 
+
+--- Turbo C v1.0 (1987) -- Not the C++ version! --------------------------
+
+--- ASSERT.H
+
+#include <stdlib.h> /* for abort() */
+#include <stdio.h>  /* for fprintf() amd stderr */
+
+
+--- FLOAT.H
+
+#define DBL_EPSILON     2.2204460492503131E-16
+/* duplicate of (disabled) following section.
+   REQUIRED for some Snippets files           
+*/
+
+#if 0  /* disables this section because I'm not sure about the values */
+       /* This is taken from TC1.5                                    */
+
+#ifndef TC1_FP_ORIGINAL
+
+#undef DBL_MAX_EXP      /* undefine existing values because */
+#undef FLT_MAX_EXP      /* they are _very_ probably wrong   */
+#undef LDBL_MAX_EXP
+#undef DBL_MIN_EXP
+#undef FLT_MIN_EXP
+#undef LDBL_MIN_EXP
+
+#define DBL_MAX_EXP     +1024
+#define FLT_MAX_EXP      +128
+#define LDBL_MAX_EXP    +1024
+
+#define DBL_MIN_EXP     -1021
+#define FLT_MIN_EXP      -125
+#define LDBL_MIN_EXP    -1021
+
+#endif /* TC1_FP_ORIGINAL */
+
+#define DBL_DIG         14
+#define FLT_DIG          6
+#define LDBL_DIG        14
+
+#define DBL_MANT_DIG    53
+#define FLT_MANT_DIG    24
+#define LDBL_MANT_DIG   53
+
+#define DBL_EPSILON     2.2204460492503131E-16
+#define FLT_EPSILON     1.19209290E-07F
+#define LDBL_EPSILON    2.2204460492503131E-16
+
+#define DBL_MIN         2.225073858507201E-16
+#define FLT_MIN         1.17549435E-38F
+#define LDBL_MIN        2.225073858507201E-16
+
+#define DBL_MAX         1.797693134862316E+308
+#define FLT_MAX         3.40282347E+38F
+#define LDBL_MAX        1.797693134862316E+308
+
+#define DBL_MAX_10_EXP   +308
+#define FLT_MAX_10_EXP    +38
+#define LDBL_MAX_10_EXP  +308
+
+#define DBL_MIN_10_EXP   -307
+#define FLT_MIN_10_EXP    -37
+#define LDBL_MIN_10_EXP  -307
+
+#endif /* if 0 */
+
+--- SIGNAL.H
+
+#define signal ssignal
+
+
+--- STDIO.H
+
+#define FILENAME_MAX  80
+#define FOPEN_MAX     OPEN_MAX
+
+/* duplicated from dos.h: 
+   (required to handle the #define for 'remove')
+*/
+int     _Cdecl unlink(char *filename);
+
+/* added for ANSI compliance:
+   WARNING: I only did compilation testing. NO functional testing (yet) !!!
+*/
+typedef long fpos_t;
+#define fgetpos(stream,pos) ((((*(pos))=ftell(stream))==-1) ? -1 : 0 )
+#define fsetpos(stream,pos) fseek(stream,*(pos),SEEK_SET)
+
+--- STDLIB.H
+
+#define EXIT_SUCCESS  0
+#define EXIT_FAILURE  1
+
+/* duplicated from stddef.h: */
+#ifndef NULL
+#if defined(__TINY__) || defined(__SMALL__) || defined(__MEDIUM__)
+#define NULL    0
+#else
+#define NULL    0L
+#endif
+#endif
+
+/* Missing entirely. Value according to doc's: */
+#define RAND_MAX  0x7FFF
+
+--- STRING.H
+
+/* duplicated from stddef.h: */
+#ifndef NULL
+#if defined(__TINY__) || defined(__SMALL__) || defined(__MEDIUM__)
+#define NULL    0
+#else
+#define NULL    0L
+#endif
+#endif
+
+
+--- TIME.H
+
+typedef long clock_t;
+#define clock()         *((clock_t far *)0x0040006cL)
+#define CLOCKS_PER_SEC  18.2
+#define CLK_TCK         18.2   /* Non-ANSI/ISO but _very_ common. */
+
+#ifndef _SIZE_T         /* from string.h */
+#define _SIZE_T
+typedef unsigned size_t;
+#endif
+
+/* from Snippets strftime.c: */
+size_t strftime(char *s, size_t maxs, const char *f, const struct tm *t);
+
+--- Turbo C v1.5 (1987) --------------------------------------------------
+
+--- ASSERT.H
+
+#include <stdlib.h> /* for abort() */
+#include <stdio.h>  /* for fprintf() amd stderr */
+
+--- SIGNAL.H
+
+#define signal ssignal
+
+--- STDIO.H
+
+#define FILENAME_MAX  80
+#define FOPEN_MAX     OPEN_MAX
+
+--- TIME.H
+
+typedef long clock_t;
+#define clock()         *((clock_t far *)0x0040006cL)
+#define CLOCKS_PER_SEC  18.2
+#define CLK_TCK         18.2   /* Non-ANSI/ISO but _very_ common. */
+
+#ifndef _SIZE_T         /* from string.h */
+#define _SIZE_T
+typedef unsigned size_t;
+#endif
+
+/* from Snippets strftime.c: */
+size_t strftime(char *s, size_t maxs, const char *f, const struct tm *t);
+
+
+--- Turbo C v2.0 ---------------------------------------------------------
+
+--- STDIO.H
+
+#define FILENAME_MAX  80
+#define FOPEN_MAX     OPEN_MAX
+
+--- TIME.H
+
+#define CLOCKS_PER_SEC CLK_TCK
+
+#ifndef _SIZE_T         /* from string.h */
+#define _SIZE_T
+typedef unsigned size_t;
+#endif
+
+/* from Snippets strftime.c: */
+size_t strftime(char *s, size_t maxs, const char *f, const struct tm *t);
+
+
+==== Some portability notes on specific compilers ========================
+
+---- Turbo C v1.00
+
+TC1.0 in not very ANSI/ISO compliant. But most ANSI/ISO items more or less
+work correctly. As indicated in the preceding sections there are however
+some items missing. In addition to these the following is not there:
+- tmpnam() and some associated functions.
+- ldiv_t, div_t and associated functions.
+
+In addition strerror() is _NOT_ ANSI/ISO compliant.
+
+TC1.0 does NOT like items with both 'interrupt' and 'far'.
+It also does not have the common (Borland) items:
+- random() and randomize()
+- chsize()
+- gotoxy()
+- stdprn and stdaux
+
+
+---- Turbo C v1.50
+
+
+
+---- Turbo C v2.00
+
+TC2 considers "#pragma option ..." an error. Enclose these between
+"#if defined(__TURBOC__) && __TURBOC__ >0x202" and "#endif".
+(For older TC's these #pragma's don't work anyway ...)
+
+
+--------------------------------------------------------------------------
+
+That's it for the time being. Maybe I'll expand this for the next release
+of Snippets. Suggestions and comments are welcome. An overview of what
+items the portability files of Snippets deal with could make sense.
+
+=== A.Reitsma, Delft, The Netherlands. 95-10-30 ====== Public Domain =====

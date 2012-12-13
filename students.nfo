@@ -1,0 +1,201 @@
+Beginning with the July, 1997 release of SNIPPETS, an effort has begun to
+enhance SNIPPETS' value as a self-guided learning tool. To this end, this
+document attempts to classify all of the major SNIPPETS files into the
+following three categories:
+
+Category 1.  Suitable for instructional use by C beginners.
+
+Category 2.  Suitable for instructional use by intermediate level C
+             programmers. This category will include most files which are
+             specific to a particular operating environment.
+
+Category 3.  Suitable for instructional use by advanced C programmers.
+
+All three categories are, of course, useful as drop-in library functions for
+programmers of all experience levels. Category 3 functions may sometimes be
+difficult for beginners to understand. Where this is the case, additional
+documentation in the form of .MAN files have been added to assist in their
+use without necessarily understanding how they work. In many cases, such
+files are also accompanied by .HOW files which students can use to help them
+understand the code and/or underlying algorithms.
+
+Students of all levels are also encouraged to read through all of the files
+in the FAQ file section as listed in the SNIPPETS.NDX table of contents file.
+In many cases, these instructional files will answer many questions before
+they come up.
+
+I hope this information proves useful to students using SNIPPETS to learn C
+and C++. As always, your feedback is always welcome and appreciated!
+
+Bob Stout
+rbs@snippets.org
+1:106/2000.6
+
+
+Category 1 files:
+-----------------
+
+ASCII.H             HILOBYTE.H          METRIC.H            PI.H
+SNIPTYPE.H          A2E.H               A2E.C               TOASCII.C
+BASTRNGS.H          BASTRNGS.C          CTRLPRNT.H          CTRLPRNT.C
+ERR_EXIT.C          MEMREV.H            MEMREV.C            STRUCFIL.H
+STRUCFIL.C          WINDCHIL.H          WINDCHIL.C          ANSIFLEN.C
+EXISTSX.C           FCOMPARE.C          FOPENX.C            TEXTMOD.C
+WB_FCOPY.C          WB_FAPND.C          UPDATE.H            UPDATE.C
+SNIP_STR.H          PLURALTX.HOW        MEMMEM.C            FMEMMEM.C
+SSTRCPY.C           STPTOK.C            STRCHCAT.C          STRDEL.C
+STRDELCH.C          STRDUP.C            STRECPY.C           STRISTR.C
+STRREPL.C           STRREV.C            STRRPBRK.C          STRUPR.C
+TRANSLAT.C          RULELINE.C          RMALLWS.C           RMLEAD.C
+RMTRAIL.C           TRIM.C              LV1WS.C             BCDL.C
+COMBIN.C            CUBIC.C             DBL2LONG.C          DBLROUND.C
+DBLROUND.HOW        FIBO.C              FRAND.C             IPOW.C
+ISQRT.C             LOGSCALE.C          MATHSTAT.H          MATHSTAT.C
+RAD2DEG.C           RND_DIV.C           PARITY.H            PARITY.C
+TRIGLIB.H           TRIGLIB.C           BASCNVRT.C          COMMAFLT.C
+COMMAFMT.C          ENG.C               HEXORINT.C          HSTR_I.C
+LTOA.C              LTOSTR.C            ORD_TEXT.C          L2ROMAN.C
+ROMAN2L.C           BITOPS.H            BITOPS.HOW          BITARRAY.C
+BITCNT_1.C          BITCNT_2.C          BITCNT_3.C          BITCNT_4.C
+BITCNTS.C           BITFILES.C          BITSTRNG.C          BSTR_I.C
+W_WRAP.H            W_WRAP.C            CENTER.C            CHECKSUM.C
+CHECKEXE.C          GETOPTSL.MAN        GETOPTSL.H          GETOPTSL.C
+ANSICODE.H          ANSITEST.C          UNISTD.H            PCNVRT.H
+UNIX2DOS.C          CHGEXT.C            MKDIRS.C            BIPORT.H
+BIPORT.C            BC_RAND.H           FMEMOPS.H           FMEMOPS.C
+FTIME.H             FTIME.C             REDIRECT.C          SCRNMACS.H
+DVIDPORT.H          VIDPORT.C           DVIDPORT.C          SCRNSAVE.C
+FSCRNSAV.C          SCROLL.C            ATR2ANSI.C          DVIDEO.H
+DVIDEO.C            ANSILOAD.H          ANSILOAD.C          CURSOR.H
+CURSOR.C            MORE.H              MOREPROC.C          ADJSCROL.C
+MORE.C              DISK_SN.H           DISK_SN.C           EXT_KEYS.H
+EXT_KEYS.C          FASKBHIT.C          FASKBHIT.HOW        KB_DATA.H
+SNIPKBIO.H          GETYN.C             KB_STUFF.C          ISSHIFT.C
+ISXKBRD.C           KEYLOCKS.C          HEXDUMP.C           LINE.C
+REMTAB.C            SAFEMINX.C          CMDLINE.C           FACTOR.C
+TABTRICK.C          FPSWITCH.C          COMPILER.C          STYLE.C
+
+
+Category 2 files:
+-----------------
+
+EXTKWORD.H          MK_FP.H             MINMAX.H            ROUND.H
+STAT.H              STRINGIZ.H          CARDS.HPP           CARDS.CPP
+FERRORF.C           ROLLDICE.H          ROLLDICE.C          ISISBN.H
+ISISBN.C            SRCHFILE.C          SSTRDEL.C           XSTRCAT.C
+HUGESORT.C          LL_MSORT.C          LL_QSORT.C          RG_ISORT.C
+RG_QSORT.C          RGIQSORT.C          RG_SSORT.C          STRSORT.C
+INDXLOOK.H          INDEX.C             LOOKUP.C            DTOTP6.H
+DTOTP6.C            BCDD.C              BCDD.DOC            ETPHI.C
+FACTORYL.C          ISPOW2.C            LDFLOOR.C           MSB2IEEE.C
+PERM_IDX.C          RAND1.C             RAND2.C             RG_RAND.C
+SCANFRAC.C          STR27SEG.C          SNPARRAY.H          AMALLOC.C
+MDALLOC.C           MDASORT.C           PHONETIC.H          SOUNDEX.C
+SOUNDEX4.C          SOUNDEX5.C          METAPHON.C          APPROX.C
+SCALDATE.H          SCALDATE.C          DAYNUM.C            ISDST.C
+TODAY.C             DOW.C               FDATE.C             CAL.C
+DATETIME.H          JDN_L.C             EASTER.C            ADDTIME.C
+MOON_AGE.C          PARSDATE.C          PARSTIME.C          STRFTIME.H
+STRFTIME.C          REGKEY.H            REGIT.C             CHKREG.C
+TOOLKIT.H           MEM.H               MEM.C               JMALLOC.H
+JMALLOC.C           JNEW.H              JNEW.CPP            DIRENT.H
+POSIXDIR.C          POSIX_LS.C          DIRMASK.C           XSTRCMP.C
+FLN_FIX.C           FLNORM.C            FNSPLIT.C           ADDHNDLS.C
+ADDPATH.C           DOSCOPY.C           DRVALID.C           FAVAIL.C
+FCHSIZE.C           FILES.C             FUPDATE.C           GETDCWD.C
+ISCDROM.C           ISCONS.C            ISFOPEN.C           ISNETDR.C
+ISRAMDSK.C          ISWPROT.C           VFNAME.H            VFNAME.C
+PUSHDIR.C           TRUNAME.C           FILELIST.H          FILELIST.C
+PCHWIO.H            PCHWIO.C            DELAY.H             DELAY.C
+CLOCK.H             GETSEG.H            BREAK.C             FNDISLOT.C
+DOSFRMAT.C          FPTR_ADD.C          ISSHARE.C           JOYSTICK.C
+MEMAVAIL.C          NWLINNAM.C          PFOPEN.C            SHEL2DOS.C
+OS_ID.TXT           OS_ID.C             TICKTRAP.H          TICKTRAP.C
+XFILE.H             XFILE.C             XTEST.C             VGABLANK.H
+VGABLANK.C          BRESNHAM.H          BRESNHAM.C          BHAMDEMO.C
+QMENU.C             SNPDSKIO.H          DOS5BOOT.H          ABSDISKC.C
+ABSDISK.ASM         HUGEREAD.C          X00API.H            X00API.C
+SNIPRINT.H          ASSIGNPR.C          CHANGPRN.C          PRTOGGLE.C
+PRTSCRN.C           PRTSTAT.C           CCTRAP.ASM          CBTRAP.ASM
+TRAPFLAG.ASM        TRAPDEMO.C          CERRINST.ASM        CERRTRAP.ASM
+REBOOT.ASM          OS2_BOOT.C          MOUSE.H             MOUSE.C
+SCRNPICK.C          KBTRAP.H            KBTRAP.C            TIMEGETC.C
+EDITGETS.H          EDITGETS.C          GETSTRNG.C          JGREP.C
+2DLIFE.C            ANSISELF.C          BIGFAC.C            BINCOMP.C
+BODYMASS.C          BORDCOLR.C          CDIR.C              CHBYTES.C
+CURSIZE.C           DO.C                DOSSORT.C           DRIVSRCH.C
+DRVS.C              DSPCLOCK.C          DSPDTST.C           FILCOUNT.C
+FILECAT.H           FILECAT.C           MAXLINE.C           FLOPCOPY.C
+FRACTION.C          GETVOL.C            GRAFLINE.C          HAMLET.C
+HEAD.C              HOWDY.C             IFACTOR.C           INCHCVRT.C
+KBFLIP.C            KEYWATCH.C          KRNLDEMO.C          KILLFF.C
+LOG.C               LSD.C               MAINMAIN.C          MAZE_1.C
+MAZE_2.C            MAZE_3.C            MORSE.C             MTERM.C
+MV.C                NLCNVRT.C           PALNDROM.C          PERMUTE1.C
+PERMUTE2.C          PR.C                PRNTSELF.C          QUERY.C
+RDXCNVRT.C          REVERSI.C           RM_ALL.C            SETLEVEL.C
+SETVOL.C            SKIPLIST.C          SPEED.C             SPIN.C
+SPLIT.C             STATS.C             STRIPEOF.C          TAIL.C
+TIRESIZE.C          TO4DOS.C            TODAYBAK.C          TOUCH.C
+TREEDIR.C           UUENCODE.C          UUDECODE.C          WC.C
+WEIRD.C             WHERE.C             WORDWRAP.C          WPUTCH.C
+FORK.H              FORK.C              T_CLEAN.C           
+
+
+Category 3 files:
+-----------------
+
+MAKEFILE            BIG_MALL.H          CAST.H              CIRCBUF.HPP
+DIRPORT.HOW         DIRPORT.H           DIRPORT.C           CCARD.H
+CCARD.C             CCARDPLV.H          FSCANBIN.H          FSCANBIN.C
+WHICHARC.DOC        WHICHARC.H          WHICHARC.CPP        ARCHIVE.HPP
+ARCHIVE.CPP         CFG.H               CFG.C               CFG.TST
+INITVARS.H          INITVARS.C          INITVARS.TST        NTSTREAM.H
+NTSTREAM.CPP        BIGNUM.H            BIGNUM1.C           BIGNUM2.C
+BIGTEST.C           SPIGOT.C            PI.C                PI8.C
+PI8.NFO             PI_AGM.C            EVAL.C              EVAL.HOW
+FMTMONEY.C          LLIST.NTS           LL_DEFS.H           LLS.H
+LLS_BLOB.H          LLS_STR.H           LL_QUE.H            LL_STACK.H
+LLD.H               LLD_BLOB.H          LLD_STR.H           LLS.C
+LLS_BLOB.C          LLD.C               LLD_BLOB.C          STACK.H
+STK_DEFS.H          STACK.C             STK_BLOB.H          STK_STR.H
+STK_BLOB.C          LL_DEMO.C           FSM.H               FSM.C
+LIST.HPP            LIST.CPP            DEQUE.H             DEQUE.C
+STK.H               STK.C               HASH.H              HASH.C
+MATCH.DOC           MATCH.H             MATCH.C             ZDATE.MAN
+DATE.HPP            DATE.CPP            DATEDEMO.CPP        CRC.TXT
+CRC.H               ARCCRC16.C          CRC_16.C            CRC_16F.C
+CRC_32.C            CRC.HPP             CRC.CPP             GETOPTS.MAN
+GETOPTS.H           GETOPTS.C           GETOPTST.C          PALNFILT.C
+SEARCH.H            PBMSRCH.C           BMHSRCH.C           BMHISRCH.C
+BMHASRCH.C          MYIO.H              MYIO.CPP            MYSTREAM.H
+MYSTREAM.CPP        MYLINE.H            MYLINE.CPP          MYIODEMO.CPP
+MYIO.MAK            STR.DOC             STR.H               STR.CPP
+LOCTM.H             LOCTM.CPP           LOCDFMT.CPP         LOCTFMT.CPP
+LOCFMT.CPP          LTTEST.CPP          CCHAR.HPP           REFCNT.HPP
+UNXCONIO.H          TERM_OPT.C          UNXGETCH.C          UNXSLEEP.C
+FORMAT.H            FORMAT.C            VIDMGR.TXT          VIDMGR.H
+OPSYS.H             VIOIMAGE.H          VIDMGR.C            OPSYS.C
+VIOIMAGE.C          VMGRDOS.C           VMGROS2.C           VMGREMX.C
+VMGRDJGP.C          VMGRWNT.C           DOANSI.H            DOANSI_1.C
+DOANSI_2.C          SHOWANSI.DOC        SCRINTRP.HPP        VIDEO.HPP
+ANSISYS.HPP         AVATAR.HPP          SCRINTRP.CPP        VIDEO.CPP
+ANSISYS.CPP         AVATAR.CPP          SHOWANSI.CPP        UCLOCK.H
+UCLOCK.C            UCLOCK_.ASM         SOUND.H             SOUND.C
+MKTONE.C            PLAYLIB.C           PLAYDEMO.C          QUEUE.H
+SERIAL.H            QUEUE.C             SERIAL.C            MODEMIO.H
+MODEMIO.C           PRNSPOOL.H          PRNSPOOL.C          PRINTQ.C
+XMS.H               XMS.C               XMSTEST.C           EMS.H
+EMS.C               EMSTEST.C           STRAT.H             STRAT.C
+INT2E.H             INT2E.ASM           CCOMCALL.C          GLBL_ENV.C
+MCB_ENV.C           SETENVAR.C          BACSTD.H            MODULINF.H
+SORTKEY.H           DATE__.C            TIME__.C            CMPSTR.C
+MODULUS.C           REPSTR.C            STRCASE.C           STRNSUB.C
+STRREPC.C           STRTRIM.C           STRTRIMC.C          FSIF.C
+WHAT.C              SEQTOUCH.C          SETIMETO.C          SNIPTREE.C
+STUB.C              TIMER.C             CMTCONVR.TXT        CMTPARSR.H
+CMTCONVR.H          CMTCOUNT.H          CMTREMOV.H          CMTXTRAC.H
+CMTPARSR.CPP        CMTCONVR.CPP        CMTCOUNT.CPP        CMTREMOV.CPP
+CMTXTRAC.CPP        CMTTESTS.C          COMMCONV.C          REMCMMNT.C
+COMMENTS.CPP        CSPLIT.H            CSPLIT.C            GREP.C
+LZHUF.C             SUNRISET.C          FSM_DEMO.C

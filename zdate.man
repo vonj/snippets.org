@@ -1,0 +1,1071 @@
+             ZDATE - THE COMPLETE DATE MANIPULATION SOLUTION
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+           The zDate class (all code, manuals and examples) is
+             Copyright (c) 1995, 1996 Branislav L. Slantchev
+                         (CompuServe: 73023,262)
+
+       THIS VERSION IS EXPLICITLY DONATED BY THE AUTHOR TO THE SNIPPETS
+       COLLECTION MAINTAINED BY BOB STOUT. YOU ARE ALLOWED TO USE THE
+       CODE FOR ANY PURPOSE (INCLUDING COMMERCIAL) FREE OF CHARGE AS
+       LONG AS YOU ACKNOWLEDGE IT. YOU ARE NOT ALLOWED TO REMOVE THE
+       COPYRIGHT NOTICES FROM THE CODE. YOU ARE FREE TO MAKE ANY
+       MODIFICATIONS NECESSARY TO SUIT YOUR NEEDS. I WILL APPRECIATE IF
+       YOU NOTIFY ME OF THESE CHANGES BUT THIS IS NOT A REQUIREMENT.
+       THERE ARE NO WARRANTIES, EITHER EXPRESS OR IMPLIED ABOUT THE
+       FITNESS OF THIS PRODUCT FOR ANY PARTICULAR PURPOSE. USE AT YOUR
+       OWN RISK. THE AUTHOR WILL BE IN NO WAY LIABLE FOR ANY USE, MISUSE
+       OR INABILITY TO USE OF THIS PRODUCT, AS WELL AS ANY LOSSES THAT
+       MIGHT HAVE OCCURRED AS RESULT OF THESE.
+
+The zDate class provides your C++ programs with one of the most useful and
+easy to use date classes I have seen. It has been developed over a period of
+almost two years, with the functionality being refined to the point that the
+class interface is unobtrusive and intuitive. You won't have to worry about
+hidden assumptions, or side effects or oddly-named member functions.
+Everything is in plain sight. Having said that, let's look at some class
+specifics.
+
+The zDate class is not meant to be used as a base class. You can, of course,
+but there's little point in doing it. There are no date formatting functions.
+I felt that these are fairly easy to find and the ANSI C library provides a
+very useful implementation in its strftime() function. There was simply no
+need to re-invent the wheel. The class, however, provides all the
+functionality you might need. Simple operators like comparison and assignment
+make the class as straightforward as can be. All the enumerated constants are
+encapsulated within the class to avoid namespace pollution. This class was
+written with the century roll-over in mind. It will work just fine after the
+year 2000 unlike many other implementations.
+
+I should note here that the day numbering used internally (and retrievable
+via the DayNumber() function) is NOT the true Julian day scheme. This one
+begins at 1 A.D. unlike the Julian day numbers which go back 4000 years B.C.
+Effectively, this means that you cannot have dates which go into negative
+years, but I have yet to see this as a limitation worthy of a class re-
+design.
+
+The class follows the general PB-Lib coding standards. For a complete
+reference, read the file Standard.Doc available with the library release.
+It should suffice to note that all member functions use mixed-case naming,
+with the first letters of each word capitalized. Functions that do not
+modify the class internals are declared as const. Functions that can be
+used without actually instantiating an object of the class are declared
+static. These can be used with the simple scope resolution operator without
+an object pointer. What follows is a complete class reference for all public
+data members and methods. Note that private and protected members and methods
+are not documented here. They are, however, fully explained with code
+comments.
+
+
+   ZDATE::MONTH
+   --------------------------------------------------------------------------
+     Synopsis   Enumeration type for the months of the year.
+
+     Syntax     enum month { jan=1, feb, mar, apr, may, jun,
+                             jul, aug, sep, oct, nov, dec };
+
+     Remarks    Use this enumeration to interpret the return values of
+                various member functions. You should use the scope
+                resolution operator to access them outside the class.
+
+     Return     n/a
+
+     See also   zDate::week_day; zDate::moon_phase
+
+     Example    zDate::month myMonth = zDate::jul;
+                if( zDate::aug == myMonth ) cout << "This can't be.";
+
+
+
+   ZDATE::WEEK_DAY
+   --------------------------------------------------------------------------
+     Synopsis   Enumeration type for the different days of the week.
+
+     Syntax     enum week_day { mon=1, tue, wed, thu, fri, sat, sun };
+
+     Remarks    Use these enumerated constants to access the various day of
+                week return values of functions. You must use the scope
+                resolution operator to access them.
+
+     Return     n/a
+
+     See also   zDate::month; zDate::moon_phase
+
+     Example    zDate::week_day wday = zDate::sun;
+                switch( wday ){
+                    case zDate::sat:
+                    case zDate::sun:
+                        cout << "Oh, weekend! I love those" << endl;
+                    break;
+                   default: cout << "Another boring day!" << endl;
+                }
+
+
+   ZDATE::MOON_PHASE
+   --------------------------------------------------------------------------
+     Synopsis  Enumeration constants to access the return value of the
+               MoonPhase routines.
+
+     Syntax    enum moon_phase{ new_moon, waxing_crescent, first_quarter,
+                                waxing_gibbous, full_moon, waning_gibbous,
+                                third_quarter, waning_crescent };
+
+     Remarks   Use these enumerated constants to interpret the return value
+               of the MoonPhase() member function. You should use the scope
+               resolution operator to access them.
+
+     Return    n/a
+
+     See also  zDate::MoonPhase; zDate::month; zDate::week_day
+
+     Example   zDate::moon_phase phase = zDate::MoonPhase(zDate::Today());
+               switch( phase ){
+                   case zDate::full_moon:
+                       cout << "Grrrrr! The Werewolves are out!";
+                       break;
+                   default: cout << "Nothing yet!" << endl;
+               }
+
+
+   ZDATE::ZDATE
+   --------------------------------------------------------------------------
+     Synopsis  Various constructors to initialize the date objects.
+
+     Syntax    zDate();
+               zDate(month aMonth, int aDay, int aYear);
+               zDate(int dayOfYear, int aYear);
+               zDate(const zDate &aDate);
+               zDate(ulong nDayNumber);
+               zDate(const struct tm *tmDate);
+
+     Remarks   These constructors are used to initialize the date object in
+               various ways. The parameter names are self-explanatory.
+               Things you should know are that none of these constructors
+               will check the validity of the data being passed to it. You
+               must verify that all parameters are correct or the results
+               will be unpredictable. Years are specified in full (i.e. for
+               1996, you must pass 1996 as the aYear parameter, not 96 or
+               anything else). Years can go back to 1 A.D. You cannot use
+               negative years. The earliest date that is valid for the zDate
+               class is January 1, 0001. The 'dayOfYear' parameter must be
+               the number of the day for the 'aYear', starting with January 1
+               as day number 1. The 'nDayNumber' parameter is NOT the true
+               Julian day number of the day (these start some 4,000 years BC).
+               Rather, it's the day number with base of January 1, 0001 as
+               the 1st day. For the last constructor, the 'tmDate' parameter
+               must be correctly initialized as per its specifications (see
+               your compiler manual). With this format, the year is an
+               offset from 1900 (that is, 1996 is 96 and 2012 is 112). Also,
+               the month numbering scheme is different. These are all taken
+               care of in the zDate constructor itself. Finally, the copy
+               constructor will initialize the current zDate object with the
+               value of another one.
+
+     Return    n/a
+
+     See also  zDate::Today(); zDate::EndDST(); zDate::BeginDST()
+
+     Example   // here are examples of all possible ways of initialization
+               zDate date1;                       // January 1, 0001
+               zDate date2(zDate::jul, 16, 1973); // July 16, 1973
+               zDate date3(15, 1995);             // January 15, 1995
+               zDate date4(date2);                // same as date2
+               zDate date5(728945L);              // October 11, 1996
+               time_t secs = time(0);             // current time/date
+               zDate date6( localtime(&secs) );   // (use struct tm*)
+               zDate date7(zDate::Today());       // current date
+
+
+   ZDATE::ADDMONTHS
+   --------------------------------------------------------------------------
+     Synopsis  Adds or subtracts months from the date object.
+
+     Syntax    zDate AddMonths(int nMonths) const;
+
+     Remarks   This member function will add or subtract (if 'nMonths' is
+               negative) the number of months to the current date object and
+               will return another zDate object with the new values. It does
+               not modify the current object. This will adjust the number of
+               years if necessary. Note that month arithmetic is fairly
+               straightforward as only the month will be changed regardless
+               of the days in each month. However, this may cause some
+               invalid dates (such as July 31 minus 5 months is February 31,
+               which is clearly invalid). The function will adjust the day
+               of the month in that case according to the following rules:
+               if adding months, the month will roll over into the next one
+               (causing a year increase, if necessary) and the new day number
+               will be the overflow (i.e. April 31 will become May 1). If
+               subtracting, the overflow is subtracted from the current day
+               number (i.e. in the example with February, the new day will
+               be 27 or 26, depending on whether the year is leap or not).
+               Care must be taken when subtracting months not to cause the
+               year to become less that 1 A.D.
+
+     Return    A zDate object with the new date value.
+
+     See also  zDate::AddYears(); zDate::AddWeeks(); zDate::operator+();
+
+     Example   zDate ind(zDate::jul, 4, 1776);
+               assert(ind.AddMonths(2400)==zDate(zDate::jul,4,1996));
+
+
+   ZDATE::ADDWEEKS
+   --------------------------------------------------------------------------
+     Synopsis  Adds or subtracts a number of weeks from the date object.
+
+     Syntax    zDate AddWeeks(int nWeeks) const;
+
+     Remarks   This member function will add or subtract (if 'nWeeks' is
+               negative) the number of weeks from the current date object
+               and will return a new zDate object with the resulting value.
+               It does not modify the calling object. There are no fancy
+               calculations with this function, it simply uses weeks as
+               spans of 7 days and actually adds/subtracts days. This will
+               modify the year and the month, as well as the day as necessary.
+               Care must be taken that the year does not become less than
+               1 A.D.
+
+     Return    A zDate object with the new date value.
+
+     See also  zDate::AddYears(); zDate::AddMonths(); zDate::operator+();
+
+     Example   zDate date(zDate::oct, 11, 1996);
+               assert(date.AddWeeks(-1) == zDate(zDate::oct,4,1996));
+
+
+   ZDATE::ADDYEARS
+   --------------------------------------------------------------------------
+     Synopsis  Adds or subtracts a number of years from a date.
+
+     Syntax    zDate AddYears(int nYears) const;
+
+     Remarks   This member function will add or subtract (if 'nYears' is
+               negative) a number of years to the current date object and
+               will return a new zDate with the resulting value. The calling
+               object is not modified by this function. Note that when
+               manipulating years, a date could become invalidated (such as
+               adding 1 to a leap year will cause February 29 to be an
+               invalid date). This routine takes that into account and will
+               adjust itself accordingly (in the example above, the new date
+               will be March 1). Care must be taken that years do not fall
+               below 1 A.D.
+
+     Return    A zDate object with the new date.
+
+     See also  zDate::AddWeeks(); zDate::AddMonths(); zDate::operator+();
+
+     Example   zDate date(zDate::feb, 29, 1996);
+               assert(date.AddYears(-2) == zDate(zDate::mar,1,1994));
+
+
+   ZDATE::AGE
+   --------------------------------------------------------------------------
+     Synopsis  Returns the age of someone with a specific birthrate
+               (for current date object).
+
+     Syntax    int Age(const zDate &BirthDay) const;
+
+     Remarks   This routine calculates the age of a person with a birthday
+               date of 'BirthDay'. This function does not modify the calling
+               object. Care must be taken that the calling object is greater
+               than BirthDay (i.e. that the person has already been born).
+
+     Return    The age (in years) of the person.
+
+     See also  zDate::operator-()
+
+     Example   zDate brani(zDate::jul, 16, 1973);
+               cout << "I am " << Today().Age(brani) << " years old";
+
+
+   ZDATE::BEGINDST
+   --------------------------------------------------------------------------
+     Synopsis  Calculates the beginning date of the Daylight Savings Time.
+
+     Syntax    zDate BeginDST() const;
+               static zDate BeginDST(int aYear);
+
+     Remarks   There are two version of this function. The first one returns
+               the date of the beginning of DST for the year of the current
+               date object. The second one is more generic as it returns the
+               start of DST for any year. These routine do not modify
+               anything, they simply return a zDate object with the date
+               when the DST comes into effect. By default, the routines will
+               use the USA standard for DST calculations. In the US, DST
+               begins at 2:00am on the first Sunday of April and ends at
+               2:00am on the last Sunday of October. You can modify these
+               rules by using the SetBeginDST() and SetEndDST() member
+               functions.
+
+     Return    The date when DST will come into effect.
+
+     See also  zDate::EndDST(); zDate::IsDST(); zDate::SetBeginDST()
+
+     Example   assert(zDate::BeginDST(1996)==zDate(zDate::apr,7,1996))
+
+
+   ZDATE::DAY
+   --------------------------------------------------------------------------
+     Synopsis  Returns the day of month of the current date object.
+
+     Syntax    int Day() const;
+
+     Remarks   This routine return the current day of the month. Days start
+               from 1 and can go up to 31, depending on the current day.
+               Note that there are no days between October 4 and October 15,
+               1582 (this is when Pope Gregor XIII canceled them).
+
+     Return    The day of the month.
+
+     See also  zDate::Month(); zDate::Year(); zDate::DayOfWeek();
+
+     Example   cout << "Today is the " << zDate::Today().Day()
+                    << "th day of the month";
+
+
+   ZDATE::DAYNUMBER
+   --------------------------------------------------------------------------
+     Synopsis  Returns the day number (from January 1, 1) for the object.
+
+     Syntax    ulong DayNumber() const;
+
+     Remarks   This returns the day number of the date object. Day numbering
+               begins with January 1, 0001 A.D. being day 1 and so on. As
+               such, these day numbers are not Julian dates (which begin
+               several thousand years B.C.). Leap years are taken into
+               account as well as the Gregorian reform (with the standard
+               date of October 4, 1582)
+
+     Return    The day number (unsigned long integer).
+
+     See also  zDate::zDate(ulong nDayNumber);
+
+     Example   cout << "Today is the " << zDate::Today().DayNumber()
+                    << "th day of the year.";
+
+
+   ZDATE::DAYOFWEEK
+   --------------------------------------------------------------------------
+     Synopsis  Returns the day of the week for the date object.
+
+     Syntax    week_day DayOfWeek() const;
+
+     Remarks   This returns the day of the week for the current date object.
+               You must use the week_day enumeration to interpret the return
+               value of this function. When trying to access the week_day
+               constants, be sure to use the scope resolution operator.
+
+     Return    The day of the week.
+
+     See also  zDate::week_day;
+
+     Example   assert(zDate::sat == zDate(zDate::oct,5,1996).DayOfWeek());
+
+
+   ZDATE::DAYOFYEAR
+   --------------------------------------------------------------------------
+     Synopsis  Returns the day of the year from January 1.
+
+     Syntax    int DayOfYear() const;
+
+     Remarks   This member function returns the day of the year for the
+               current object. The day numbering starts from January 1 for
+               the same year being the first day. The current day number
+               will depend on whether the year is leap or not too. The range
+               of possible values is 1..366 (or 365 for non-leap years),
+               with the upper limit being December 31.
+
+     Return    The day number.
+
+     See also  zDate::DayOfWeek(); zDate::DayNumber();
+
+     Example   assert(366 == zDate(zDate::dec,31,2000).DayOfYear());
+
+
+   ZDATE::DAYSINMONTH
+   --------------------------------------------------------------------------
+     Synopsis  Returns the number of days for a specific month in a year.
+
+     Syntax           int DaysInMonth() const;
+               static int DaysInMonth(month aMonth, int aYear);
+
+     Remarks   These two versions of the function will return the number of
+               days for a specific month. The first version will return the
+               number of days in the month of the date object that called it;
+               while the second version can be used without an actual zDate
+               object and returns the number of days for a month of a year
+               you specify. Note that October 1582 had only 21 days as a
+               result of the reform of Pope Gregor XIII.
+
+     Return    The number of days in a month.
+
+     See also  zDate::DaysInYear(); zDate::IsLeapYear();
+
+     Example   assert( 28 == zDate::DaysInMonth(zDate::feb, 1995) );
+
+
+   ZDATE::DAYSINYEAR
+   --------------------------------------------------------------------------
+     Synopsis  Returns the number of days in a specific year.
+
+     Syntax           int DaysInYear() const;
+               static int DaysInYear(int aYear);
+
+     Remarks   The first version of this routine returns the number of days
+               in the year of the current date object. The second version
+               can be used without instantiating an actual object and returns
+               the number of days in any year. There are two possible values
+               365 and 366 depending on whether the year is leap or not
+               (except for 1582 which lost 10 days). These functions do not
+               modify any objects.
+
+     Return    The number of days in a year.
+
+     See also  zDate::DaysInMonth(); zDate::IsLeapYear();
+
+     Example   assert( 366 == zDate::DaysInYear(1996) );
+
+
+   ZDATE::EASTER
+   --------------------------------------------------------------------------
+     Synopsis  Return the date of Easter for any given year.
+
+     Syntax           zDate Easter() const;
+               static zDate Easter(int year);
+
+     Remarks   This routine returns the date for Easter for any given year
+               (the second version) or for the year of the calling zDate
+               object. It uses some obscure algorithm to calculate the
+               ecclesiastical Easter (which is the same for all countries
+               regardless of where they are) and is different from the
+               astronomical date (which does not mean much anyway). Easter is
+               sometimes said to be the first Sunday that occurs after the
+               full moon that follows the vernal equinox (March 22). This
+               means the Easter can vary between March 22 and April 25. This
+               is an over-simplification as the Church does not actually use
+               astronomical observations of the Moon but rather, it has
+               constructed its own calendar of Easter days which it uses.
+               This function is a very presentable approximation. For more
+               information, read one of the Almanacs or visit the US Naval
+               Observatory. They have tons of nice information there,
+               including an even more obfuscated formula for calculating the
+               Easter date.
+
+     Return    A zDate object with the Easter date.
+
+     See also  zDate::MoonPhase(); zDate::DayOfWeek()
+
+     Example   zDate Easter(zDate::apr, 7, 1996);
+               assert( Easter == zDate::Easter(1996) );
+
+
+   ZDATE::ENDDST
+   --------------------------------------------------------------------------
+     Synopsis  Return the date when the Daylight Savings Time is ended.
+
+     Syntax           zDate EndDST() const;
+               static zDate EndDST(int aYear);
+
+     Remarks   This function is similar to BeginDST() except it returns the
+               date when the Daylight Savings Time stops being in effect.
+               The default uses the American convention of ending DST at
+               2:00am on the last Sunday of October. This behavior can be
+               modified to suit your specific locale.
+
+     Return    A zDate object with the correct date.
+
+     See also  zDate::IsDST(); zDate::SetEndDST(); zDate::BeginDST();
+
+     Example   assert(zDate(zDate::oct,27,1996) == zDate::EndDST(1996));
+
+
+   ZDATE::ISDST
+   --------------------------------------------------------------------------
+     Synopsis  Checks if a date falls in the Daylight Savings Time range.
+
+     Syntax           Boolean IsDST() const;
+               static Boolean IsDST(const zDate &aDate);
+
+     Remarks   This function checks if a date happens to be in the period
+               during which Daylight Savings Time is in effect. The default
+               uses the US convention which begins DST on the first Sunday of
+               April and ends it on the last Sunday of October. You can
+               modify the time span of the DST period with the SetBeginDST()
+               and SetEndDST() functions. The second version is more generic
+               and will check any date object (the first one is intended to
+               be called via an object to check itself).
+
+     Return    True, if the date falls in the DST period range;
+               False, otherwise.
+
+     See also  zDate::SetBeginDST(); zDate::SetEndDST)();
+
+     Example   assert( zDate(zDate::jul, 16, 1996).IsDST() );
+
+
+   ZDATE::ISLEAPYEAR
+   --------------------------------------------------------------------------
+     Synopsis  Checks if a specific year is leap.
+
+     Syntax           Boolean IsLeapYear() const;
+               static Boolean IsLeapYear(int aYear);
+
+     Remarks   This routine checks if a year is leap or not. Leap years are
+               defined as follows: before the Gregorian reform, any year
+               divisible by 4 is a leap year. After the reform, all years
+               divisible by 4 are leap years unless they are also divisible
+               by 100 and not divisible by 400 (that means that 1500 was not
+               a leap year but 1600 was). The second version can be called
+               without a zDate object to check any year.
+
+     Return    True if the year is leap; False otherwise.
+
+     See also  zDate::DayNumber();
+
+     Example   assert(True == zDate::IsLeapYear(1600));
+               assert(False == zDate(zDate::jan,1,1500).IsLeapYear());
+
+
+   ZDATE::ISVALID
+   --------------------------------------------------------------------------
+     Synopsis  Checks if a date is valid.
+
+     Syntax           Boolean IsValid() const;
+               static Boolean IsValid(month Month, int Day, int Year);
+
+     Remarks   Checks if all the fields of a particular date are valid. Note
+               that this function is not called within the class member
+               routines. They all assume they are dealing with valid dates.
+               It is your responsibility to ensure that. A valid date is any
+               date after January 1, 0001 (with the exception of the days
+               between October 4 and 15, 1582). Also checked are the day of
+               month (this has to be correct for the current month). Note
+               that you can use the second version without an actual zDate
+               object to check any date.
+
+     Return    True if the date is valid, False otherwise.
+
+     See also  n/a
+
+     Example   assert( !zDate(zDate::feb, 31, 1996).IsValid );
+
+
+   ZDATE::MONTH
+   --------------------------------------------------------------------------
+     Synopsis  Returns the month of the date object.
+
+     Syntax    zDate::month Month() const;
+
+     Remarks   This routine returns the month of the current date object.
+               The return value can be examined via the zDate::month
+               enumeration constants. You will need to use the scope
+               resolution operator to access those.
+
+     Return    The month of the year.
+
+     See also  zDate::Year(); zDate::Day();
+
+     Example   switch( zDate::Today().Month() ){
+                   case zDate::jul:
+                       cout << "This is my month!";
+                       break;
+                    default:
+                       cout << "Just another month";
+                       break
+               }
+
+
+   ZDATE::MOONPHASE
+   --------------------------------------------------------------------------
+     Synopsis  Determines the phase of the moon.
+
+     Syntax           zDate::moon_phase MoonPhase() const;
+               static zDate::moon_phase MoonPhase(const zDate &aDate);
+
+     Remarks   This routine determines the phase of the moon for a given
+               date. You need to use the supplied enumeration constants
+               'moon_phase' to interpret the result. The Moon moves through
+               8 phases on its way around the earth during the Moon cycle
+               which lasts about 30 days. Whenever the moon is between the
+               Earth and the Sun, we have a new moon (i.e. the Moon is not
+               visible in the sky). Then the Moon's visible surface starts
+               increasing and it moves through the waxing crescent, first
+               quarter, and waxing gibbous stages to the full moon position
+               (when the Earth is between the Moon and the Sun). From that
+               point on, the visible surface of the Moon decreases going
+               from waning gibbous, through the third quarter, and to a
+               waning crescent. Then the cycle repeats. You can use the
+               second version of the function to calculate the moon phase
+               for any date object.
+
+     Return    The phase of the Moon.
+
+     See also  zDate::moon_phase
+
+     Example   zDate fullMoon(zDate::sep, 26, 1996);
+               assert( zDate::full_moon == fullMoon.MoonPhase() );
+
+
+   ZDATE::OPERATOR LONG
+   --------------------------------------------------------------------------
+     Synopsis  Type cast of a zDate to a long integer, return the day number.
+
+     Syntax    operator long() const;
+
+     Remarks   This operator is useful for a type cast in situations where
+               you need a long number representation of the date. The same
+               effect can be achieved with the DayNumber() functions as the
+               results are identical. This may be a cleaner solution for some
+               situations (like passing the day number to a function which
+               expects a long, in which case you can specify the zDate
+               object as a parameter and the cast will be performed
+               automatically).
+
+     Return    The day number from January 1, 0001 A.D.
+
+     See also  zDate::DayNumber();
+
+     Example   // this is a contrived example which forces the use
+               // of the zDate(ulong nDayNumber) constructor instead
+               // of the copy constructor. Generally, you don't want
+               // to do this, as the latter is a lot faster!
+               ZDate date( (long)zDate::Today() );
+
+
+   ZDATE::OPERATOR!=
+   --------------------------------------------------------------------------
+     Synopsis  Tests two dates for inequality.
+
+     Syntax    Boolean operator!=(const zDate &aDate) const;
+
+     Remarks   This operator allows intuitive test for date inequality.
+               You can test if two dates are different using the regular
+               C++ notation.
+
+     Return    True if dates are different, False if they are the same.
+
+     See also  zDate::operator==();
+
+     Example   zDate first(zDate::jul, 16, 1973);
+               zDate second = zDate::Today();
+               assert( first != second );
+
+
+   ZDATE::OPERATOR+
+   --------------------------------------------------------------------------
+     Synopsis  Adds or subtracts a number of days from a date object.
+
+     Syntax    zDate operator+(int nDays) const;
+               zDate operator+(long nDays) const;
+
+     Remarks   This operator allows adding a number of days to a date object
+               or subtracting (if the 'nDays' parameter is negative) a
+               certain amount of days. Care should be taken that the
+               resulting year does not fall below 1 A.D. The current date
+               object is not modified, which is what is to be expected with
+               the standard C++ behavior.
+
+     Return    A zDate object with the new date value.
+
+     See also  zDate::operator+=(); zDate::operator++(0
+
+     Example   zDate date1(zDate::oct, 3, 1996);
+               zDate date2 = date1 + 55;
+               assert( date2 == zDate(zDate::nov, 27, 1996) );
+
+
+   ZDATE::OPERATOR++
+   --------------------------------------------------------------------------
+     Synopsis  Increments the date object by 1 day.
+
+     Syntax    zDate operator++();
+               zDate operator++(int);
+
+     Remarks   This is a simple increment operator which will increase the
+               current date object by 1 day. Note that both prefix and
+               postfix versions are supported. These behave in the standard
+               C++ way (i.e. the prefix version will cause the date object
+               to be modified and then the new value returned, while the
+               postfix version will cause the date object to be modified,
+               but its old value will be returned).
+
+     Return    Prefix version returns incremented value of object;
+               Postfix version returns the value of the object before
+               the modification.
+
+     See also  zDate::operator+=(); zDate::operator—();
+
+     Example   zDate date(zDate::jan, 1, 1996);
+               assert( zDate(zDate::jan, 1, 1996) == date++ );
+               assert( zDate(zDate::jan, 3, 1996) == ++date );
+
+
+   ZDATE::OPERATOR+=
+   --------------------------------------------------------------------------
+     Synopsis  Adds a number of days to a date object and modifies it.
+
+     Syntax    zDate& operator+=(int nDays);
+               zDate& operator+=(long nDays);
+
+     Remarks   This operator behaves just like the regular C++ counterpart.
+               It will add the number of days in 'nDays' (which can be
+               negative too) to the current object and will modify it. It
+               also returns a reference to this object so chaining is
+               allowed.
+
+     Return    A reference to the modified object.
+
+     See also  zDate::operator+(); zDate::operator-=();
+
+     Example   zDate date(zDate::oct, 4, 1996);
+               date += 217;
+               assert( date == zDate(zDate::sep, 5, 1997) );
+
+
+   ZDATE::OPERATOR-
+   --------------------------------------------------------------------------
+     Synopsis  Subtracts days from a date object.
+               Finds difference between two dates.
+
+     Syntax    long operator-(const zDate &aDate) const;
+               zDate operator-(int nDays) const;
+               zDate operator-(long nDays) const;
+
+     Remarks   There are two distinct versions of this operator. The first
+               one is used to find the difference (in days) between two date
+               objects. The other version is used for subtracting a certain
+               number of days from a date object (or adding, of course, if
+               the 'nDays' parameter is negative). Care should be taken that
+               the resulting year is not smaller than 1 A.D.
+
+     Return    The first version returns a long integer with the difference
+               (in days) between the two dates. This can be either negative
+               or positive or 0.
+               The second version returns a zDate object which contains the
+               resulting value.
+
+     See also  zDate::operator—(); zDate::operator-=();
+
+     Example   zDate date1(zDate::jul, 4, 1776);
+               // this is the first version: difference in days
+               long days = zDate::Today() - date1;
+               cout << "There have been " << days
+                    << " days since Independence Day.";
+               // this is the second version: subtracting days
+               assert( date1 + days == zDate::Today() );
+
+
+   ZDATE::OPERATOR--
+   --------------------------------------------------------------------------
+     Synopsis  Decrements the date object value by 1 day.
+
+     Syntax    zDate operator--();
+               zDate operator--(int);
+
+     Remarks   These are the decrement operators. They work exactly like
+               their C++ counterparts. Both the prefix and postfix versions
+               are supported. The prefix version will first modify the date
+               and then return the new value. The postfix will modify the
+               date and return the old value.
+
+     Return    Prefix version returns new value of date;
+               Postfix version returns the old value of date.
+
+     See also  zDate::operator-(); zDate::operator-=();
+
+     Example   zDate date(zDate::oct, 5, 1996);
+               // test the postfix version (same value returned)
+               assert( zDate(zDate::oct, 5, 1996) == date-- );
+               // test the prefix version, new value returned
+               // note that date is already Oct 4, 1996 from above
+               assert( zDate(zDate::oct, 3, 1996) == --date );
+
+
+   ZDATE::OPERATOR-=
+   --------------------------------------------------------------------------
+     Synopsis  Subtracts a number of days from an object and modifies it.
+
+     Syntax    zDate& operator-=(int nDays);
+               zDate& operator-=(long nDays);
+
+     Remarks   This operator subtracts 'nDays' days from the current object
+               and assigns the new value to it (or adds the days if the
+               'nDays' parameter is negative). Care must be taken so that
+               the resulting year is not smaller than 1 A.D. A reference to
+               the modified object is return to allow chaining.
+
+     Return    Reference to the modified object.
+
+     See also  zDate::operator+=(); zDate::operator—();
+
+     Example   zDate date(zDate::oct, 4, 1996);
+               date -= -217;
+               assert( date == zDate(zDate::sep, 5, 1997) );
+
+
+   ZDATE::OPERATOR<, OPERATOR<=, OPERATOR>, OPERATOR>=
+   --------------------------------------------------------------------------
+     Synopsis  Operators to compare two dates.
+
+     Syntax    Boolean operator> (const zDate &date2) const;
+               Boolean operator>=(const zDate &date2) const;
+               Boolean operator< (const zDate &date2) const;
+               Boolean operator<=(const zDate &date2) const;
+
+     Remarks   These operators allow intuitive comparisons of two date
+               objects. They behave similarly to their C++ counterparts. A
+               date is considered "smaller" than another if it specifies an
+               earlier point in time (that is, July 16, 1973 is "smaller"
+               than July 16, 1996).
+
+     Return    True if the comparison reflects the relative dates;
+               False otherwise.
+
+     See also  zDate::operator==(); zDate::operator!=();
+
+     Example   zDate date1 = zDate::Today();
+               assert( date1 >  zDate(zDate::jan, 1, 1800) );
+               assert( date1 >= zDate::Today() );
+               assert( date1 <  zDate(zDate::jan, 1, 2200) );
+               assert( date1 <= zDate::Today() );
+
+
+   ZDATE::OPERATOR=
+   --------------------------------------------------------------------------
+     Synopsis  Operator that assigns one date object to another.
+
+     Syntax    zDate& operator=(const zDate &aNewDate);
+
+     Remarks   This operator allows assigning one date to another using the
+               usual C++ syntax. A reference to the modified object is
+               returned to allow proper chaining.
+
+     Return    A reference to the current object with the new value.
+
+     See also  zDate::zDate();
+
+     Example   // date1 initialized via the copy constructor
+               zDate date1(zDate::Today());
+               // date2 initialized via the assignment operator
+               zDate date2 = zDate::Today();
+               assert( date1 == date2 );
+
+
+   ZDATE::OPERATOR==
+   --------------------------------------------------------------------------
+     Synopsis  Tests two dates for equality.
+
+     Syntax    Boolean operator==(const zDate &aDate) const;
+
+     Remarks   Tests if the current day object contains the same date as
+               the 'aDate' parameter. This allows for intuitive test in the
+               usual C++ way.
+
+     Return    True if the dates are the same; False otherwise.
+
+     See also  zDate::operator!=();
+
+     Example   zDate date1 = zDate::Today();
+               assert( date1 == zDate::Today() );
+
+
+   ZDATE::OPERATOR[]
+   --------------------------------------------------------------------------
+     Synopsis  Return date information with array-like syntax.
+
+     Syntax    char operator[](int index) const;
+
+     Remarks   This arguably useful routine is of special interest to
+               ProBoard programmers. It can be used to get values in
+               DateType-compatible format (as used by ProBoard's SDK). The
+               only valid 'index' values are 0, 1, or 2. Anything else will
+               result in '-1' being returned. Index of 0 specifies that the
+               day is to be returned (1..31); index value of 1 specifies
+               that the month is to be returned (1..12); index value of 2
+               specifies that the year is to be returned in struct
+               tm-compatible format (i.e. 1996 is returned as 96).
+
+     Return    Date information in DateType compatible format.
+
+     See also  zDate::Day(); zDate::Month(); zDate::Year();
+
+     Example   zDate date(zDate::jul, 16, 1973);
+               // this will print 16/7/73
+               cout << date[0] << "/" << date[1] << "/" << date[2];
+
+
+   ZDATE::SETBEGINDST
+   --------------------------------------------------------------------------
+     Synopsis  Sets the beginning of Daylight Savings Time for the class.
+
+     Syntax    static void SetBeginDST(month aMon, week_day aWeekDay);
+
+     Remarks   Since the class defaults to the US convention of specifying
+               DST to begin on the first Sunday of April, it might be useful
+               to specify an alternative starting point. Note that the
+               'aWeekDay' is assumed to be the first one in the month. This
+               will set the internal values of the DST starting date.
+
+     Return    Nothing.
+
+     See also  zDate::SetEndDST(); zDate::IsDST(); zDate::BeginDST();
+
+     Example   // set the DST to begin on first Monday of March
+               zDate::SetBeginDST(zDate::mar, zDate::mon);
+
+
+   ZDATE::SETENDDST
+   --------------------------------------------------------------------------
+     Synopsis  Sets the ending of the Daylight Savings Time for the class.
+
+     Syntax    static void SetEndDST(month aMonth, week_day aWeekDay);
+
+     Remarks   Since the class defaults to the US convention of specifying
+               DST to end on the last Sunday of October, it might be useful
+               to specify an alternative ending point. Note that the
+               'aWeekDay' parameter is assumed to be the last occurrence of
+               this week day in the month. This will set the internal values
+               of the DST ending date.
+
+     Return    Nothing.
+
+     See also  zDate::SetBeginDST(); zDate::IsDST(); zDate::EndDST();
+
+     Example   // set the DST to end on the last Monday of November
+               zDate::SetEndDST(zDate::nov, zDate::mon);
+
+
+   ZDATE::TODAY
+   --------------------------------------------------------------------------
+     Synopsis  Returns a zDate object with today's date.
+
+     Syntax    static zDate Today();
+
+     Remarks   This is a very useful member function which returns a zDate
+               object that reflects the current system date. It can be used
+               without an actual instance of zDate (because it is static)
+               and can be passed to zDate constructors to set date objects
+               to the current date.
+
+     Return    A zDate object with the current system date.
+
+     See also  zDate::zDate();
+
+     Example   // two ways to init objects to current date
+               zDate date1(zDate::Today());
+               zDate date2 = zDate::Today();
+               assert( date1 == date2 );
+
+
+   ZDATE::WEEKOFMONTH
+   --------------------------------------------------------------------------
+     Synopsis  Returns the week of the month the current day is in.
+
+     Syntax    int WeekOfMonth() const;
+
+     Remarks   This routine returns the number of the week the current day
+               is in. Weeks start from 1 each month.
+
+     Return    The week number.
+
+     See also  zDate::WeekOfYear(); zDate::WeeksInYear();
+
+     Example   // October 17, 1996 is in the 3rd week of October
+               assert(3 == zDate(zDate::oct,17,1996).WeekOfMonth());
+
+
+   ZDATE::WEEKOFYEAR
+   --------------------------------------------------------------------------
+     Synopsis  Returns the week of the year the current date is in.
+
+     Syntax    int WeekOfYear() const;
+
+     Remarks   This routine returns the number of the week the current date
+               is in. Weeks start from 1 at the beginning of the year.
+
+     Return    The week number.
+
+     See also  zDate::WeekOfMonth(); zDate::WeeksInYear();
+
+     Example   // October 11, 1996 is in the 41st week of the year
+               zDate date(zDate::oct, 11, 1996);
+               assert( 41 == date.WeekOfYear() );
+
+
+   ZDATE::WEEKSINYEAR
+   --------------------------------------------------------------------------
+     Synopsis  Returns the number of weeks in the year.
+
+     Syntax           int WeeksInYear() const;
+               static int WeeksInYear(int aYear);
+
+     Remarks   This routine returns the number of weeks for a particular
+               year. The first version uses the current object's year, while
+               the second one works for any year (of course, the year must
+               be greater than 1 A.D., as usual). Note that this routine
+               simply calculates the number of week that December 31 for the
+               specified year falls in. This may or may not mean that there
+               were that many weeks exactly.
+
+     Return    The number of weeks.
+
+     See also  zDate::WeekOfYear(); zDate::WeekOfMonth();
+
+     Example   // 1996 has 53 weeks in it
+               assert( 53 == zDate::WeeksInYear(1996) );
+
+
+   ZDATE::YEAR
+   --------------------------------------------------------------------------
+     Synopsis  Returns the year of the current object.
+
+     Syntax    int Year() const;
+
+     Remarks   This routine returns the year of the current date object.
+               Valid years start with 1 A.D. The return value is the 4-digit
+               full representation of the year (that is, for 1996, this
+               routine will return 1996, and not just 96).
+
+     Return    The year.
+
+     See also  zDate::Day(); zDate::Month();
+
+     Example   zDate date(zDate::oct, 14, 1996);
+               assert( 1996 == date.Year() );
+
+
+   ZDATE::REFORMMONTH, ZDATE::REFORMYEAR, ZDATE::REFORMDAYNUMBER
+   --------------------------------------------------------------------------
+     Synopsis  Month, year and day of Pope Gregor's XIII calendar reform.
+
+     Syntax    static const int   ReformYear;
+               static const month ReformMonth;
+               static const ulong ReformDayNumber;
+
+     Remarks   These publicly accessible constants reflect the year (1582),
+               the month (October), and the day number (577737L, by
+               convention) of the calendar reform instituted by Pope Gregor
+               XIII. This happened on October 4, 1582 when the pope canceled
+               10 days of this month, so the next day became October 15
+               instead of October 5. This was done because it was discovered
+               that the Julian calendar used up to this point incorrectly
+               divided the year in 365.25 days. By 1582, the error was so
+               big that the church had problems with the Easter and
+               Christmas which fell during some weird seasons. The pope also
+               changed the method of calculation of leap years. Before him,
+               a leap year was every year divisible by 4. The pope decreed
+               that from then on, a leap year is every year divisible 4
+               except those divisible by 100 but including those divisible
+               by 400). We are still using the Gregorian calendar today.
+
+     Return    n/a
+
+     See also  zDate::IsLeapYear(); zDate::DayNumber();
+
+     Example   n/a
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+October 26, 1996
+San Angelo, TX
+Branislav L. Slantchev
+Silicon Creations, Inc.

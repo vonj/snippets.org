@@ -1,0 +1,132 @@
+            A Brief Tutorial on Pointers, Lvalues, & Rvalues
+
+      a public domain tutorial by Ruurd Pels (FidoNet 2:282/317.19)
+
+
+
+ Q: Okay, I'm kinda new to C, and I was reading that this following example
+ Q: would not be good to do: main() {
+ Q:         int *iptr;
+ Q:         *iptr = 421;
+ Q:         printf("*iptr = %d\n",*iptr);
+ Q: }
+ Q: It was saying that you could get away with it, but in larger programs it
+ Q: can be a serious problem. It says that it is an uninitialized pointer.
+
+ A: Contrary to what they (the book) told you, you CANNOT get away with 
+    uninitialized pointers, period.
+
+ Q: How do you initialize pointers?
+
+ A: Some insights:
+
+
+1.  A variable, any variable, has, among others, two properties called the
+    rvalue and the lvalue. 'l' and 'r' stand for 'left' and 'right'.  What is
+    the meaning of these properties. Consider assignment:
+
+        int l = 2;
+        int r = 3;
+
+        l = r;        <----
+
+    Conceptually speaking, what basically happens is that the compiler takes
+    the address of 'r' and retrieves the value stored at that address.  To
+    obtain the address, it uses the rvalue of 'r'. Now it is clear that
+    rvalues are used at the right hand side of the assignment operator to
+    obtain the address to use.
+
+    Then, the value retrieved from 'r' is put in the lvalue of 'l', then,
+    'l'-s rvalue is used to obtain the address where to store that value.
+
+    Definitions:
+
+    rvalue    the attribute of a variable that holds the address where
+              that particular variable is stored.
+    lvalue    the attribute of a variable that holds the value of the
+              variable.
+
+    Conclusions:
+
+    -   If you never assign a value to a variable's lvalue, that lvalue is
+        undefined!
+    -   The effect of using undefined lvalues is undefined, possibly
+        harmful, and sometimes interesting ;-)
+    -   A variable is a tuple(address, value). See "Aside".
+    -   Assigning to rvalues is the job of the compiler.
+    -   Assigning to lvalues is the job of the programmer.
+
+    Aside:
+
+    In fact, a variable is tuple(storage, scope, type, address, value):
+
+    storage     :   where is it stored, for example data, stack, heap...
+    scope       :   who can see us, for example global, local...
+    type        :   what is our type, for example int, int*...
+    address     :   where are we located
+    value       :   what is our value
+
+2.  A pointer is not a second class citizen. It has exactly the same proper-
+    ties as any other variable. The fun thing is that a pointers lvalue is
+    actually the rvalue of another variable, namely the variable it points
+    to.  That means that before we can use that lvalue, we first must assign
+    a correct value to it, because if we do not, that lvalue is undefined.
+    That is where the referencing operator '&'. comes into play. Consider:
+
+        int  v = 3;
+        int* p;
+
+        p = &v;         <----
+
+    What the &-operator does is a modification of what happens at the left
+    side of the assignment. Basically it tells the compiler not to use 'v'-s
+    rvalue to obtain the address where the lvalue of 'v' is stored, but it
+    tells it to use the rvalue of 'v' as the right hand side of the
+    assignment.  It then proceeds as normal, assigning the value obtained to
+    the lvalue of p and storing that at the address contained in the rvalue
+    of p.
+
+    What we have now is a p with an rvalue that is equal to the address where
+    p is stored, and an lvalue that is equal to the address where 'v' is
+    stored.  Bingo! We initialized a pointer.
+
+    Conclusion:
+
+    -   The meaning of the symbol '&' in the context of a variable is
+        "take-the-address-instead-of-the-value"
+
+3.  Now, all we need is a method to obtain the lvalue of 'v' through the
+    pointer p. That is where dereferencing operator '*' comes into play.
+    Consider:
+
+        int   n;
+        int   v = 3;
+        int*  p = &v;
+
+        n = *p;         <----
+
+    Now what happens, is that the *-operator tells the compiler to use the
+    lvalue of p to use as an rvalue to obtain the proper lvalue. What happens
+    exactly is:
+
+    -   Take the rvalue of p.
+    -   Obtain the lvalue of p.
+    -   Use the lvalue of p as an rvalue to obtain the lvalue of the
+        variable pointed to.
+
+    We call this process "dereferencing", that is, the pointer refers to
+    another variable (possibly another pointer) and we follow that reference
+    to arrive at the place we want to be.
+
+    Conclusion:
+
+    -   The meaning of the symbol '*' in the context of pointers is
+        "use-my-value-as-address".
+
+Well, the answer is there. To initialize a pointer, we must point it to
+another variable by means of the &-operator. To obtain the value of the
+variable pointed to, we use the *-operator. However, keep in mind that
+operators & and * can have a different meaning in other contexts (notably
+bitwise AND and multiplication).
+
+Grtz, RFP ;-)

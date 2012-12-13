@@ -1,0 +1,163 @@
+INFORMATION ABOUT SNIPPETS Jul 97 EDITION
+=========================================
+
+See WHATS.NEW for specific information on changes and additions to SNIPPETS.
+
+Beginning with the Dec '92 edition, SNIPPETS has been distributed in two
+forms.
+
+The first, and most familiar, is the full SNIPPETS collection. As before it
+is named "SNIPdddd.xxx", where "dddd" is the release date and "xxx" is the
+archive utility extension. For example, I distribute the Mar '95 edition as
+SNIP9503.LZH, using the LHA.EXE archive utility.
+
+New to the Dec '92 release was SNIPDIFF, an archive containing both files and
+a utility to create a complete and fully-validated SNIPPETS archive using
+files from the last edition of SNIPPETS which haven't changed. This
+represents a considerable saving in the size of the archive and,
+consequently, the time required to download it from bulletin boards and
+public information services.
+
+Beginning the Apr '93 release, SNIPDIFF became even smaller with the
+inclusion of DSAPP.EXE which allows that only the differences for changed
+files need be included. DSAPP.EXE is a public domain utility for applying
+changes, written by David Burton, and which is distributed with his excellent
+TLIB version control system.
+
+For those using 4DOS or other shell programs which use DESCRIPT.ION files,
+this release includes the source to a new utility, To4Dos.C, which processes
+the SNIPPETS.NDX file into a description file. To use it, simply compile it
+and run it in the same directory with the SNIPPETS files. It will read
+SNIPPETS.NDX and generate DESCRIPT.ION automatically.
+
+
+PORTABILITY
+===========
+
+All SNIPPETS code is tested with PC compilers from Microsoft, Borland,
+Watcom, and Symantec/Zortech, unless otherwise noted. Where possible, code is
+also tested under one or more of HP/UX, SCO Unix, or AIX, using appropriate
+vendor or FSF compilers. Beginning with this release, the SNIPPETS.NDX file
+lists portability for each file. This information is for general guidance
+only. For example, the code to implement the Bresenham line and circle
+drawing algorithms is portable, but the implementation using PC graphics is
+not. Code listed as portable to "any" OS, should be portable, possibly with
+minor changes. Code listed as being specific for a particular OS usually
+contains references to system dependencies that makes it useless in other
+environments.
+
+Note that, just as it's impossible to assure compatibility with unsupported
+compilers, it's equally impossible to assure portability with every version
+of every supported compiler. Some older compilers from the vendors mentioned
+here may not work with all SNIPPETS code. During the testing of this release,
+I had help from many kind people working with different tools in different
+environments, but you may still have some problems - and especially if you're
+using an older compiler that's more than 1 or 2 revisions out of date.
+
+
+COMPILING SNIPPETS CODE
+=======================
+
+SNIPPETS files fall into 5 categories:
+
+1. Archive information files. These provide information on SNIPPETS itself.
+   You're reading one of these right now. The most important of the
+   information files is SNIPPETS.NDX which contains a descriptive list of the
+   "real" SNIPPETS files. You should at least browse all of the information
+   files, grouped conveniently at the beginning of the archive.
+
+2. Macros and true code snippets. These will not compile to anything
+   meaningful by themselves. Macros are designed to be included in file
+   headers, while code snippets are incomplete pieces of code used to
+   demonstrate a general principle. Most SNIPPETS macros appear near the
+   beginning of the archive in .H files. True snippets are rare, but should
+   be obvious when you run across one.
+
+3. Functions. Most of the SNIPPETS files are functions. Many SNIPPETS
+   functions also have test code built-in which will allow them to be
+   compiled to stand-alone versions by defining the macro TEST during the
+   compilation process. Individual functions appear in the archive
+   immediately following the macros. SNIPPETS also contains larger, multi-
+   file function packages, noted by sections in SNIPPETS.NDX.
+
+4. Stand-alone utilities. SNIPPETS utilities are grouped at the end of the
+   archive in a section noted in SNIPPETS.NDX. Many utilities contain useful
+   functions and demonstrate useful C programming techniques.
+
+5. Educational files. Between the individual functions and the function
+   packages comprising two or more files, there is a short section of text
+   files answering frequently-asked questions or providing tutorials on
+   various aspects of C programming.
+
+
+DISTRIBUTION
+============
+
+Starting with the December 1992 version, SNIPPETS is distributed in two
+files:
+
+SNIPdddd.xxx is the full SNIPPETS collection.
+SNPDdddd.xxx contains only the files changes since the last release.
+
+Note that "dddd" above is the date code. SNIPPETS archives released prior to
+1994 encoded the date as mmyy, where "mm" is a 2-digit month code and "yy" is
+a 2-digit year code. Beginning with the April, 1994 release, the date code
+has been changed to yymm (following the same conventions), to facilitate
+directory sorting.
+
+Note that "xxx" above is the archiver extension. As distributed, these
+include:
+
+      .ZIP - Compatible with PKzip ver. 2.04+ and/or Info-Zip 1.9+
+      .LZH - Compatible with LHA ver. 2.1+
+      .TAZ - Unix .tar.Z compatible
+      .RAR - Compatible with RAR ver. 1.5+
+
+SNIPPETS is distributed through the FidoNet Programmer's Distribution Network
+and via the Internet.
+
+FidoNet locations to get SNIPPETS (for FidoNet file requests, the magic names
+"SNIPPETS" and "SNIPDIFF" may he used to obtain the latest versions from many
+BBS's):
+ 
+        1:106/2000 - my "home" BBS, Comm Port One, (713) 980-9671
+        1:2320/38  - home of FidoNet Programmer's Distribution Network (PDN)
+        1:11/70
+        Other PDN sites
+
+Internet locations to get SNIPPETS via anonymous ftp:
+
+        snippets.org          /pub/snippets
+          (This is the official SNIPPETS ftp distribution site)
+        juge.com              /file/c
+        connectn.acs.niu.edu  ~/C
+        ftp.funet.fi          /pub/msdos/Simtel/c (Europe)
+        ftp.microdot.com.au   /pub/snippets (Australia)
+        ftp.simtel.net        /pub/simtelnet/msdos/c (also Simtel CD-ROM)
+
+World-Wide Web sites
+
+        http://www.snippets.org
+          (This is the official SNIPPETS web site home page)
+        http://www.strangecreations.com/strange/library/snippets.htm
+        http://src.doc.ic.ac.uk/packages/simtel-msdos/c/ (Europe)
+
+Places that may also have SNIPPETS:
+
+        Bix                   page 1445 in the programming RT
+        Compuserve
+        GEnie
+        America Online
+        numerous BBS's around the world
+
+-------------------------------  Enjoy!  -----------------------------------
+
+
+Bob Stout
+FidoNet:    1:106/2000.6
+            C_Echo moderator (1990-1991, 1996-1997)
+Internet:   rbs@snippets.org
+            rbs@brokersys.com
+SnailMail:  MicroFirm
+            P.O. Box 428
+            Alief, TX 77411

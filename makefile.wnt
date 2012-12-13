@@ -1,0 +1,16 @@
+# Makefile for WATCOM C/C++ for Windows 95/NT 10.0
+
+all: qmenuw32.exe
+
+COPTS=-oneatx
+
+.c.obj:
+  wcl386 $(COPTS) -zq -wx -c $<
+
+objs=qmenu.obj    \
+     vidmgr.obj   \
+     vmgrwnt.obj  \
+     vioimage.obj
+
+qmenuw32.exe: $(objs)
+  wcl386 $(COPTS) -fe=qmenuw32.exe $(objs)

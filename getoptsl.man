@@ -1,0 +1,151 @@
+FUNCTION:   getopts_lite()
+
+
+ABSTRACT:   Command line argument processor. A subset of getopts() (also in
+            SNIPPETS), handles switches, options, literal data, file names
+            with or without wildcards. Only statically defined default values
+            are supported. Range checking and response files are not
+            supported.
+
+
+CALL WITH:  int getopts_lite(int argc, char *argv[])
+
+            argc and argv are passed from main()
+
+            Option switches set up in an array of Option_Tag structures.
+
+
+PROTOTYPED: In GETOPTSL.H.
+
+
+ALSO USES:  DIRPORT.H
+
+
+PORTABILITY:      Although written for DOS, getopts_lite() should port with
+                  little effort to other environments. The only significant
+                  barrier to portability is directory and filename
+                  processing.
+
+
+PROCESSING LITERAL DATA AND FILE NAMES
+USING getopts_lite() WITHOUT OPTION PROCESSING:
+-----------------------------------------------
+
+You can call getopts_lite() without option processing by simply adding the
+following line to your program:
+
+struct Option_Tag options[] = {{ NUL, Error_Tag, NULL, 0}};
+
+This is an empty options list which tells getopts_lite() not to look for
+options.  When called this way, only the global xargc and xargv[] data are
+saved.
+
+All arguments will be treated as file names and getopts will try to expand
+them. See the section below on options processing for more information on
+specifying command line options.
+
+Using xargs processing, the global variable xargc will be the total number of
+arguments returned, including expanded filenames, plus 1. The full list of
+arguments, including expanded filenames, is returned in the global xargv
+array. Just as with argv, xargv[0] is the executing program's file name,
+copied from argv[0].
+
+If the arguments cannot be expanded, the xargv array will hold the same
+contents as the original argv array. Note that command line options are
+stripped from the xargv array, so if your command line had 10 arguments, of
+which 5 were options, the xargv array would contain only 6 elements (remember
+xargv[0]), assuming no wildcard expansion occurred.
+
+
+PROCESSING OPTIONS USING getopts_lite():
+----------------------------------------
+
+Each program using getopts_lite() must specify an options[] array of
+Option_Tag structures. Each of these structures must contain the following 7
+fields:
+
+Field 1 -   An integer specifying the letter used to control the option. For
+            example if you wanted to add a optional filename specification
+            using "-Ofilename", you would place 'O' in field 1. Note that
+            options are case-sensitive, to make a case-insensitive option,
+            you need to create two entries, in this example, one for 'O' and
+            one for 'o'.
+
+Field 2 -   This field contains the enumerated type of data to be changed.
+            Valid values are:
+
+            Boolean_Tag Used to specify True_/False_ switches.
+            Word_Tag    Used to specify unsigned short values.
+            DWord_Tag   Used to specify unsigned long values.
+            Double_Tag  Used to specify double values.
+            String_Tag  Used to specify strings (character arrays).
+            Error_Tag   Used only in terminating records (see above).
+
+Field 3 -   The address where the option data is to be stored.
+
+Field 4 -   Specifies the size of the buffer (used only for strings).
+
+Build your options[] array by specifying each option structure. When you're
+done, terminate the array with a terminating record as shown above. See the
+GETOPTST.C test file for an example.
+
+
+OPTION STRING FORMATTING BY TYPE:
+---------------------------------
+
+Boolean_Tag       N.A.
+
+Word_Tag          Decimal numeric constant.
+
+DWord_Tag         Decimal numeric constant.
+
+Double_Tag        Decimal numeric constant.
+
+String_Tag        String literal.
+
+
+String literals are saved just as typed. The only problem is with strings
+containing spaces. Most operating systems split command line arguments at
+whitespace, so if you wanted to specify a string containing spaces, the
+entire argument, including the switch itself, must be enclosed in quotes, e.g.
+
+-o"This is a string".
+
+
+
+SPECIAL OPTIONS CONSIDERATIONS:
+-------------------------------
+
+All options are of the basic form, <switch_char><option>, and are processed
+left-to-right in sequence. The getopts_lite() function allows the use of '-'
+(DOS- style) or '/' (Unix-style) option switch characters. Should you need to
+enter a filename which uses a switch character, simply precede it with a '-'.
+Thus getopts_lite() will perform the translation, e.g.
+
+--file.ext  =>    -file.ext
+
+Per standard Unix practice, an option consisting only of back-to-back switch
+characters, typically "--", is interpreted as a command to turn off further
+option processing. Therefore a command tail consisting of...
+
+-ofoo -ibar -xyz -- -oops
+
+...where "-o", "-i", and "-x" are valid option characters defined in the
+options[] array, would process the first three options, then return the fifth
+argument as the string literal "-oops" in the xargv array.
+
+Boolean options take the extended form, <switch_char><option>[<action>],
+where the optional third action switch controls whether to turn the switch
+off (the default action is to turn it on). Thus if you have a boolean option
+defined which is controlled by the letter, 'a',
+
+-a    turns on the option, while
+-a-   turns off the option.
+
+The getopts_lite() function does not allow for spaces between the switch
+character and the following argument. Therefore, if you have defined an
+option of type double, which is controlled by the letter, 'n',
+
+-n98.6      is valid, while
+-n 123.45   is invalid.
+

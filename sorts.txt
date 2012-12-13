@@ -1,0 +1,52 @@
+There are four kinds of sorts.  There are sorts that search, sorts that swap,
+sorts that separate, and sorts that don't compare one element to another.  In
+the first class are the insertion sort, the extraction sort, and the heap
+sort. In the second class are the quick sort and the merge sort.  In the
+third class are the bubble sort and the Shell sort.  In the last class are
+the Radix-Exchange sort and the Pigeon sort.  (These lists aren't all
+inclusive. In fact, I know I'm leaving some sorts out, but I just want to
+give examples of what's in each class.)
+
+I won't talk about the last class because I don't find them particularly
+interesting.  Even though they are the fastest kind of sorts known, with O(N)
+sorts not only possible but practical in many cases, it is difficult to
+generalize them, and I'm fond of finding general solutions to general
+problems.
+
+In the sorts that swap, the only variable is which elements are swapped.  The
+Shell sort starts by swapping elements that are far apart in hopes that any
+"large scale" disorder is eliminated quickly.  The bubble sort compares only
+those elements that are next to each other.  Each pair is compared and, if
+they are found to be out of order, they are swapped.
+
+The sorts that separate work by understanding that it is a lot faster to sort
+smaller lists than bigger lists.  So, you seek to break up the lists into
+halves and then break up the halves and then break up the quarters, and so on
+until each piece is small enough to sort.  (Often, a program will just
+continue to break the list down until each piece has a length of one.  A list
+of one item is already sorted.  On the other hand, many programmers prefer to
+stop after the element size gets small enough.)
+
+However, there is a choice to be made in this case.  Do you attempt to impose
+order on the list before or after you split it into parts.  The quick sort is
+a before sort.  The merge sort is an after sort.  When you quick sort a list,
+you choose a value, called the pivot, and you build your sublists such that
+all of the elements which have a key value less than the pivot go into one
+sublist and those elements which do not go into the other.  Then, you
+recursively sort each sublist and when that is done you simply append the
+"greater than" list to the "less than" list to make the whole sorted list.
+With a merge sort, you find the middle and break it there without any concern
+for the key values of the elements, recursively sort each sublist and then
+merge the two sorted lists back together into one big list.  (The real nice
+thing about the merge sort is you don't have to be able to pick a good pivot
+value in order for it to work well. Most of the algorithms for finding the
+best pivot values start "Sort the list...")
+
+The insertion sort is what you do when you "build a sorted list."  Basically,
+you go through the unsorted list, and for each element, you find the place in
+the sorted list where it should go and put it there.  This process is
+repeated until there are no more elements in the unsorted list. The
+extraction sort looks through the unsorted list for the element with the
+biggest (or smallest) value and once it finds it, appends that element to the
+sorted list.  This process is repeated until there are no more elements in
+the unsorted list.

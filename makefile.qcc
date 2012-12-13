@@ -1,0 +1,17 @@
+# Makefile for Microsoft Quick C for DOS 2.5
+
+all: qmenu.exe
+
+COPTS=-Ox
+
+.c.obj:
+  qcl $(COPTS) -W4 -c $<
+
+objs=qmenu.obj    \
+     vidmgr.obj   \
+     vmgrdos.obj  \
+     vioimage.obj \
+     opsys.obj
+
+qmenu.exe: $(objs)
+  qcl $(COPTS) -W4 -Feqmenu.exe $(objs)

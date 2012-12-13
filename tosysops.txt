@@ -1,0 +1,55 @@
+To all sysops:
+
+  If you support C programming on your BBS, I encourage you to join the many
+other sysops worldwide in making SNIPPETS and SNIPDIFF available for download
+by your users/subscribers.
+
+  One additional point for FidoNet sysops... Typically (1993 was the
+exception), I release more than one SNIPPETS version per year. SNIP9404 is,
+in my mind, mostly just a maintenance release. This is why I recommend that
+when you set up your "magic" names for freq'ing, you use simply SNIPPETS and
+SNIPDIFF. Since this is how I always refer to them, it does make freq'ing
+easier on your callers.
+
+  I *strongly* recommend to all sysops that older versions either be deleted
+or moved to offline storage since each new release is intended to fully
+supersede all previous releases.  The reasons for this are:
+
+1.  The latest version has more bug fixes.
+
+2.  The latest version has been modified to work with current compiler
+    releases, as well as older releases previously supported.
+
+3.  Sometimes older code is superseded by new code which works better, has
+    more features, or includes the functionality of several older SNIPPETS
+    entries.
+
+4.  Some of the stuff that was taken out simply didn't work right, occasion-
+    ally with unpredictable, possibly even catastrophic, results. Note that
+    this can happen even with code that previously worked due to changes in
+    operating systems or library functions.
+
+5.  Some of the stuff which has been removed was legally questionable and
+    using it in a commercial application could cause untold grief for both
+    the person using it as well as yours truly.
+
+  The bottom line is that if stuff is useful and any good, it stays in and
+gets updated with each new release. If it fails any of those criteria, it
+gets deleted. Since the only conceivable reason for retaining older versions
+of SNIPPETS is to access things that have been removed, you can see why I
+urge sysops to only keep the latest versions of SNIPPETS and SNIPDIFF (OK,
+maybe you might want to keep the two most recent versions of SNIPDIFF, but
+downloading two versions of SNIPDIFF to update a 2-revision old version of
+SNIPPETS would save little, if any, download time!) 
+
+  Thanks for your support of SNIPPETS and free source code!
+
+
+Bob Stout
+FidoNet:    1:106/2000.6
+            C_Echo moderator (1990-1991, 1996-1997)
+Internet:   rbs@snippets.org
+            rbs@brokersys.com
+SnailMail:  MicroFirm
+            P.O. Box 428
+            Alief, TX 77411

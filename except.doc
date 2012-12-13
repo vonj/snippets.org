@@ -1,0 +1,184 @@
+USER-GENERATED EXCEPTIONS IN GENERAL
+------------------------------------
+
+MS-DOS users can generate exceptions by means of two separate
+mechanisms, Ctrl-C and Ctrl-Break. Although these are often treated
+the same, they are actually handled in subtly different manners. The
+difference in the way these are processed allows a great deal of
+flexibility in allowing users to interrupt an executing program.
+
+When a program is executed, the Ctrl-C Interrupt 23h is set up to
+point to a default error handler. This handler is called whenever a
+Ctrl-C character is detected in the keyboard input buffer. When a
+program terminates in any way, MS-DOS resets the Interrupt 23h vector
+to its default state. Note that the Ctrl-C character in the input
+buffer is only recognized - and an Interrupt 23h generated - when
+retrieving characters from the buffer and if BREAK ON is set.
+
+The Ctrl-Break Interrupt 1Bh works somewhat differently, though
+usually in concert with Interrupt 23h. Whenever the ROM BIOS detects
+the Ctrl-Break key combination, the keyboard buffer is flushed and a
+Ctrl-C key combination is stuffed in place of the previous contents.
+This Ctrl-C will later be detected and processed by Interrupt 23h.
+Ctrl-Break processing therefore offers more immediate response than
+Ctrl-C processing if the default action is overridden.
+
+Several caveats are in order here, however. First is the fact that,
+unlike Interrupt 23h, MS-DOS does not restore the default state of
+Interrupt 1Bh upon program termination. Second is that while Ctrl-C
+processing is standardized among the various machines utilizing both
+MS-DOS and PC-DOS, Ctrl-Break processing is much less standardized.
+Finally, since processing either ultimately relies on trapping
+Ctrl-C, either may be ignored for a long period because of the way
+that Ctrl-C is detected.
+
+
+HANDLING USER-GENERATED EXCEPTIONS
+----------------------------------
+
+DOS's default Ctrl-C handler is triggered whenever the Ctrl-C
+character is detected in the input buffer. DOS's response is to
+simply close all files which were opened using handle functions and
+to terminate the program. The limitations of this approach and the
+desirability of providing your own exception processing is obvious.
+
+An equally obvious solution to the default Ctrl-C handler's problems
+is to explicitly do your own Ctrl-C exception processing. CCTRAP.ASM
+installs and de-installs you own customized exception handler. Note
+that the code is written to accept the address of a function specified
+with an explicit segment and offset.
+
+Also note that an explicit de-installation function is provided
+despite the fact that DOS restores the default Int 23h vector upon
+program termination. The reason this is provided is that you should
+always de-install a Ctrl-C interrupt trap before you spawn a child
+process. Within your program, if you need to spawn such a process
+through any mechanism other than spawning a subordinate shell (more
+on this in a second), you should explicitly de-install your interrupt
+handlers and re-install them when the subordinate process returns. As
+noted, this is unnecessary when the subordinate process is a DOS
+shell such as COMMAND.COM, since the shell will reset the interrupts
+to their defaults during execution.
+
+Ctrl-Break processing is much more problematical, though potentially
+more powerful. The first problem to deal with is how to assure that
+the default Int 1Bh Ctrl-Break handler will be restored upon program
+termination. The de-installation function therefore becomes mandatory
+in this context rather than optional as in the case of the Int 23h
+handler. CBTRAP.ASM shows a sample Ctrl-Break handler. Since Ctrl-Break
+processing is much less standardized than Ctrl-C processing, the
+safest way to deal with it is to simply set a flag, "cbrcvd", which
+informs your program that a Ctrl-Break has been received. Your
+program may then poll this flag and take appropriate actions at
+"safe" times within your program.
+
+
+WHERE THE CARET-C COMES FROM
+----------------------------
+
+There's still nothing new here and nothing to prevent the ugly "^C"
+being printed to the screen. This is because it is actually printed
+by the BIOS during Int 9 processing, long before DOS ever sees it.
+What this means is that even though the code in CCTRAP.ASM and
+CBTRAP.ASM is fine, it still only provides a framework for solving
+our problem.
+
+TRAPFLAG.ASM is the final trick to banish the "^C". The actual ISR
+has to muck around quite a bit with the keyboard hardware, as is to
+be expected of an Int 09h replacement. Whenever a Ctrl-C or Ctrl-
+Break is detected, it is trapped, and our exception handler called in
+place of the original Int 09h handler, after discarding the trapped
+key codes.
+
+Referring to TRAPFLAG.ASM, note that since I need to trap both Ctrl-C
+and Ctrl-Break, I adopt the flag approach introduced in CBTRAP.ASM
+for dealing with both Ctrl-C and Ctrl-Break processing. Now, rather
+than supplying an explicit exception vector, I merely set a global
+flag to inform me if either exception has occurred and accept the
+responsibility of processing the exceptions within the body of my
+program. I've added an extra bit of versatility here by posting
+different non-zero values to the flag, "ccrcvd" depending on whether
+the exception was a Ctrl-C or Ctrl-Break.
+
+TRAPDEMO.C is a short C program demonstrating the use of the combined
+Ctrl-C/Ctrl-Break handler. Using this approach, your carefully
+crafted screens need never more be cluttered with the "^C" uglies.
+
+
+SYSTEM-GENERATED EXCEPTIONS
+---------------------------
+
+It's usually desirable, in any professional-looking program, to
+explicitly trap the Int 24h critical error interrupt to process
+system-generated exceptions. CERRINST.ASM is a portable critical
+error handler installation program functionally equivalent to the
+[_]hardxxx() package in Borland C++ and Microsoft C++ compilers, and
+the ceror_xxx() package in Zortech C++.
+
+It's obvious that writing code to intercept DOS critical error
+exceptions is just as simple as intercepting Ctrl-C or Ctrl-Break
+exceptions. The real challenge in writing critical error handlers is
+in interpretation of the nature of the exception.
+
+The critical error handler requires more information in order to
+decide what action to take than does a Ctrl-C handler. All of this
+information is passed in the CPU's registers. Just like a typical
+compiler vendor's critical error handler, CERRINST.ASM will simply
+pass these registers and leave their interpretation to you. In
+CERRINST.ASM, the information required for intelligent critical error
+processing is posted in 4 global variables, cedevdvr, cetype,
+ceerror, and cereturn.
+
+Next you need to determine what your program requires of a critical
+error handler. CERRTRAP.ASM is a skeletal, yet robust critical error
+function which may be called from the handler in CERRINST.ASM.
+CERRTRAP.ASM assumes you have set up the following specific error
+handlers in the global variables provided:
+
+FAT error               (*FAT_err)();
+Disk read error         (*read_err)()
+Disk write error        (*write_err)()
+Terminal error          (*term_err)(),
+Printer out of paper    (*no_paper)(),
+All other errors        (*fixup_ret)(),
+
+In the case of an unrecognized error, fixup_ret() is called. A simple
+skeleton for this function would be:
+
+#include <dos.h>        /* for _osmajor                                 */
+extern int exerr;       /* DOS extended error posted by CERRTRAP.ASM    */
+extern int rmvbl;       /* removable media flag posted by CERRTRAP.ASM  */
+extern int locus;       /* extended error locus posted by CERRTRAP.ASM   */
+extern int class;       /* extended error class posted by CERRTRAP.ASM   */
+extern int suggest;     /* suggested action posted by CERRTRAP.ASM      */
+
+int fixup_ret(void)
+{
+        if (2 < _osmajor)
+        {
+                /* analyze DOS extended error information */
+
+                return appropriate_error_code;
+        }
+
+        /* cleanup */
+
+        return 2;       /* abort */
+}
+
+In customizing your specific critical error handler functions, there
+are several important restrictions to keep in mind. The first is that
+no DOS system services may be requested other than Interrupt 21h
+functions 01h-0Ch (character I/O), 30h (get DOS version number), and
+59h (get extended error information). All registers except AL must be
+preserved since DOS sets them up for processing Retry returns prior
+to invoking the critical error interrupt.
+
+Finally, the handler must return with an IRET instruction, passing a
+return code in AL to tell DOS what to do next. The available codes
+and their actions under various DOS versions are:
+
+        0 - Ignore
+        1 - Retry
+        2 - Abort
+        3 - Fail (DOS 3.3 and later)

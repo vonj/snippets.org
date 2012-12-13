@@ -1,0 +1,227 @@
+How to Use the Portable Directory Processing Functions in DIRPORT.H
+===================================================================
+
+
+Background:
+-----------
+
+All common PC operating systems (OS's) except Linux and FreeBSD are
+decendents of PC/MS-DOS and, as such, all use similar methods of processing
+directories. This is well established as a simple two-call sequence: 1) find
+the first file matching a given file specification; 2) find subsequent files
+matching the same specification. The file specification in either case may
+contain wildcards and/or directory path information as well as specific file
+attributes.
+
+Where the various OS's and compilers diverge is in the details of this
+process. Different OS's, although descended from DOS, have different file
+types and different ways of masking which type of file(s) to process. Even
+within the same OS, different compilers have adopted different naming
+conventions for their (inherently non-portable) functions to call the
+underlying OS functionality.
+
+At this point, it may be worthwhile to note that various Unix ports and
+clones often support the Posix-compliant directory processing functions,
+opendir(), readdir(), closedir(), seekdir(), and rewinddir(). A set of such
+functions is provided in SNIPPETS for those wishing to use these functions.
+The obvious advantage is portability. The disadvantage is that resulting
+programs will be larger and run more slowly when using these functions. The
+degree of impact will depend on the specifics of your application and
+environment, and may range from imperceptible to significant. The underlying
+cause is that the Posix functions must still be translated into the find
+first/find next calls supported by popular PC OS's.
+
+The DIRPORT.H header file in SNIPPETS supports all major PC OS's (except for
+the Unix-ish ones) and compilers. Those already used to using the DOS
+interface find first/next calls will find it easy to use. The big problem is
+that, as support for more OS's and compilers has been added, DIRPORT.H has
+become somewhat unreadable, even to experienced programmers. This text is
+therefore a guide to using DIRPORT.H
+
+
+The basic concepts:
+-------------------
+
+When finding the first file in a directory matching a given file
+specification, the OS needs to know three things:
+
+1.  The filename specification, which may contain wildcards and/or directory
+    information.
+
+2.  The type of file. This is typically specified as an integral data type
+    with bit-mapped file attributes.
+
+3.  A location where the resulting information will be stored in case the
+    specified file can be found.
+
+The header file must therefore specify 4 items:
+
+1.  A function to call to find the first file.
+
+2.  A function to call to find subsequent files matching the specification.
+
+3.  Defined constants for specific file attributes.
+
+4.  A structure defining the data returned from the functions.
+
+In addition, due to differences in PC OS's, one other function must be
+provided to close directory processing sessions.
+
+
+The implementation:
+-------------------
+
+The structure used to process directory data is typedef'ed in DIRPORT.H as
+type DOSFileData. This is really all the user needs to know about it since
+all access to the elements of a DOSFileData structure is via macros defined
+in DIRPORT.H.
+
+The function to find the first matching file is defined in DIRPORT,H as...
+
+      FIND_FIRST(spec,attr,buf);
+
+...where "spec" is the filename specification, "attr" is the bit mapped file
+attribute mask, and "buf" is the address of the DOSFileData structure to
+receive information if a matching file can be found. FIND_FIRST returns 0 if
+successful, non-zero if no match could be found. If you're also using
+SNIPTYPE.H, you can therefore use the following:
+
+      DOSFileData ff_info;
+      char fname[];
+      int AttributeMask;
+
+
+      if (Success_ == FIND_FIRST(fname, AttributeMask, &ff_info))
+      {
+            /* Do found it stuff here */
+      }
+      else
+      {
+            /* Do no match stuff here */
+      }
+
+The attribute mask bits follow standard Microsoft practice and are defined in
+DIRPORT.H as:
+
+  _A_NORMAL       All "normal" (i.e. none of the special types below) files.
+  _A_RDONLY       File cannot be written, only read.
+  _A_HIDDEN       File will not show up in a normal directory listing.
+  _A_SYSTEM       File is used by the system and cannot be moved.
+  _A_SUBDIR       The specification describes a subdirectory.
+  _A_VOLID        The file name is the volume ID (obsolescent).
+  _A_ARCH         File has been modified since last backed up.
+  _A_ANY          Any/all of the above.
+
+The attribute masks are bitwise additive (see Note 1 below) and somewhat
+counter-intuitive in their operation. With the exception of the obsolescent
+_A_VOLID attribute, specifying any mask bit returns all files of that type
+matching the specification *PLUS* all "normal" files as well. If you
+therefore want to see only the subdirectories, you must use the _A_SUBDIR
+mask and then check each return file to see if it really is a subdirectory or
+simply another normal file.
+
+As noted, specifying the _A_VOLID mask by itself will return only files with
+the volume ID attribute set. The volume ID was originally used to store the
+disk's "name", but that has been stored in sector zero since DOS 5 (see
+Note 2 below). The only use for the volume ID attribute in current versions
+of DOS is for reading pre-DOS 5 diskettes and in the specification of long
+file names under Windows 95.
+
+Once you've found a match, you access the returned information using the
+following macros defined in DIRPORT.H:
+
+ ff_name()  The name, minus path information, of the file found.
+ ff_size()  The size, in bytes, of the file found.
+ ff_attr()  The attributes of the file found.
+ ff_date()  The last modified date of the file found.
+ ff_yr()    The year specified in ff_date().
+ ff_mo()    The month specified in ff_date().
+ ff_day()   The day specified in ff_date().
+ ff_time()  The last modified time of the file found.
+ ff_hr()    The hours specified in ff_time().
+ ff_min()   The minutes specified in ff_time().
+ ff_tsec()  The seconds divided by two specified in ff_time().
+
+Note that each is passed the address of the DOSFileData structure where
+FIND_FIRST() told the OS to store resulting information, e.g.
+
+      file_size = ff_size(&ff_info);
+
+As noted, the file name is the file's name within its own directory, i.e. no
+drive or path information is available. If you need drive and/or path infor-
+mation, you must have saved it when forming the filename specification, e.g.
+
+      char *path;
+      char file_spec[FILENAME_MAX];
+      char full_name[FILENAME_MAX];
+      DOSFileData ff_info;
+
+      sprintf(file_spec, "%s\\*.*", path);
+
+      if (Success_ == FIND_FIRST(file_spec, _A_ANY, &ff_info))
+      {
+            sprintf(full_name, "%s\\%s", path, ff_name(&ff_info));
+      }
+
+Once you've found the first matching file, you can find other files matching
+the specification (here we're assuming the original specification contained
+wildcards) by calling the FIND_NEXT(buf) function. It takes as its only
+argument, a pointer to the location of the DOSFileData structure and returns
+0 if successful. Note that you can have several active directory processing
+sessions in a program, each using a different DOSFileData structure.
+
+Putting together the examples given so far, you could process all the normal
+and read-only files plus subdirectories in the current directory as follows:
+
+      DOSFileData ff_info;
+
+      if (Success_ == FIND_FIRST("*.*", _A_RDONLY+_A_SUBDIR, &ff_info)) do
+      {
+            if (ff_attr(&ff_info) & _A_SUBDIR) /* Note use of bitwise AND! */
+            {
+                  /* Process subdirectories here /
+            }
+            else
+            {
+                  /* Process normal and read-only files here */
+            }
+      } while (Success_ == FIND_NEXT(&ff_info));
+      FIND_END(&ff_info);
+
+Note that for compatibility with all supported OS's, when you're done with a
+particular directory processing session, you should call the FIND_END()
+function to clean up.
+
+One final note... If using Win32 or OS/2, you must compile and link the
+DIRPORT.C file with your applications.
+
+-----------------------------------------------------------------------------
+
+Notes:
+
+1.  Attribute masks may be formed by adding or or'ing together specific
+    attributes, e.g.
+
+      attr = _A_NORMAL + _A_RDONLY;       /* This is OK     */
+
+      attr = _A_NORMAL | _A_RDONLY;       /* So is this     */
+
+    However, when testing for specific attributes, you should always use the
+    & (bitwise AND) operator, e.g.
+
+      if (ff_attr(&ff_info) & _A_RDONLY)
+
+    *NEVER* use the && (logical AND) or == (equality) operators when testing
+    for file attributes!
+
+2.  Regarding volume ID's... Although the primary storage for the volume ID
+    has been in sector zero since the introduction of DOS 5, a single
+    directory entry with only the _A_VOLID bit set in the root directory is
+    still maintained for backwards compatibility. The file name of this
+    directory entry matches the volume ID as stored in disk sector 0.
+
+
+written by: Bob Stout
+            rbs@snippets.org
+            rbs@brokersys.com
+            1:106/2000.6

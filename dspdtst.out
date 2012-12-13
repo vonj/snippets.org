@@ -1,0 +1,41 @@
+Results of running DSPDTST.EXE in small model on my machine (486 DX/50,
+Trident SVGA, IBM-PC/DOS 7, running Stacker and Golden Bow's Vcache disk
+cache) using all compilers currently on hand:
+
+Symantec 7.0                        Watcom 10.0
+------------                        -----------
+
+Times for 5000 iterations:          Times for 5000 iterations:
+
+puts         30.275 seconds         puts         13.352 seconds
+printf       29.725 seconds         printf       12.418 seconds
+cputs         0.440 seconds         cputs         2.198 seconds
+cprintf       0.604 seconds         cprintf      16.868 seconds
+fputs         1.044 seconds         fputs         1.099 seconds
+fprintf       1.154 seconds         fprintf       1.264 seconds
+
+
+Borland 4.5                         Microsoft 8.0 (VC++ 1.5)
+-----------                         ------------------------
+
+Times for 5000 iterations:          Times for 5000 iterations:
+
+puts         13.626 seconds         puts         12.912 seconds
+printf       11.758 seconds         printf       30.604 seconds
+cputs         1.648 seconds         cputs         1.429 seconds
+cprintf       1.758 seconds         cprintf      17.143 seconds
+fputs         1.319 seconds         fputs         0.275 seconds
+fprintf       1.374 seconds         fprintf       0.659 seconds
+
+
+Mix Power C 2.2                     Zortech 3.0r4
+---------------                     -------------
+
+Times for 5000 iterations:          Times for 5000 iterations:
+
+puts         17.033 seconds         puts         30.659 seconds
+puts         30.659 seconds         printf       29.451 seconds
+cputs        16.538 seconds         cputs         0.385 seconds
+cprintf      16.703 seconds         cprintf       0.604 seconds
+fputs         0.165 seconds         fputs         0.989 seconds
+fprintf       0.495 seconds         fprintf       1.099 seconds

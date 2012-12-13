@@ -1,0 +1,283 @@
+/* ==== CPP_ECHO.FAQ ========================== release 95-08-16 =========
+
+This is the Frequently Asked Question list of the fidonet c_plusplus echo.
+Suggestions, enhancements, changes and comments will be appreciated.
+
+ _____          Archivist/Editor: Auke Reitsma, Delft, The Netherlands.
+ /_|__|         Netmail         : 2:281/527
+/  | \  --------------------------------------------------------------- */
+
+This CPP_echo FAQ list currently consists of four sections: "FAQ's", "New
+FAQ's", "Abbreviations and Terminology" and "Contributors". Each FAQ
+consists of a number, the question and a date on a single line -- if
+possible -- the answer, one or more lines listing the contributor and the
+(last) submission date and a 'last edit date'.
+The number uniquely identifies the question and will NEVER change. The
+question date should change when the question is asked again -- or used as
+answer -- in the cplusplus echo. In a relatively short time this will
+identify the unimportant questions, which will make it easier to delete
+these items.
+Three question marks indicate something that is at least somewhat doubtful
+and may need to be changed. Again, contributions are welcome.
+The "Abbreviations and Terminology" section is included to supply less
+common abbreviations and terms related to C++ and also to 'explain'
+abbreviations used in this list. It is also used for indexing and cross-
+referencing.
+
+Auke Reitsma 95-07-15.
+
+/* ---- Frequently Asked Questions ------------------------------------ */
+
+000     What is the topic of the C++ FAQ list?                  (95-04-15)
+
+Any C++ related subject occurring 'frequently' in the cplusplus echo.
+There must be no doubts _at_all_ that it is on topic in the echo. This
+means that normal (ANSI) C subjects are not on topic for this list. Also
+the coverage of subjects specific to a platform, compiler or library will
+be limited.
+
+95-05-01
+
+
+001     What is the difference between C and C++?               (95-04-15)
+
+The essential difference is the "Object orientation" in C++.
+
+95-04-15
+
+
+002     What normal C constructs work differently in C++?       (95-04-15)
+
+- Assigning int's to enum's.
+- Assigning void pointers to other types of pointers.
+- Function declaration foo() without parameters.
+- Character constants are of type char in C++. They are of type int in C.
+- ALL functions MUST be prototyped in C++, which is not required in C.
+- In C++:
+        struct A { /* ... */ };
+  is equivalent to:
+        typedef struct A { /* ... */ } A;
+  in C.
+
+See C++PL2, "Notes to the reader" (p. 11/12) and "C++ and ANSI-C" section
+r.18.2 (p.628/629) for more items and details.
+
+Auke Reitsma [95-05-01], Jerry Coffin [95-05-06], David Nugent [95-04-16],
+Jari Laaksonen [95-04-15], 95-05-16
+
+
+003     Why and when is a virtual destructor needed?            (95-04-15)
+
+Any class that may act as the base of another class should have a virtual
+destructor. This ensures that when an object of the derived class is
+destroyed that the derived class dtor will be invoked to destroy it.
+If the destructor is not virtual, under some common circumstances, only
+the base class' destructor will be invoked, regardless of the class
+actually being destroyed.
+For practical purposes this means that a class which does, could or should
+have virtual member functions, should also have a virtual destructor.
+
+Jerry Coffin [95-06-09], 95-06-16
+
+
+004     How do I open binary files?                             (95-04-15)
+
+Yeah, the various manuals and books are usually not clear that subject.
+With BC and MSC, you do a bitwise or of the file open mode with
+ios::binary, as in:
+
+    ifstream mystream( "filename.ext", ios::in | ios::binary );
+
+The default is ios::text for BC and MSC.
+However, this is NOT supported by Symantec 6.1. SC 6.1 doesn't have a flag
+to designate binary - it has ios::translated for text, and apparently to
+work with binary files you simply designate ios::in or ios::out without
+or'ing in ios::translated.
+
+Jerry Coffin [95-05-06], 95-06-16
+
+
+005     Why seem interrupt handlers as member functions to be impossible?
+                                                                (95-04-15)
+Interrupt handlers as member functions _are_ possible. But they must be
+static member functions. Static member functions don't make use of the
+implicit 'this' pointer required by normal member functions. The caller of
+the interrupt handler doesn't know anything about objects and 'this'
+pointers, so it can't pass a value of such a pointer.
+
+Auke Reitsma [95-04-15], 95-04-15
+
+
+006     Is there a new/delete equivalent of realloc?            (95-05-01)
+
+No. It would have a number of difficult problems. Some of these are:
+- Should the old instances in the memory be deleted and re-instantiated?
+- How about contained classes?
+- How about instances owned by the classes to be reallocated? These often
+  have a pointer to their owner.
+
+Origin Unknown [??-??-??], 95-05-01
+
+
+007     Floating point representation and output seems to be compiler
+        dependent.                                              (95-05-01)
+
+Regrettably, yes. The action of ios::setprecision() varies among com-
+pilers.
+
+David Nugent [95-04-16], 95-05-01
+
+
+008     What is a "Copy Constructor"?                           (95-07-16)
+
+A Copy Constructor constructs a new object as a copy of an existing object
+of the same type. Frequently copy constructors do a 'deep copy' of the
+object. X( const X& X_object ){...}; is a copy constructor for class X.
+
+Deep Copy vs. Shallow Copy: a shallow copy simply copies the contents of
+an object directly - if the object contains pointers, both the old copy
+and the new copy contain pointers to the same actual item. In a deep copy,
+when an object contains a pointer, a new copy of whatever the pointer
+points AT is created and the new object contains a pointer to the newly
+created copy of the item.
+Why are deep copies important? If you carry out a shallow copy you end up
+with two pointers to the same item. If that item is an object with a
+destructor, this generally means you'll end up calling the destructor for
+that item twice, which will generally cause problems.
+Unfortunately, most don't know to ask this question directly: the symptom
+is generally heap corruption which is hard to track down directly since
+there it has many possible causes.
+
+Jerry Coffin [95-07-04], 95-07-16
+
+
+009     Why a "operator=(...)" when there is a copy ctor?       (95-07-16)
+
+You use the assignment operator (operator = ()) whenever an existing
+object is to be replaced with a different object. The copy constructor
+X(const X&) is used to create a new instance of an X-object exactly like
+another.
+
+Notice the subtle difference. Assignment changes an existing object while
+construction creates a new object. You can view assignment as the applica-
+tion of a destructor, to flush away the existing object, followed by a
+copy construction, to make an exact copy of the assigned object.
+
+Cliff Rhodes [95-07-08], 95-07-16
+
+
+010     What is an ABC: an "Abstract Base Class"?               (95-08-01)
+
+An Abstract Base Class is a class that is not intended to be instantiated
+itself. Rather, it is intended strictly for use as a base for other
+classes. To prevent instantiation, an ABC will typically contain at least
+one pure virtual function.
+
+The point of an ABC is to separate the interface of a group of classes
+from the implementation of the functions that make up the interface. This
+allows other code to ignore differences in how these functions are carried
+out. An ABC creates a contract between its descendants and any other code
+that uses them. The descendants must implement a certain set of functions.
+Code that uses them must use those functions to access whatever it is the
+object involved represents.
+
+Jerry Coffin [95-07-14], 95-08-01
+
+
+011     How is an ABC related to an "Abstract Data Type" (ADT)  (95-08-01)
+
+An ADT is a concept - the basic idea of a data type that doesn't specify
+how the data type is implemented. An ABC is a method C++ provides for
+creating an ADT.
+
+Jerry Coffin [95-07-26], 95-08-01
+
+
+012     What is a 'pure' virtual function and what's its use?   (95-08-01)
+
+A pure virtual function is signified by using `=0;' in place of the body
+of the function. The presence of a pure virtual function prevents
+instantiation of the class which contains it. For this to be of any use, a
+derived class must implement the pure virtual function. I.e. the derived
+class must provide a function with the same name which includes a function
+body.
+The basic reason for pure virtual functions is to specify something that
+a class can do without specifying how the class will do it.
+
+Jerry Coffin [95-07-26], 95-08-01
+
+
+/* ---- New since previous release -- provisionally numbered ---------- */
+
+None.
+
+
+/* ---- Abbreviations and Terminology --------------------------------- */
+
+This section also serves as an index.
+
+ABC     Abstract Base Class, see FAQ #010 and #011
+
+ADT     Abstract Data Type, see FAQ #011
+
+ARM     "The Annotated C++ Reference Manual"
+        by B. Stroustrup and M.A. Ellis. ISBN 0-201-51459-1
+
+assignment operator
+        See FAQ #009
+
+BC      Borland C. Usually including the Turbo products.
+
+binary files
+        See FAQ #004
+
+C++PL2  "The C++ Programming Language" second edition
+        by B. Stroustrup, ISBN 0-201-53992-6
+
+copy constructor
+        See FAQ #008
+
+ctor    constructor
+
+deep copy
+        See FAQ #008
+
+dtor    destructor
+
+interrupt handlers
+        See FAQ #005
+
+MSC     Microsoft C.
+
+pure virtual function
+        See FAQ #012
+
+SC      Symantec C.
+
+shallow copy
+        See FAQ #008
+
+static member functions
+        See FAQ #005
+
+subclass
+        Not a correct C++ term at all. Use "derived class". See ARM p.197
+
+superclass
+        Not a correct C++ term at all. Use "base class". See ARM p.197
+
+virtual destructor
+        See FAQ #003
+
+virtual function, pure
+        See FAQ #012
+
+/* ---- Contributors -------------------------------------------------- */
+
+Jerry Coffin
+Jari Laaksonen
+David Nugent
+Auke Reitsma
+Cliff Rhodes
+
+/* ==== CPP_ECHO.FAQ end ============================================== */

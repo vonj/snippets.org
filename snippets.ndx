@@ -1,0 +1,1226 @@
+| +++Date last modified: 05-Jul-1997
+| ~~~Date released: 24-Nov-1996
+
+|                         SNIPPETS Table of Contents
+|                         --------------------------
+|
+|NOTES: "+" preceding file name means new since last SNIPPETS
+|       "*" preceding file name means modified since last SNIPPETS
+|       "-" preceding file name means deleted since last SNIPPETS
+|
+|         O/S code: DOS = DOS
+|                   OS2 = OS/2
+|                   Unx = Unix
+|                   Mac = Macintosh
+|                   Ami = Amiga
+|                   WNT = Windows NT
+|                   D/O = DOS and OS/2
+|                   D/W = DOS and NT
+|                   DON = DOS, OS/2, NT
+|                   W/2 = Win32 and OS/2
+|                   W95 = Windows 95
+|                   Nov = Novell
+|                   DNt = General DOS network
+|                   any = Generally portable
+|                   n/a = not applicable
+
+
+|****************************************************************************|
+|                                                                            |
+|                          General information files                         |
+|                                                                            |
+|****************************************************************************|
+
+
+|=============================================================================
+| SNIPPETS Information files
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+* Read.Me      n/a  Last minute information and instructions
+* File_Id.Diz  n/a  File info for BBS's
+* Snippets.Txt n/a  General information about SNIPPETS
+* Whats.New    n/a  What's new in this release?
+* Snippets.(C) n/a  SNIPPETS freeware notice
+* Snippets.Rat n/a  SNIPPETS rationale
++ Librarys.Nfo n/a  Information on SNIPPETS recompiled libraries
++ Students.Nfo n/a  Students' guide to SNIPPETS files
+* Tosysops.Txt n/a  Note to sysops about SNIPPETS
+* Snippets.Ndx n/a  SNIPPETS index - this file
+* Credits.Lst  n/a  List of SNIPPETS authors
+* Missing.Txt  n/a  Rationale of files deleted since last SNIPPETS
+* License.Mfl  n/a  License for Microfirm Function Library files
+* Makefile     any  Makefile template for SNIPPETS demos and utilities
+
+
+|****************************************************************************|
+|                                                                            |
+|                        Portable functions and headers                      |
+|                                                                            |
+|****************************************************************************|
+
+
+|=============================================================================
+| General-purpose header files
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+* Ascii.H      any  Convenient enumeration for ASCII control characters
+* Big_Mall.H   DON  Portably allocate memory > 64Kb
+* Cast.H       any  Cast any object to any type
+* Circbuf.Hpp  any  C++ templates for circular/ring buffers
+* Dirport.How  DON  Brief tutorial on DIRPORT.H and DIRPORT.C
+* Dirport.H    DON  Write portable directory code for various PC compilers
+  Dirport.C    DON  Win 32 and OS/2 support functions for DIRPORT.H
+* Extkword.H   DON  Correct extended keywords syntax
+  Hilobyte.H   any  Extract high, low bytes from an int
+  Mk_Fp.H      DON  Makes sure the Intel MK_FP() macro is defined
+  Minmax.H     any  Macros & typesafe C++ templates for min() and max()
++ Metric.H     any  English <-> Metric and other conversion macros
+  Pi.H         any  Useful definitions using PI
+  Round.H      any  Rounding macros
+  Sniptype.H   any  Common include file for SNIPPETS data types and macros
+  Stat.H       D/W  Posix compliant sys/stat additions
+  Stringiz.H   any  Macros to use the ANSI/ISO preprocessor "stringize" macro
+
+|=============================================================================
+| Miscellaneous C-callable functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  A2E.H        any  ASCII <=> EBCDIC conversions
+  A2E.C        any
+  Toascii.C    any  EBCDIC-ASCII conversion arrays
+* Bastrngs.H   any  BASIC-like string functions
+* Bastrngs.C   any
+  Cards.Hpp    any  C++ class to implment a deck of cards, shuffle, and deal
+  Cards.Cpp    any
+  Ccard.H      any  Header file for credit card validation functions
+  Ccard.C      any  Credit card validation functions
+  Ccardplv.H   any  Patch level include file for credit card validation
+  Ctrlprnt.H   any  Print a line, displaying Ctrl characters
+  Ctrlprnt.C   any
+  Errors.H     any  Header file for SNIPPETS formatted error handlers
+  Err_Exit.C   any  Print formatted error message to stderr and exit
+  Ferrorf.C    any  Has ferrorf() and cant() for formatted error messages
+  Fscanbin.H   any  Scan binary fields via format string
+  Fscanbin.C   any
+  Isisbn.H     any  Validate ISBN (book) numbers
+  Isisbn.C     any
+  Memrev.H     any  Assymetrical memory swap
+  Memrev.C     any
+  Rolldice.H   any  Roll specified # of dice, each with speficied # of faces
+  Rolldice.C   any
+  Strucfil.H   any  Read/write structures to/from a file
+  Strucfil.C   any
+  Windchil.H   any  Compute wind chill factor
+  Windchil.C   any
+
+|=============================================================================
+| Extensible C & C++ determine which archiver was used on a packed file
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Whicharc.Doc n/a  Information about archive detection
+  Whicharc.H   any  Prototype declarations for WHICHARC.CPP
+  Whicharc.Cpp any  Function to determine archive types
+  Archive.Hpp  any  Declaration of extensible archive classes
+* Archive.Cpp  any  Archive class member functions
+
+|=============================================================================
+| Functions to read configuration files
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Cfg.H        any  Read configuration file data
+  Cfg.C        any
+  Cfg.Tst      any  Test data file for CFG.C #ifdef TEST section
+  Initvars.H   any  Read data into variables
+  Initvars.C   any
+  Initvars.Tst any  Test data file for INITVARS.C #ifdef TEST section
+
+|=============================================================================
+| Portable file operations
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Snipfile.H   any  Header for portable file functions
+  Ansiflen.C   any  ANSI-compliant file size function in C and C++
+* Existsx.C    any  POSIX-compliant functions to search paths for files
+  Fcompare.C   any  Compare 2 files for equality
+  Fopenx.C     any  Open files using EXISTSX.C path conventions
+  Srchfile.C   any  Search files for text, forwards or backwards
+  Textmod.C    D/O  Demo how to change lines in a text file
+* Wb_Fcopy.C   any  Fast file copy
+* Wb_Fapnd.C   any  Fast file append
+  Update.H     any  Automate .BAK file generation
+  Update.C     any
+  Ntstream.H   any  Share-aware C++ file streams
+  Ntstream.Cpp any
+
+|=============================================================================
+| Assorted string manipulation functions, some unique, some for porting
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Snip_Str.H   any  Header file for SNIPPETS string functions
+  Pluraltx.How any  How the plural text macros in SNIP_STR.H work
+  Memmem.C     any  Like strstr(), but for non-text buffers
+  Fmemmem.C    DOS  Like memmem() above, but for large DOS buffers
+  Sstrcpy.C    any  Overlapping strcpy() and strcat() work-alikes
+  Sstrdel.C    any  Delete multiple substrings from a string
+  Stptok.C     any  Improved tokenizing function
+  Strchcat.C   any  Append a single character to a string
+* Strdel.C     any  Delete a section of a string
+* Strdelch.C   any  Delete specific character(s) in a string
+  Strdup.C     any  Portable strdup()
+  Strecpy.C    any  Like strcpy, but returns pointer to NUL
+* Strecpy.Asm  D/O  Fast x86 assembly version of Strecpy.C
+  Stristr.C    any  Case-insensitive strstr() work-alike
+  Strrepl.C    any  Replace substrings
+  Strrev.C     any  Reverse a string in place using XOR swapping
+  Strrpbrk.C   any  Like ANSI/ISO strpbrk(), but searches from end of string
+  Strupr.C     any  Portable strupr() strlwr()
+  Translat.C   any  Translate string w/ C-style escape sequences
+  Xstrcat.C    any  String concatenation function
+* Ruleline.C   any  Create various styles of text ruler lines
+  Rmallws.C    any  Remove all whitespace from a string
+  Rmlead.C     any  Remove leading whitespace from a string
+  Rmtrail.C    any  Remove trailing whitespace from a string
+  Trim.C       any  Trim leading, trailing, & embedded spaces
+  Lv1Ws.C      any  Convert all whitespace in a string to single spaces
+
+|=============================================================================
+| Assorted (sic) sorting functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Snipsort.H   any  Header file for SNIPPETS sorting functions
+  Hugesort.C   DOS  Quicksort using huge pointers
+  Ll_Msort.C   any  Linked list mergesort
+  Ll_Qsort.C   any  Linked list quicksort
+  Rg_Isort.C   any  Insertion sort function
+  Rg_Qsort.C   any  Non-Recursive ANSI/ISO quicksort function
+  Rgiqsort.C   any  Recursive ANSI/ISO quicksort function
+  Rg_Ssort.C   any  ANSI/ISO quicksort-compatible shellsort function
+  Strsort.C    any  (Shell) Sort a string array
+
+|=============================================================================
+| Mark Corgan's functions for indexing and looking up data in text files
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Indxlook.H   any  Header for INDEX.C and LOOKUP.C
+* Index.C      any  Create a binary searchable index file from a text file
+  Lookup.C     any  Search a text file using a binary search index
+
+|=============================================================================
+| Assorted math functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+* Snipmath.H   any  Header file for SNIPPETS math functions
+  Dtotp6.H     DOS  Convert between Turbo Pascal 6-byte reals and C doubles
+  Dtotp6.C     DOS
++ Bcdl.C       any  BCD math (to/from long) functions
++ Bcdd.C       any  BCD math (to/from double) functions
++ Bcdd.Doc     n/a  Manual pages for BCDD.C functions
+  Combin.C     any  Compute combinations without overflow
+  Cubic.C      any  Solve cubic equations
+  Dbl2Long.C   any  Rounds doubles to longs
+  Dblround.C   any  Rounds a double to nearest whole number
+  Dblround.How any  How DBLROUND.C works
+  Etphi.C      any  Compute Euler's Totient function (phi)
+* Factoryl.C   any  Factorial, combinations, permutations
+  Fibo.C       any  Return any term in the Fibonacci series
+  Frand.C      any  Return random double in the range of 0.0 to 1.0
+  Ipow.C       any  Raise a number to an integer power
+  Ispow2.C     any  Is a number an integral power of 2?
+  Isqrt.C      any  Integer square root
+  Ldfloor.C    any  Long double floor
++ Logscale.C   any  Fast logarithmic integer scaling function
++ Mathstat.H   any  Header file for statistical functions in C and C++
++ Mathstat.C   any  Statistical functions in C and C++
+  Msb2Ieee.C   any  Convert MSBIN format to/from IEEE float
+  Perm_Idx.C   any  Determine permutation index
+  Rad2Deg.C    any  Convert radians <=> degrees
+  Rnd_Div.C    any  Integer division with rounding
++ Parity.H     any  Header for PARITY.C
++ Parity.C     any  Compute parity for any integral type
++ Triglib.H    any  Comprehensive trig functions in radians, degrees, grads
++ Triglib.C    any
+
+|=============================================================================
+| Random number functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Rand1.C      any  Random number generator
+  Rand2.C      any  Random number generator
+  Rg_Rand.C    any  Minimal random number generator
+
+|=============================================================================
+| Cliff Rhodes' package of unsigned integer math for arbitrarily large numbers
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Bignum.H     any  Header declaring the BigNum struct and prototypes
+  Bignum1.C    any  Add, subtract, and multiply BigNum's
+  Bignum2.C    any  Divide BigNum's
+  Bigtest.C    any  Test and demo program using BigNum's
+
+|=============================================================================
+| Various ways of computing PI to ridiculous lengths
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
++ Spigot.C     any  Calculate PI to ~1,000 digits using integer math
+  Pi.C         any  Calculate PI to 8,000+ digits
+  Pi8.C        any  Another PI calculator
+  Pi8.Nfo      any  A discourse on the PI8.C algorithm
+  Pi_Agm.C     any  Calculate PI to 10's of thousands of digits
+
+|=============================================================================
+| Numerical <=> string conversion functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+* Numcnvrt.H   any  Header for SNIPPETS numerical <=> string conversions
+  Bascnvrt.C   any  Convert radix of a numeric string
+  Commaflt.C   any  Format doubles using commas and variable precision
+  Commafmt.C   any  Format long integers using commas
+  Eng.C        any  Convert floating point value to engineering notation
+  Eval.C       any  Simple arithmetic expression evaluator
+  Eval.How     any  How EVAL.C works
+  Fmtmoney.C   any  Format US dollar amounts into text strings
+  Hexorint.C   any  Auto-convert hex or decimal strings
+  Hstr_I.C     any  Convert hex string to int
+  Ltoa.C       any  Convert long to a string
+  Ltostr.C     any  A safer version of ltoa()
+  Ord_Text.C   any  Format ordinal numbers in English
+  Scanfrac.C   any  Scans/converts text fractions
+  Str27Seg.C   any  Convert numeric string to 7-segment displays
++ L2Roman.C    any  Convert long integers to roman numerals
++ Roman2L.C    any  Convert roman numerals to long integers
+
+|=============================================================================
+| Multi-dimensional array functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Snparray.H   any  Header for multi-dimentional array functions
+  Amalloc.C    any  Multi-dimensional array allocation (limited to <64K on PC)
+  Mdalloc.C    any  Multi-dimentional array allocte and free (any size)
+* Mdasort.C    any  Test program demonstrating array sorting
+
+|=============================================================================
+| Bit-level operations
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Bitops.H     any  Prototypes, plus macros to set, clear, and test bits
+  Bitops.How   any  How the BitXxx() macros in BITOPS.H work
+  Bitarray.C   any  Bit array functions
+  Bitcnt_1.C   any  Count bits in a number (fast, clever)
+  Bitcnt_2.C   any  Count bits in a number (fascinating)
+  Bitcnt_3.C   any  Count bits in a number (table look-up)
+  Bitcnt_4.C   any  Count bits in a number (recursive table look-up)
+  Bitcnts.C    any  Benchmark to test BITCNT_x.C functions
+  Bitfiles.C   any  Read/write bit files
+  Bitstrng.C   any  Print binary formatted strings
+  Bstr_I.C     any  Convert binary string to int
+
+|=============================================================================
+| Auke Reitsma's comprehensive linked list functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Llist.Nts    any  Notes on linked list functions
+  Ll_Defs.H    any  Common includes and macros
+  Lls.H        any  Singly linked list header
+  Lls_Blob.H   any  Singly linked list for Binary Large OBjects
+  Lls_Str.H    any  Singly linked list for strings
+  Ll_Que.H     any  Singly linked list as queue
+  Ll_Stack.H   any  Singly linked list as stack
+  Lld.H        any  Doubly linked list header
+  Lld_Blob.H   any  Doubly linked list for Binary Large OBjects
+  Lld_Str.H    any  Doubly linked list for strings
+  Lls.C        any  Singly linked list functions
+  Lls_Blob.C   any  Singly linked list BLOB functions
+  Lld.C        any  Doubly linked list functions
+  Lld_Blob.C   any  Doubly linked list BLOB functions
+  Stack.H      any  Header for stack management functions
+  Stk_Defs.H   any  Common definitions and debugging macros
+  Stack.C      any  Stack management functions
+  Stk_Blob.H   any  Header for stack management of Binary Large OBjects
+  Stk_Str.H    any  Header for stack management of strings as BLOB's
+  Stk_Blob.C   any  Stack management functions for Binary Large OBjects
++ Ll_Demo.C    any  Demonstration of linked list functions in action
+
+|=============================================================================
+| Auke Reitsma's finite state machine (FSM) functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Fsm.H        any  Header file for simplified FSM implementation
+* Fsm.C        any  Simplified FSM implementation
+
+|=============================================================================
+| David Nugent's linked list container classes
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+* List.Hpp     any  Header
+* List.Cpp     any  Member functions
+
+|=============================================================================
+| Peter Yard's double ended queue functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
++ Deque.H      any  Header file supporting queues, stacks, FIFOs
++ Deque.C      any  Functions, including sort and search
+
+|=============================================================================
+| Dustin Puryear's stack managment functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Stk.H        any  Header for stack manager
+  Stk.C        any  Stack manager - init, push, pop, count
+
+|=============================================================================
+| Jerry Coffin's hash table functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Hash.H       any  Header for hash table functions
+* Hash.C       any  Hash table management
+
+|=============================================================================
+| J. Kercheval's PD regular expression comparator
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Match.Doc    any  Documentation for Match.C
+  Match.H      any  Header file
+  Match.C      any  Portable source including optional test code
+
+|=============================================================================
+| Functions to match similar sounding strings
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Phonetic.H   any  Header for all phonetic comparison functions
+  Soundex.C    any  Standard English soundex
+  Soundex4.C   any  English soundex optimized for use with surnames
+  Soundex5.C   any  Another soundex variant
+* Metaphon.C   any  Phonetic string matching: English, but better than soundex
+  Approx.C     any  Fuzzy string search
+
+|=============================================================================
+| Ray Gardner's scalar date functions plus other date and time functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Scaldate.H   any  Scalar ("Julian") date header
+  Scaldate.C   any  Scalar ("Julian") date functions
+  Daynum.C     any  Return statistics about a given date
+  Isdst.C      any  Determine if a given date is in Daylight Savings Time
+  Today.C      any  Return today's date as a scalar value
+* Dow.C        any  Return day of the week for any date
+  Fdate.C      Dnt  Return DOS file date as a scalar value
+  Cal.C        any  Calendar using Scaldate.C
+  Datetime.H   any  Header for other time and date functions
+  Jdn_L.C      any  Long integer Julian Day Number computation
+  Addtime.C    any  Add two times (hh:mm:ss) together, normalizing the result
+  Easter.C     any  Determine the date of Easter in any given year
+  Moon_Age.C   any  Determine the phase of the moon for any given date
+  Parsdate.C   any  Parse a date string
+  Parstime.C   any  Parse a time string
+* Strftime.H   any  Non-locale version of ANSI/ISO strftime()
+* Strftime.C   any
+
+|=============================================================================
+| Branislav Slantchev's zDate class library
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Zdate.Man    any  Manual for using the zDate class library
+* Date.Hpp     any  The zDate header
+* Date.Cpp     any  The zDate functions
+* Datedemo.Cpp any  Demonstration of the capabilities of the zDate library
+
+|=============================================================================
+| Jerry Coffin's word wrapping functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  W_Wrap.H     any  C header w/ prototypes and enum'ed constants
+  W_Wrap.C     any  C functions
+  Center.C     any  Center a wrapped line
+
+|=============================================================================
+| Various CRC and checksum functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Crc.Txt      n/a  CRC calculation tutorial
+* Crc.H        any  Header file for SNIPPETS CRC and checksum functions
+  Arccrc16.C   any  Compute CRC's using ARC, LZH algorithm
+  Crc_16.C     any  Calculated 16-bit CRC
+* Crc_16F.C    any  Fast 16-bit CRC
+* Crc_32.C     any  Table lookup 32-bit CRC
+  Checksum.C   any  Calculate checksum
+  Checkexe.C   DOS  Checksum protection for executable files
+  Crc.Hpp      any  Header for multiple CRC calculation class
+  Crc.Cpp      any  Calculation class for 6 types of 16- and 32-bit CRC's
+
+|=============================================================================
+| Craig Morrison's registration key functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+* Regkey.H     any  Header file for REGIT.C and CHKREG.C
+  Regit.C      any  Generate registration key
+* Chkreg.C     any  Validate registration key
+
+|=============================================================================
+| Functions to get command line options
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Getopts.Man  n/a  Manual for using getopts()
+  Getopts.H    any  Header for Getopts.C
+* Getopts.C    any  Scan command line for switches, filenames, response files
+  Getoptst.C   any  Test program to exercise getopts()
+  Palnfilt.C   any  Palindrome filter, demo for Getopts.C
++ Getoptsl.Man n/a  Manual for using getopts_lite()
+  Getoptsl.H   any  "Getopts Lite" - Smaller & simpler than full GETOPTS
+  Getoptsl.C   any
+
+|=============================================================================
+| String searching functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Search.H     any  SNIPPETS Header for string searching functions
+  Pbmsrch.C    any  Pratt-Boyer-Moore string search
+  Bmhsrch.C    any  Case-sensitive Boyer-Moore-Horspool search
+  Bmhisrch.C   any  Case-insensitive Boyer-Moore-Horspool search
+  Bmhasrch.C   any  Case-insensitive BMH search w/ accented chars
+
+|=============================================================================
+| David Nugent's iostreams (C++) tutorial
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Iostutor.Txt any  Tutorial for following demo code
+  Myio.H       any  Header for Myio.Cpp
+* Myio.Cpp     any  Simple I/O class
+  Mystream.H   any  iostream Interface for class Myio
+  Mystream.Cpp any  ios Interface implementation
+  Myline.H     any  Simple line input classes
+  Myline.Cpp   any  Implementation of myLine classes
+  Myiodemo.Cpp any  myio Loopback demo
+  Myio.Mak     any  Makefile for Iostutor.Txt demo files
+
+|=============================================================================
+| David Nugent's simple (sic!) string class
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Str.Doc      any  Information on the string class
+* Str.H        any  C++ header
+* Str.Cpp      any  Simple, portable C++ string class
+
+|=============================================================================
+| David Nugent's time functions class (a C++ wrapper for ANSI/ISO struct tm)
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Loctm.H      any  Header for time class
+  Loctm.Cpp    any  C++ class wrapper
+  Locdfmt.Cpp  any  Date formatting functions
+  Loctfmt.Cpp  any  Time formatting functions
+  Locfmt.Cpp   any  Date/time combined format
+  Lttest.Cpp   any  Test main() for C++ time class
+
+|=============================================================================
+| Walter Bright's memory allocation debugging package
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Mem.Txt      n/a  Information on the Mem package
+  Toolkit.H    D/O  Compiler-independent portability header
+  Mem.H        D/O  Mem package header
+* Mem.C        D/O  Mem package code
+
+|=============================================================================
+| Jeff Dunlop's memory allocation debugging package
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Jmalloc.H    DOS  Jmalloc package header
+  Jmalloc.C    DOS  Like MEM, more functions, check the copyright
+  Jnew.H       DOS  C++ debugging package for new, delete, uses JMALLOC
+  Jnew.Cpp     DOS
+
+
+|****************************************************************************|
+|                                                                            |
+|                        PC (DOS, OS/2) functions                            |
+|                                                                            |
+|****************************************************************************|
+
+
+|=============================================================================
+| General-purpose PC header files
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Ansicode.H   DOS  Macros for ANSI.SYS screen control
+  Ansitest.C   DOS  Test demo for ANSICODE.H, including remote detection
+  Dosgetch.H   DOS  Used by ANSITEST.H
+  Dosgetch.Asm DOS  Used by ANSITEST.H
+* Unistd.H     DOS  Posix standard header file for porting to DOS
+* Pcnvrt.H     any  Convert Pascal strings to C
+
+|=============================================================================
+| C-Callable x86 assembly harware ID functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Intel.H      DOS  Header for x86 hardware functions
+  Cpuid.Asm    DOS  Determine type of CPU/coprocessor in use
+  8087_Sav.Asm DOS  Saves/restores 80x87 environment
+
+|=============================================================================
+| Bob Stout's POSIX compliant directory functions & related files
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Dirent.H     D/O  POSIX compliant header
+  Posixdir.C   D/O  opendir(), readdir(), seekdir(), rewinddir() closedir()
+  Posix_Ls.C   D/O  Directory lister demo
+  Dirmask.C    D/O  Complex pattern matching (calls xstrcmp())
+  Xstrcmp.C    any  Compare strings using DOS wildcards
+
+|=============================================================================
+| DOS file name processing functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+* Filnames.H   DOS  Header file for file name processing functions below
+  Fln_Fix.C    DOS  Crunch dot directories, verify DOS-valid paths
+  Flnorm.C     DOS  Full file name normalization
+  Unix2Dos.C   DOS  Convert Unix-style pathnames to DOS-style
+  Chgext.C     DOS  Change/add a file name extension
+* Fnsplit.C    DOS  Portable fnsplit(), fnmerge() equivalents
+  Vfname.H     any  Configuration header file for Vfname.C
+  Vfname.C     any  Validate legal file names - DOS defaults but configurable
+
+|=============================================================================
+| DOS file and directory processing functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+* Dosfiles.H   DOS  Header for SNIPPETS DOS file and directory functions
+  Addhndls.C   DOS  Allow more than 20 open files under DOS 3+
+  Addpath.C    DOS  Append a new entry to DOS PATH
+* Doscopy.C    DOS  Copy a file via DOS COPY command
+  Drvalid.C    DOS  Benignly validate disk drives
+  Favail.C     DOS  How many more files may be fopen'ed?
+  Fchsize.C    DOS  Truncate/extend/resize DOS fiels using FILE pointers
+  Files.C      DOS  Determine number of FILE set in CONFIG.SYS
++ Fupdate.C    DOS  A set of portable _commit() functions
+  Getdcwd.C    D/O  Get current working directory for any given drive
+  Iscdrom.C    DOS  Determine if a given drive is a CD-ROM
+  Iscons.C     DOS  Does a FILE * refer to the console?
+  Isfopen.C    DOS  Is a FILE * in use?
+  Isnetdr.C    DNt  Determine is a drive is local or remote
+  Isramdsk.C   DOS  Determine if a drive is a RAM disk
+  Iswprot.C    DOS  Determine is a floppy is write protected
+* Mkdirs.C     any  Build directory tree (deep mkdir())
+* Pushdir.C    DOS  Stack-oriented CHDIR functions
+  Truname.C    DOS  Normalize filename using undocumented DOS
+  Filelist.H   D/O  Read a directory into a linked list
+  Filelist.C   D/O
+
+|=============================================================================
+| PC compiler compatibility functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Problems.Txt DOS  Common portability problems and some recommended solutions
+* Pchwio.H     DOS  Hardware I/O portability header
+* Pchwio.C     DOS  Hardware I/O portability functions
+  Biport.H     DOS  Header to port Borland _geninterrupt()
+  Biport.C     DOS  Port Borland code using pseudovariables
+  Bc_Rand.H    any  Port Borland random() and randomize()
+  Fmemops.H    DOS  Emulate MSC's _fmemxxx() in Power C, ZTC++, and older TC++
+  Fmemops.C    DOS
+  Ftime.H      DOS  BC++-style file date/time struct and prototypes
+* Ftime.C      DOS  BC++-style file date/time functions
+  Delay.H      any  Portable time delay() function
+  Delay.C      any
+  Clock.H      DOS  Add clock() to older compilers without it
+  Tc15.H       DOS  Demo of portability header for older compiler (TC 1.5)
+
+|=============================================================================
+| Steve Poole's non-block console I/O functions to port PC code to Unix
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Unxconio.H   Unx  Unix CONIO.H
+* Term_Opt.C   Unx  Supporting function for CONIO.H functions
+  Unxgetch.C   Unx  A getch() for Unix!
+
+|=============================================================================
+| Other Unix compatibbility functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Unxsleep.C   Unx  The microsleep() function for SysV and BSD
+
+|=============================================================================
+| Various system-level and utility functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Snpdosys.H   DOS  Header file for DOS system-level function
+  Getseg.H     DOS  Get segment and offset of any object
+  Break.C      DOS  Control DOS "SET BREAK=" status
+  Fndislot.C   DOS  Locate an unused user interrupt vector
+  Dosfrmat.C   DOS  Use DOS format to format a diskette
+  Format.H     DOS  Complete low-level floppy format
+* Format.C     DOS
+  Fptr_Add.C   DOS  Add any value to a far pointer and normalize far pointers
+  Isshare.C    Dnt  Determine if file sharing is enabled
+  Joystick.C   DOS  Joystick support functions
+  Memavail.C   DOS  Report available DOS memory
+  Nwlinname.C  Nov  Retrieve NetWare login name
+  Pfopen.C     any  Open a file anywhere
+* Redirect.C   any  Redirect standard streams
+  Shel2Dos.C   DOS  Shell to DOS from a running program
+
+  Os_Id.Txt    n/a  Description of OS_ID.C functions
+  Os_Id.C      D/O  Determine PC OS, also give up a time slice to the OS
+
+  Ticktrap.H   DOS  Install a function as a timer tick ISR
+  Ticktrap.C   DOS
+
+|=============================================================================
+| Martin Maney's fast line buffered file input
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Xfile.H      DOS  Header w/ prototypes
+  Xfile.C      DOS  Contains xopen(), xclose(), xgetline()
+* Xtest.C      DOS  Demo for above
+
+|=============================================================================
+| Portable PC video (text) functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Scrnmacs.H   DOS  Macros for portable video work
+  Dvidport.H   DOS  Macros for portable direct screen text output
+  Vidport.C    DOS  Portable gotoxy(), clrscr(), etc. equivalents,
+  Dvidport.C   DOS  Code to support DVIDPORT.H
+  Scrnsave.C   DOS  Save and restore text screens (buffer)
+  Fscrnsav.C   DOS  Save and restore text screens (file)
+  Scroll.C     DOS  Scroll screen function
+  Atr2Ansi.C   DOS  Given video attributes, build an ANSI.SYS command string
+  Dvideo.H     DOS  C video information functions
+  Dvideo.C     DOS
+  Ansiload.H   DOS  Detect ANSI.SYS
+  Ansiload.C   DOS
+  Cursor.H     DOS  Cursor management/manipulation
+  Cursor.C     DOS
+  Vgablank.H   DOS  Blank/restore EGA/VGA screens
+  Vgablank.C   DOS
+  Bresnham.H   any  Draw lines and circles
+* Bresnham.C   any
+* Bhamdemo.C   any  Additional demo for BRESNHAM.C
+
+|=============================================================================
+| Andrew Clarke's direct video and keyboard functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Vidmgr.Txt   n/a  Information about the package
+  Vidmgr.H     DON  Header file for the package
+  Opsys.H      any  Operating environment specific definitions
+  Vioimage.H   DON  Header for functions to save and restore text images
+  Vidmgr.C     DON  Portable functions
+  Opsys.C      any  Operating environment specific code
+  Vioimage.C   DON  Portable functions for saving and restoring text images
+  Vmgrdos.C    DOS  DOS-specific functions
+  Vmgros2.C    OS2  OS/2-specific functions
+  Vmgremx.C    OS2  EMX-specific functions
+  Vmgrdjgp.C   DOS  DJGPP=specific functions
+  Vmgrwnt.C    WNT  Windows NT-specific functions
+  Compile.Bat  DOS  Batch file to compile the package
+  Compile.Cmd  OS2  Command file to compile the package
+  Makefile.Djg DOS  Makefile for DJGPP for DOS 2.0
+  Makefile.Dos DOS  Makefile for Borland C++ for DOS 3.1+
+  Makefile.Emo OS2  Makefile for EMX for OS/2 0.9b
+  Makefile.W16 DOS  Makefile for Watcom C/C++ for DOS 10.0
+  Makefile.W32 DOS  Makefile for Watcom C/C++ for 32-bit extended DOS 10.0
+  Makefile.Wat OS2  Makefile for Watcom C/C++ for OS/2 10.0
+  Makefile.Emx D/O  Makefile for EMX for OS/2 and DOS 0.9b
+  Makefile.Bcc DOS  Makefile for Borland C++ for OS/2 1.0
+  Makefile.Wnt WNT  Makefile for Watcom C/C++ for Windows NT 10.0
+  Makefile.Qcc DOS  Makefile for MSC/QC for DOS
+  Makefile.Cyg WNT  Makefile for Cynus GNU C/C++ for Windows NT b14.0
+  Qmenu.C      DON  VidMgr demonstration program
+  Qm.Bat       DON  Batch file to run QMENU
+  Qm.Cmd       DON  Command file to run QMENU
+  Qmenu.Mnu    DON  QMENU options file
+
+|=============================================================================
+| Bob Stout's readable screen display functions (DOS but easily "portablized")
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  More.H       DOS  Header file for more_proc() and adj_scroll()
+* Moreproc.C   DOS  Display lines using MORE-style processing
+* Adjscrol.C   DOS  Display lines using dynamically adjustable scroll rate
+  More.C       DOS  DOS/Unix more work-alike
+
+|=============================================================================
+| Mark Kimes ANSI screen code interpreter
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Doansi.H     DOS  Header file
+  Doansi_1.C   DOS  Portable intepreter
+  Doansi_2.C   DOS  OS-specific support functions
+
+|=============================================================================
+| David Nugent's C++ ANSI/Avatar screen code interpreter
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Showansi.Doc n/a  Documentation for package
+  Scrintrp.Hpp DON  Base class for screen interpreters
+  Video.Hpp    DON  Simple video control class header
+  Ansisys.Hpp  DON  Header file for ANSI interpreter
+  Avatar.Hpp   DON  Header file for Avatar interpreter
+  Scrintrp.Cpp DON  Implements screen interpreter base class
+* Video.Cpp    DON  Implements video control class
+  Ansisys.Cpp  DON  Implements ANSI interpreter class
+  Avatar.Cpp   DON  Implements Avatar interpreter class
+* Showansi.Cpp DON  Protram to display ANSI/Avatar files
+  Saemx.Mak    OS2  Make file for EMX
+  Saw16.Mak    D/W  Make file for Watcom 16-bit target environments
+  Saw32.Mak    D/W  Make file for Watcom 32-bit target environments
+
+|=============================================================================
+| Bob Stout/Lynn Lively/David Fox sound & timing package
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Uclock.H     DOS  Microsecond timing function header
+  Uclock.C     DOS  Microsecond resolution timing functions
+  Uclock_.Asm  DOS  Microsecond resolution timing support functions
+  Sound.H      DOS  Sound functions header
+  Sound.C      DOS  Speaker control functions
+  Mktone.C     DOS  Tone generation functions
+  Playlib.C    DOS  Background music package
+  Playdemo.C   DOS  Demo of backgroud music package
+
+|=============================================================================
+| Bob Stout's direct disk I/O functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+* Snpdskio.H   DOS  Header for SNIPPETS direct disk I/O functions
+  Dos5Boot.H   DOS  Header for boot sector access
+  Absdiskc.C   DOS  C read and write functions
+  Absdisk.Asm  DOS  Low-level code for disk I/O, DOS 2-5
+* Hugeread.C   DOS  Read & write huge data using far pointers
+  Disk_Sn.H    D/O  Retrieve a disk serial number
+  Disk_Sn.C    D/O
+
+|=============================================================================
+| Ruurd Pels's FOSSIL access functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  X00Api.H     DOS  C header w/ prototype declarations
+  X00Api.C     DOS  C access functions
+
+|=============================================================================
+| Interrupt-driven serial I/O functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Queue.H      DOS  Queue management header
+  Serial.H     DOS  Serial I/O header
+  Queue.C      DOS  Queue manager
+  Serial.C     DOS  Interrupt-driven serial I/O library
+  Modemio.H    DOS  Simple serial I/O header
+  Modemio.C    DOS  Simple interrupt-driven serial I/O library
+
+|=============================================================================
+| Robert Mashlan's PRINT.COM interface functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Prnspool.H   DOS  C header w/ prototype declarations
+  Prnspool.C   DOS  PRINT.COM spool queue functions
+  Printq.C     DOS  Demo program for above
+
+|=============================================================================
+| PC Printer control functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Sniprint.H   DOS  Header file for SNIPPETS PC printer control functions
+  Assignpr.C   DOS  Multiple printer support
+  Changprn.C   DOS  Change the standard printer device
+* Prtoggle.C   DOS  Tee stdio to stdprn
+  Prtscrn.C    DOS  Invoke BIOS print screen function
+  Prtstat.C    DOS  Determine printer status
+
+|=============================================================================
+| Bob Stout's Portable PC exception handling
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Except.Doc   DOS  Information on programs below
+  Cctrap.Asm   DOS  Int 23h (Ctrl-C) trap
+  Cbtrap.Asm   DOS  Int 1Bh (Ctrl-Break) trap
+  Trapflag.Asm DOS  Trap & flag Ints 23h & 1Bh
+  Trapdemo.C   DOS  Demo of TRAPFLAG.ASM
+  Cerrinst.Asm DOS  Install DOS critical error handler
+  Cerrtrap.Asm DOS  DOS critical error handler
+
+|=============================================================================
+| Code to reboot a PC under verious operating systems
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Reboot.Asm   DOS  Reliable cold/warm boot for DOS, Windows 3.1
+  Os2_Boot.C   OS2  Reboot for OS/2
+
+|=============================================================================
+| Mouse functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Mouse.H      DOS  Header w/ prototypes
+  Mouse.C      DOS  Essential mouse stuff
+  Scrnpick.C   DOS  Demo, retrieves text from screen using mouse
+
+|=============================================================================
+| Dos (and OS/2) keyboard I/O functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Ext_Keys.H   D/O  Header to define extended key codes
+  Ext_Keys.C   D/O  A getch() work-alike for extended keyboards
+* Faskbhit.C   D/O  Fast kbhit(), kbflush(), ext_inkey()
+  Faskbhit.How D/O  How the FASKBHIT.C functions work.
+  Kb_Data.H    D/O  Keyboard status determination
+* Snipkbio.H   D/O  Header file for SNIPPETS keyboard I/O functions
+* Getyn.C      DOS  Get a yes/no response with prompt, default, and timeout
++ Kb_Stuff.C   DOS  Stuff a single character or string into the keyboard buffer
+  Isshift.C    D/O  Determine if shift, alt, or ctrl key is pressed
+  Isxkbrd.C    DOS  Detects extended (101+ key) keyboard
+  Keylocks.C   DOS  Caps/Num lock set/clear functions
+  Kbtrap.H     DOS  Traps reset, break, system keys
+* Kbtrap.C     DOS
+  Timegetc.C   DOS  Wait specified time for a keypress
+  Editgets.H   any  Get an input string with editing functions
+  Editgets.C   any
+  Getstrng.C   any  Safe gets() for input string of unknown length
+
+|=============================================================================
+| Cliff Rhodes' EMS and XMS support functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Xms.H        DOS  Header for XMS memory functions
+  Xms.C        DOS  XMS memory functions
+  Xmstest.C    DOS  Demo/test program for XMS memory functions
+  Ems.H        DOS  Header for EMS memory functions
+  Ems.C        DOS  EMS memory functions
+  Emstest.C    DOS  Demo/test program for EMS memory functions
+
+|=============================================================================
+| Robert Mashlan's memory allocation strategy functions
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Strat.H      DOS  C header w/ prototypes and enum'ed constants
+  Strat.C      DOS  C functions
+
+|=============================================================================
+| Stuff for those wishing to try to set the master environment (don't do it!)
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Environ.Txt  DOS  Notes on changing the master environment
+  Int2E.H      DOS  Header file for Int 2Eh functions
+  Int2E.Asm    DOS  Access command processor "back door"
+  Ccomcall.C   DOS  C "glue" to use Int 2Eh
+  Glbl_Env.C   DOS  Update and remove global environment variables
+  Mcb_Env.C    DOS  Modify master environment using MCB's
+* Setenvar.C   DOS  Set DOS master environment *legally*
+
+|=============================================================================
+| Erik Bachmann's library and utilities
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Bacstd.H     DOS  Header for the BACSTD library
+  Modulinf.H   any  Defines structure and macros for status tracking
+  Sortkey.H    DOS  Sort order tables for non-English sort sequences
+  Date__.C     DOS  Convert a date string from __DATE__ to ISO format
+  Time__.C     DOS  Convert a time string from __TIME__ to standard format
+  Cmpstr.C     DOS  Compare strings with variable sort order
+  Modulus.C    DOS  Basic routines for creating and checking modulus values
+  Repstr.C     DOS  Replace a pattern in a large amount of data
+  Strcase.C    DOS  Converts to upper/lower case using non-ASCII conversion
+  Strnsub.C    DOS  Search for a string, replace it with a new string
+  Strrepc.C    DOS  Replace all occurrances of one character with another
+  Strtrim.C    DOS  Trim blanks from a string
+  Strtrimc.C   DOS  Remove specific characters from a string
+  Fsif.C       DOS  Search a binary file for a string
+* What.C       DOS  DOS version of Unix what
+
+
+|****************************************************************************|
+|                                                                            |
+|                              Utilities/Demos                               |
+|                                                                            |
+|****************************************************************************|
+
+
+|=============================================================================
+| Programmer's utilities
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  C_Cmnt.C     any  Extract C comments (handles trigraphs)
+  Chmod.C      DOS  Change DOS file attributes - wildcards, etc.
+  Errfix.C     DOS  Redirect stderr to a file
+  Getcmt.C     any  Extract comments from C/C++ source files
+  Testcmt.C    any  Test file for above
+  Hexdump.C    any  Hex/ASCII file dump utility
+  Line.C       any  Filter to add line numbers to a file
+  Remtab.C     any  Convert tabs to spaces
+  Safeminx.C   DOS  Tool to prevent multiple header file inclusion
+* Seqtouch.C   D/O  Sequentially time/date stamp files in a directory
+  Setimeto.C   DOS  Set a file's time/datestamp to match another's
+* Sniptree.C   DOS  Create a directory tree for SNIPPETS files
+  Stub.C       any  Truncate .OBJ (and other) files
+  Timer.C      DOS  Time the execution of a program
+
+|=============================================================================
+| Jari Laaksonen's comment utilities in C++
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Cmtconvr.Txt n/a  Description of comment utilities
+  Cmtparsr.H   any  Header for the comment parsing engine
+  Cmtconvr.H   any  Header file for the comment converter
+  Cmtcount.H   any  Header file for the comment counter
+  Cmtremov.H   any  Header file for the comment stripper
+  Cmtxtrac.H   any  Header file for the comment extractor
+  Cmtparsr.Cpp any  The comment parsing engine
+  Cmtconvr.Cpp any  Convert C++ style comments to C style
+  Cmtcount.Cpp any  Counts commented lines
+  Cmtremov.Cpp any  Strip comments from a source file
+  Cmtxtrac.Cpp any  Extracts comments from a source file
+  Cmttests.C   any  Test file for comment utilities
+
+|=============================================================================
+| Jari Laaksonen's older comment utilities in C
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Commconv.C   any  Convert C++ style comments to C style
+  Remcmmnt.C   any  Strip C and C++ comments
+  Comments.Cpp any  Test file for above
+
+|=============================================================================
+| Fred Cole's CSPLIT utility
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Csplit.H     any  Header file for CSPLIT
+  Csplit.C     any  Split source file(s) for electronic transmission
+
+|=============================================================================
+| Various flavors of grep utilities
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Jgrep.C      DOS  Simple and portable
+  Grep.C       any  "Real" grep - free with some strings
+
+
+|=============================================================================
+| Other utilities and demos
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  2Dlife.C     any  2-D Life program
+  Ansiself.C   any  Self-replicating program in ANSI/ISO C
+  Bigfac.C     any  Do large factorials using ASCII multiply
+  Bincomp.C    any  Binary file comparison utility
+  Bodymass.C   any  Calculate ideal weight for your height
+  Bordcolr.C   DOS  Set border color
+  Cdir.C       DOS  Like DOS CHDIR except changes drives as well
+  Chbytes.C    any  Edit binary files in place
+  Cmdline.C    any  Demonstation how to access command line arguments
+  Cursize.C    DOS  Set the cursor size
+  Do.C         DOS  Specify multiple command line commands
+  Dossort.C    DOS  SORT work-alike
+  Drivsrch.C   DOS  Search for physical/logical drives
+  Drvs.C       DNt  Checks for valid disk drives, local or remote
+  Dspclock.C   DOS  On-screen TSR clock
+  Dspdtst.C    DOS  I/O benchmark - Miscrosoft/Borland/Symantec/Watcom/Mix
+  Dspdtst.Out  DOS  Results from DSPDTST on my machine
+  Factor.C     any  Print prime factorization of a number (double)
+  Filcount.C   DOS  Count files/directories
+  Filecat.H    any  Header for FILECAT.c and MAXLINE.C
+* Filecat.C    any  Adds one file onto another vertically
+* Maxline.C    any  Returns the length of the longest line in text file
+* Flopcopy.C   DOS  Copy a floppy to a HD subdirectory
+  Fraction.C   any  Convert a real number to an integer ratio
+  Getvol.C     DOS  Retrieve a disk volume label
+  Grafline.C   DOS  Demo of PC line drawing characters
++ Hamlet.C     any  Really cute obfuscated code by Tom Torfs
+  Head.C       any  Unix head work-alike
+  Howdy.C      any  Obfuscated C code
+  Ifactor.C    any  Print prime factorization of a number (long)
+  Inchcvrt.C   any  Convert inches to feet/inches and fractions
+  Kbflip.C     DOS  Set/clear Caps/Num/Scroll locks
+  Keywatch.C   DOS  Demonstrates capturing keyboard interrupt
+  Krnldemo.C   any  Demo of cooperative multitasking
+  Killff.C     any  Strip FF characters from text files
+  Log.C        any  Utility to log working time
+  Lsd.C        DOS  DIR enhanced work-alike
+  Lzhuf.C      any  Compression used in LHARC & LHA
+  Mainmain.C   any  Obfuscated C code
+  Maze_1.C     any  Maze generator
+  Maze_2.C     any  Obfuscated maze generator
+  Maze_3.C     any  Cute maze generator. Run, then enter size.
+  Morse.C      any  Convert strings to morse code
+  Mterm.C      DOS  Micro terminal (comm) program - use with X00 package
+* Mv.C         DOS  Move files
+* Nlcnvrt.C    any  Convert text files between DOS and Unix (CRLF <=> LF)
+  Palndrom.C   any  Self-replicating palindrome - try it!
+  Permute1.C   any  Permute strings
+  Permute2.C   any  Permute strings
+  Pr.C         any  Print a file with headers & breaks
+  Prntself.C   any  Program which prints its own source
+* Query.C      DOS  Timed query w/default for batch files
+  Rdxcnvrt.C   any  Convert between number bases
+  Reversi.C    any  Reversi game from '94 Obfuscated C Contest
+* Rm_All.C     DOS  Remove all files - now supports recursion
+* Setlevel.C   DOS  Query user from file, return answer in ERRORLEVEL
+  Setvol.C     DOS  Set, change, or kill a disk volume label
+  Skiplist.C   any  Demonstration of skip lists
+  Speed.C      DOS  Benchmark to calculate I/O performance
+  Spin.C       any  Demo of how to make various text "spinners"
+* Split.C      any  Split large text files into smaller ones
+  Stats.C      any  Analyze file statistics
+  Stripeof.C   DOS  Strip ^Z characters from DOS text files
+  Sunriset.C   any  Computes length of day at any place on Earth
+  Tabtrick.C   any  Demo using printf() for columnar formatting
+  Tail.C       any  Print last n (default = 5) lines of a file
+  Tiresize.C   any  Calculate English dimensions for standard metric tire sizes
+  To4Dos.C     D/O  Convert SNIPPETS.NDX to 4DOS DESCRIPT.ION file
+  Todaybak.C   DOS  Back up today's files to a floppy
+  Touch.C      DOS  TC/TC++/BC++ set file time/date stamp
+  Treedir.C    DOS  Recursive directory lister
++ Uusyntax.Man any  Instructions for UUNECODE and UUDECODE
+  Uuencode.C   any  Unix uuencode
+  Uudecode.C   any  Unix uudecode
+  Wc.C         any  Like Unix wc, counts lines, words, chars
+  Weird.C      any  Obfuscated C code
+  Where.C      DOS  Search for a file
+  Wordwrap.C   DOS  Simple CRT word wrap demonstration
+  Wputch.C     DOS  Demonstrates how to restrict output to a text window
+
+  Fork.Man     n/a  A fork command for DOS
+  Fork.H       DOS
+  Fork.C       DOS
+
+  T_Clean.Doc  n/a  Clean disks/directories by removing old files
+* T_Clean.C    Dnt
+
+
+|****************************************************************************|
+|                                                                            |
+|           Miscellaneous and FAQ (Frequently Asked Question) files          |
+|                                                                            |
+|****************************************************************************|
+
+
+|=============================================================================
+| Miscellaneous code snippets
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Hires.Asm    DOS  Switch to 43/50 line mode on EGA/VGA
+  Fpswitch.C   any  Demo how to use function pointer arrays
+  Fsm_Demo.C   any  Demonstrates a finite state machine
+
+|=============================================================================
+| Miscellaneous files
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  Make.Ini     any  Master file for NDMAKE
+  C_Lines.Awk  any  AWK script to count lines of C code
+  Asmcnvrt.Awk DOS  AWK script to convert "asm" lines in DOS compilers
+  Compiler.C   DOS  Test for popular PC compilers & versions
+  Style.C      any  Suggested coding style guidelines
+
+|=============================================================================
+| FAQ file (answers to Frequently Asked Questions)
+|=============================================================================
+| File         O/S  Description
+| ------------ ---  ----------------------------------------------------------
+  C_Faq.Nfo    n/a  Information where to get the comprehensive C language FAQ
+  C_Prec.Txt   n/a  Operator precedence/associativity in C/C++
++ Cstorage.Txt n/a  Tutorial for C keywords auto, extern, const, static...
+  Posix.Nfo    n/a  Answers the "What is Posix?" FAQ
+* Stdstuff.Txt n/a  Crib sheet of standard C functions, macros, and keywords
+  Cpp_Faq.Txt  n/a  Frequently-asked questions from the FidoNet C++ echo
+  Copyrite.Nfo n/a  Brief information on copyright law
+  Storage.Typ  n/a  C storage types crib sheet
+  Rtlftrul.Txt n/a  Right-left rule for reading C
+  Ptrtutor.Txt n/a  C pointers and arrays tutorial
+  Rlvalue.Txt  n/a  Brief tutorial on lvalues, rvalues, and pointers
+  C_Port.Txt   n/a  How to write portable C code
+  Hungnote.Txt n/a  Simonyi's original monograph on "Hungarian Notation"
+  Enums.Txt    n/a  Helpful hints for enums
++ Nul!Null.Txt n/a  The difference between "null", NULL, and NUL
+  Sorts.Txt    n/a  Discussion of sorting techniques
+  Decompil.Txt n/a  Looking for a decompiler? Read this!
+  Resource.Lst n/a  C Resource (books, magazines, vendors) list
+  Vt100.Txt    n/a  Chart of VT-100 escape codes
+  Which_C.Txt  DOS  Guidelines for choosing a PC C compiler
+* Pclrscrn.How DOS  How to clear a PC screen
+  Ansisys.Txt  DOS  Chart of ANSI screen control codes
+  Mmodels.Faq  DOS  Information on DOS real mode memory models
+  Para_Faq.Txt DOS  PC Parallel Port Mini-FAQ
+
+|=============================================================================
+| Files deleted since last SNIPPETS release - See MISSING.TXT for rationale
+|=============================================================================
+| File
+| ------------
+     
+- Bcd.C
+- Dequeue.C
+- Dequeue.H
+- Roman.C

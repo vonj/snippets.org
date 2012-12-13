@@ -1,0 +1,21 @@
+This is the new C++ release of my comment utilities, a C version of which was
+already in a previous SNIPPETS release. There is not much documentation -- I
+hope the code speaks for itself.
+
+The "heart" of the program is implemented as a finite state machine which 
+parses the source files and also is an abstract base class for all the 
+utilities.
+
+There are four utilities:
+  CMTCONVR - comment converter: converts C++ comments to C comments.
+  CMTCOUNT - comment counter: checks the balance of /* */ and counts
+             commented lines.
+  CMTREMOV - comment remover: removes comments from a source file
+             (output file contains plain code)
+  CMTXTRAC - comment extractor: extracts comments from source file
+             (output file contains all comments)
+
+The package contains also a test file, CMTTESTS.C which has a bunch of
+different styles of commenting -- some of which are quite perverse :-)
+
+        // Albert                      email: jla@to.icl.fi

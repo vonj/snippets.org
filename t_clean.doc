@@ -1,0 +1,75 @@
+      T_CLEAN - A utility for cleaning directories based on individual
+                file time stamps.
+
+
+Legal:  T_CLEAN is a free public domain utility. It is not guaranteed to do
+        anything more than take up disk space. Specifically, it is provided
+        "as is" without warranty of any kind, either expressed or implied,
+        including but not limited to the implied warranties of
+        merchantability and fitness for any particular purpose.  
+
+        The user of this program and documentation agrees to hold the
+        author(s) of this material harmless for any direct or consequential
+        damages resulting from its use.
+
+
+Syntax: T_CLEAN directory [...directory] [-tN] [-l[FILE] [nrgi?]
+
+
+At least one directory must be specified. Multiple directories may be
+specified. Directory specifications may use either relative or absolute path
+names.
+
+
+Switches:   All switches are optional and may be either upper or lower case.
+            Either "-" or "/" may be used as the switch lead-in character.
+
+  -tN       The "-t" switch specifies the file age to begin purging,
+            specified in days. For example, specifying "-t30" would delete
+            all files older than 30 days. The default if "-t" is not
+            specified is 14 days.
+
+  -l[FILE]  The "-l" switch specifies a log file to record the activity of
+            T_CLEAN. Note that the file name is optional, in which case the
+            log data are directed to the console and may therefore be
+            redirected or piped to another file or process.
+
+  -n        The "-n" switch instructs T_CLEAN to process normally, but not to
+            really delete anything. This is useful in combination with the
+            "-l" switch in verifying operation before actually using T_CLEAN
+            to delete files from a large or critical directory.
+
+  -r        The "-r" switch instructs T_CLEAN to process all nested
+            subdirectories of the specified directories.
+
+  -g        The "-g" switch is used in combination with the "-r" switch to
+            instruct T_CLEAN to try to delete nested subdirectories. Note
+            that only empty subdirectories (either cleaned out by T_CLEAN or
+            previously empty) are actually deleted.
+
+  -i        The "-i" switch instructs T_CLEAN to ignore special file
+            attributes, i.e. Hidden, Read only, or System files.
+
+            *** NOTE *** Use the "-i" switch with extreme caution!!!
+
+  -?        If you run T_CLEAN without specifying a directory or with one or
+            more invalid switches, it will display a help screen and abort.
+            You can also see the help screen by using the "-?" switch.
+
+
+ERRORLEVEL: T_CLEAN returns an ERRORLEVEL of zero if successful, or non-zero
+            in case of failure. In the case of a syntax error, the help
+            screen is displayed and a non-zero ERRORLEVEL is returned. If the
+            "-?" switch is invoked, the help screen is displayed and T_CLEAN
+            returns a zero ERRORLEVEL.
+
+            In the case of an internal failure, an error message is displayed
+            and/or logged. If T_CLEAN can continue, it will do so. If the
+            internal error prevents T_CLEAN from continuing, it will return
+            with a non-zero ERRORLEVEL.
+
+
+Technical:  T_CLEAN is supplied with complete source code. It has been
+            compiled and tested using C compilers from Microsoft,Watcom,
+            Symantec/Zortech, and Borland. The supplied executable was
+            created using Zortech C ver. 3.0r4.

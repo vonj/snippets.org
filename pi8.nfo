@@ -1,0 +1,185 @@
+This info file is placed into the public domain by its author, Carey
+Bloodworth, on Sept 24, 1996.  This info file just describes some of the
+thoughts I had while writing the arctangent pi program.
+
+
+PI programs are  a  carefull  collection  of  compromises.  It's not
+possible to write a single program that will  be  suitable  for  all
+circumstances.
+
+There are a number  of  things  you  need  to think about before you
+actually  start  writing  the  program.   And  many  of   them   are
+inter-related.
+
+Questions like:
+
+What  is  the maximum size of the calculation?  It's not possible to
+make it so generic that  it  will  be  convenient for a few thousand
+digits, but still be capable of generating millions.
+
+Are other people going to have to understand  the  program?   People
+who perhaps have little to no pi programming experience?
+
+What type of hardware will the program be run on?  How powerful?
+
+What formula should you use?
+
+What base will you work in?
+
+Do  you want to print out the digits while the calculation is going,
+or wait until it's done?
+
+What language will  the  program  be  in?   Some  languages are more
+suitable than others, and some formulas are more suitable  for  some
+languages than others.
+
+What will the failure point be?
+
+
+Okay....
+
+It has to be fully in C, since that would make it portable.
+
+We've got a variety  of  bases,  work  sizes, and formulas to choose
+from.
+
+For  the base, I'm going to work in some power of 10.  That makes it
+easy  to  print.   It does take a bit more memory than some power of
+two, but since we are  working  in  C,  there  is  no  advantage  to
+actually  working in either one.  So, I might as well go with what's
+easy to print.
+
+In an effort to  keep  things  simple,  that limits the selection to
+mostly arctangent formulas.
+
+For the arctangent formulas, I'm going to use:
+
+pi=16arctan(1/5)-4arctan(1/239)
+pi=32arctan(1/10)-4arctan(1/239)-16arctan(1/515)
+pi=8arctan(1/3)+4arctan(1/7)
+pi=16arctan(1/5)-4arctan(1/70)+4arctan(1/99)
+pi=12arctan(1/4)+4arctan(1/20)+4arctan(1/1985)
+
+That should provide enough  cross  checking  so  the user can always
+verify their calculations.  They  aren't  the  most  efficient,  but
+arctangents are O(n^2) anyway.
+
+
+To calculate the limit of the formula, we have to consider  that  we
+are working in C, and that our variables need to be able to hold the
+maximum divisor times the base size.  Formula wise, it would be:
+
+               BASE*MaxDivisor=MaxUint
+
+For a 16 bit integer and our base of 10, it'd be:
+
+               10*MaxDivisor=65535
+               MaxDivisor=6553
+
+To  determine  how  many  digits this would be capable of generating
+that are 'guaranteed' correct, you  use the relationship between the
+divisor and the number of digits.
+
+               NumDigits=MaxDivisor*log10(term)
+
+The  'term'  is the lowest part of the arctangent relationship.  For
+the classic pi=16arctan(1/5)-4arctan(1/239),  we'd  use the 5, since
+that is the part that will require the most number of divisions  and
+be the part to most likely overflow.
+
+(Note: This formula could be recast to calculate what the MaxDivisor
+ would be.  If you do, you'd need to add 4.  That won't be exact, but
+ it'll be 'close enough for government work'.)               
+
+
+So, let's calculate a few limits.
+
+16 bit integers:
+For base 10, the max divisor would be 6553
+So, the number of digits possible would be:
+ 3: log10(3) * 6553 = 3126
+ 4: log10(4) * 6553 = 3945
+ 5: log10(5) * 6553 = 4580
+10: log10(10)* 6553 = 6553
+
+That's way too low.  With assembler, or careful coding, it would  be
+possible to go all the way up to  a  max  divisor  size  of  65,535,
+allowing about 64k digits  with  the arctan(10) formula.  But that's
+still too low.
+
+32 bit integers:
+
+For base 10, the max divisor would be 429496729
+So, the number of digits possible would be:
+ 3: log10(3) * 429496729 = 204,922,018
+ 4: log10(4) * 429496729 = 258,582,797
+ 5: log10(5) * 429496729 = 300,205,330
+10: log10(10)* 429496729 = 429,496,729
+
+That's more than what I  need!   So,  let's try a larger base.  Say,
+100
+
+32 bit integers:
+For base 100, the max divisor would be 42949672
+So, the number of digits possible would be:
+ 3: log10(3) * 42949672 = 20,492,201
+ 4: log10(4) * 42949672 = 25,858,279
+ 5: log10(5) * 42949672 = 30,020,533
+10: log10(10)* 42949672 = 42,949,672
+
+That's still more than I really need.  It would work,  but  it  just
+seems a shame to waste the extra space that I'm not going to use.
+
+32 bit integers:
+For base 10,000, the max divisor would be 429496
+So, the number of digits possible would be:
+ 3: log10(3) * 429496 = 204,922
+ 4: log10(4) * 429496 = 258,582
+ 5: log10(5) * 429496 = 300,205
+10: log10(10)* 429496 = 429,496
+
+That's not enough.  It would certainly work for most situations, but
+I did sort of set that  arbitrary  limit  of being able to reach one
+million.
+
+So, it looks like the best we can do with 32 bit integers is to have
+a base of 100.  And of course, a base of 100 fits into an char.
+
+
+Just for curosity, I'm going to try it with the floating point type.
+There  wouldn't  be any point in doing it with a 'float', since that
+has only 24 bits of mantissa.  Double's though might be useful.
+
+C's 'double' type, with 53 bits of mantissa.
+For base 10,000 the max divisor would be 9e11
+So, the number of digits possible would be:
+ 3: log10(3) * 9e11 = 4e11
+ 4: log10(4) * 9e11 = 5e11
+ 5: log10(5) * 9e11 = 6e11
+10: log10(10)* 9e11 = 9e11
+
+That's _way_ too many.  So I'm going to go for a base a 1e9.  That's
+the largest power of 10 that will fit into a long integer.
+
+C's 'double' type, with 53 bits of mantissa.
+For base 1,000,000,000 the max divisor would be 9,007,199
+So, the number of digits possible would be:
+ 3: log10(3) * 9,007,199 = 4,297,526
+ 4: log10(4) * 9,007,199 = 5,422,874
+ 5: log10(5) * 9,007,199 = 6,295,761
+10: log10(10)* 9,007,199 = 9,007,199
+
+Alright!   That  looks a lot better!  We are getting a lot of digits
+from each piece of 'work' that  we  do, and the limit is high enough
+to be useful, but low enough to not be rediculous.
+
+
+Well...!   It looks like we have two possibilities.  32 bit integers
+and a base of 100, or  use  the  FPU  and a base of 1e9.  Well, most
+computers do have a FPU.  And the larger base  would  make  it  more
+efficient.   But  that  would  penalize the few computers that don't
+have a FPU.
+
+Fortunately, I don't have to actually decide!  As long as I keep the
+code generic, and limit  the  number  of  optimizations, I should be
+able to do _both_ forms, selectable with a compile time 'define'!

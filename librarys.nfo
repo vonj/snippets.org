@@ -1,0 +1,30 @@
+Beginning with the July, 1997 release of SNIPPETS, precompiled libraries of
+SNIPPETS functions will be available for many popular PC compilers. The
+naming convention of the precompiled library files is:
+
+SLxx9707.ZIP|RAR|LZH|TAZ|etc.
+^^^^^^^^ ^^^^^^^^^^^^^^^^^^^
+|||||||| |||||||||||||||||||
+|||||||| +++++++++++++++++++----  Archive extension
+||||++++------------------------  Release date
+|||+----------------------------  L=Library, K=Development kit
+||+-----------------------------  M=Microsoft, B=Borland, W=Watcom,
+||                                S=Symantc, Z=Zortech, X=Mix
+++------------------------------  SNIPPETS Library tag
+
+The library archives (designated with an "L" in the 4th character position)
+will contain precompiled libraries for all memory models, including both real
+mode and 32-bit models.
+
+The development kit archives (designated with an "K" in the 4th character
+position) will contain only the compiler-specific makefile and batch files
+necessary to build your own precompiled libraries. Obviously, the development
+kit archives will be much smaller than the complete library archives.
+
+Both the library and development kit archives will become available shortly
+after the release of SNIP9707. They will be available at the snippets.org ftp
+and web sites as well as all other official SNIPPETS distribution sites.
+
+Bob Stout
+rbs@snippets.org
+1:106/2000.6

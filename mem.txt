@@ -1,0 +1,215 @@
+                        Walter Bright's MEM Package
+                        ---------------------------
+
+
+PREFACE:
+--------
+
+The files, MEM.H and MEM.C which constitute the MEM package were originally
+published in the March-April 1990 edition of Micro Cornucopia magazine, now
+sadly out of print.  The files as they appear in SNIPPETS have been edited
+somewhat to remove compiler dependencies and correct minor discrepancies.
+
+For those who don't already know, Walter Bright is the author of Datalight
+Optimum-C, the original optimizing C compiler for PC's.  Through a succession
+of sales and acquisitions plus continual improvement by Walter,, his compiler
+became Zortech C++ and is now sold as Symantec C++.  As such, it is the only
+major PC compiler which can claim single authorship.  It also compiles faster
+than most other compilers and is still a market leader in its optimization
+technology.
+
+Like many other library and ancillary functions unique to Walter's compilers,
+the MEM package was originally something he wrote for his own use.  As noted
+above, he published it only once but it has been included as an unheralded
+"freebie" in Walter's compilers for the past several years.  Walter was kind
+enough to grant permission for its inclusion in SNIPPETS beginning with the
+April, '94 release.
+
+
+WHAT IS MEM?:
+-------------
+
+MEM is a set of functions used for debugging C pointers and memory allocation
+problems.  Quoting Walter, "Symptoms of pointer bugs include: hung machines,
+scrambled disks, failures that occur once-in-10,000 iterations, irreprodu-
+cible results, and male pattern baldness." After writing MEM for use in
+developing his own compiler and tools, he reported that its use reduced
+pointer bugs by as much as 75%.  MEM is simple to add to existing programs
+and adds little or no overhead.
+
+
+USING MEM:
+----------
+
+Included in the MEM package is TOOLKIT.H, which isolates compiler and
+environmental dependencies.  It should work as-is for most PC compilers and
+the Microsoft compiler for SCO Unix.  Other environments may be customized by
+writing your own HOST.H file, using the existing definitions in TOOLKIT.H as
+examples and modifying the values to match your system.  Using these
+techniques, the MEM package has been used successfully on Amigas, Macs,
+VAXes, and many other non-DOS systems.
+
+The MEM functions exactly parallel the standard library (plus 1 non-standard)
+memory allocation functions.  To implement MEM in your program, simply do a
+global search-and-replace of the following functions:
+
+      malloc()    ->    mem_malloc()
+      calloc()    ->    mem_calloc()
+      realloc()   ->    mem_realloc()
+      free()      ->    mem_free()
+      strdup()    ->    mem_strdup()
+
+At the beginning of main(), add the following lines:
+
+      mem_init();
+      atexit(mem_term);
+
+In the header section of each of your C files, add...
+
+#include "mem.h"
+
+...to every .C file which calls any of the above functions.
+
+The final step is to compile and link MEM.C into all programs using the MEM
+package.  It really is a pretty simple procedure!
+
+MEM has 2 modes of operation, debugging and non-debugging.  Use debugging
+mode during program development and then turn debugging off for final
+production code.  Control of debugging is by defining the MEM_DEBUG macro.
+If the macro is defined, debugging is on; if undefined, debugging is off.
+The default is non-debugging, in which case the MEM functions become trivial
+wrappers for the standard functions, incurring virtually no overhead.
+
+
+WHAT MEM DOES:
+--------------
+
+1.    ISO/ANSI verification:
+
+When Walter wrote MEM, compiler compliance with ANSI standards was still
+quite low.  MEM verifies ISO/ANSI compliance for situations such as passing
+NULL or size 0 to allocation/reallocation functions.
+
+2.    Logging of all allocations and frees:
+
+All MEM's functions pass the __FILE__ and __LINE__ arguments.  During alloca-
+tion, MEM makes an entry into a linked list and stores the file and line
+information in the list for whichever allocation or free function is called.
+
+This linked list is the backbone of MEM.  When MEM detects a bug, it tells
+you where to look in which file to begin tracking the problem.
+
+3.    Verification of frees:
+
+Since MEM knows about all allocations, when a pointer is freed, MEM can
+verify that the pointer was allocated originally.  Additionally, MEM will
+only allow a pointer to be freed once.
+
+Freed data is overwritten with a non-zero known value, flushing such problems
+as continuing to reference data after it's been freed.  The value written
+over the data is selected to maximize the probability of a segment fault or
+assertion failure if your application references it after it's been freed.
+
+MEM obviously can't directly detect "if" instances such as...
+
+      mem_free(p);
+      if (p) ...
+
+...but by guaranteeing that `p' points to garbage after being freed, code
+like this will hopefully never work and will thus be easier to find.
+
+4.    Detection of pointer over- and under-run:
+
+Pointer overrun occurs when a program stores data past the end of a buffer,
+e.g.
+
+      p = malloc(strlen(s));        /* No space for terminating NUL      */
+      strcpy(p,s);                  /* Terminating NUL clobber memory   */
+
+Pointer underrun occurs when a program stores data before the beginning of a
+buffer.  This error occurs less often than overruns, but MEM detects it
+anyway.  MEM does this by allocating a little extra at each end of every
+buffer, which is filled with a known value, called a sentinel. MEM detects
+overruns and underruns by verifying the sentinel value when the buffer is
+freed.
+
+5.    Dependence on values in buffer obtained from malloc():
+
+When obtaining a buffer from malloc(), a program may develop erroneous and
+creeping dependencies on whatever random (and sometimes repeatable) values
+the buffer may contain.  The mem_malloc() function prevents this by always
+setting the data in a buffer to a known non-zero value before returning its
+pointer.  This also prevents another common error when running under MS-DOS
+which doesn't clear unused memory when loading a program.  These bugs are
+particularly nasty to find since correct program operation may depend on what
+was last run!
+
+6.    Realloc problems:
+
+Common problems when using realloc() are: 1) depending on realloc() *not*
+shifting the location of the buffer in memory, and 2) depending on finding
+certain values in the uninitialized region of the realloc'ed buffer.
+
+MEM flushes these out by *always* moving the buffer and stomping on values
+past the initialized area.
+
+7.    Memory leak detection:
+
+Memory "leaks" are areas that are allocated but never freed.  This can become
+a major problem in programs that must run for long periods without interrup-
+tion (e.g. BBS's).  If there are leaks, eventually the program will run out
+of memory and fail.
+
+Another form of memory leak occurs when a piece of allocated memory should
+have been added to some central data structure, but wasn't.
+
+MEM find memory leaks by keeping track of all allocations and frees.  When
+mem_term() is called, a list of all unfreed allocations is printed along with
+the files and line numbers where the allocations occurred.
+
+8.    Pointer checking:
+
+Sometimes it's useful to be able to verify that a pointer is actually
+pointing into free store. MEM provides a function...
+
+      mem_checkptr(void *p);
+
+...to do this.
+
+9.    Consistency checking:
+
+Occasionally, even MEM's internal data structures get clobbered by a wild
+pointer.  When this happens, you can track it down by sprinkling your code
+temporarily with calls to mem_check(), which performs a consistency check on
+the free store.
+
+10.   Out of memory handling:
+
+MEM can be set using mem_setexception() (see MEM.H) to handle out-of-memory
+conditions in any one of several predefined ways:
+
+      1.    Present an "Out of memory" message and terminate the program.
+      2.    Abort the program with no message.
+      3.    Mimic ISO/ANSI and return NULL.
+      4.    Call a user-specified function, perhaps involving virtual memory
+            or some other "emergency reserve".
+      5.    Retry (be careful to avoid infinite loops!)
+
+11.   Companion techniques:
+
+Since MEM presets allocated and stomps on freed memory, this facilitates
+adding your own code to add tags to your data structures when debugging.  If
+the structures are invalid, you'll know it because MEM will have clobbered
+your verification tags.
+
+
+SUMMARY:
+--------
+
+Since it is, in the final analysis, a software solution, MEM is fallible.  As
+the saying goes, "Nothing is foolproof because fools are so ingenious."
+Walter himself readily acknowledges that there are circumstances where your
+code can do sufficient damage to MEM's internal data structures to render it
+useless.  The good news is such circumstances are few and far between.  For
+most memory debugging, MEM is a highly reliable and valuable addition to your
+C programming toolchest.

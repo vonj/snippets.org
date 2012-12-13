@@ -1,0 +1,34 @@
+_____ Free Use License for Frank Mitchell's Bushy Tree Code V.0.55 _____
+
+1: You can satisfy this License entirely by using the Bushy Tree Code in
+accordance with the GNU General Public License Version 2. In this
+situation any further requirements listed below need not apply. 
+
+2: There is no License Fee for incorporating Bushy Tree Code into your
+own applications. You may adapt any Bushy Tree Code in any way to form
+your own Libraries and Executable Programs. There is still no License
+Fee if you earn money from these applications, provided such reward is
+for your own development work. But you must acknowledge the relation
+between your product and the original Bushy Tree. You are entitled to
+choose your own wording for this acknowledgement, claiming due credit
+for your own work. 
+
+3: Whenever you supply other people with any form of Software which uses
+Bushy Tree Code, and before charging any money, you must tell them about
+the original Bushy Tree, and specify an Internet source where they can
+obtain its current Source Code at minimal cost. You may circulate
+modified copies of the Bushy Tree Source Code provided you include the
+Author's Copyright Notices and mention all modifications. You must not
+claim any Intellectual Property Rights in the Bushy Tree Code after
+modifying it. 
+
+4: Users should realize that the Bushy Tree Code is intended for use by
+people with programming ability, who can understand the principles of
+B-Tree operation, identify any problems when the Code is used for their
+application, and take adequate precautions against adverse consequences.
+
+5: The Author may choose to vary the terms of this License according to
+circumstances, and is open to suggestions by email. The Author's current
+Email Address is: mitchell.frank@bigwig.net. 
+
+

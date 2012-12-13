@@ -1,0 +1,17 @@
+# Makefile for WATCOM C/C++ for 32-bit DOS 10.0
+
+all: qmenu32.exe
+
+COPTS=-oneatx
+
+.c.obj:
+  wcl386 $(COPTS) -zq -wx -c $<
+
+objs=qmenu.obj    \
+     vidmgr.obj   \
+     vmgrdos.obj  \
+     vioimage.obj \
+     opsys.obj
+
+qmenu32.exe: $(objs)
+  wcl386 $(COPTS) -fe=qmenu32.exe $(objs)

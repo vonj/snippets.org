@@ -1,0 +1,84 @@
+/*
+**  Bit set, clear, and test operations
+**
+**  public domain snippet by Bob Stout
+*/
+
+typedef enum {ERROR = -1, FALSE, TRUE} LOGICAL;
+
+#define BOOL(x) (!(!(x)))
+
+#define BitSet(arg,posn) ((arg) | (1L << (posn)))
+#define BitClr(arg,posn) ((arg) & ~(1L << (posn)))
+#define BitTst(arg,posn) BOOL((arg) & (1L << (posn)))
+#define BitFlp(arg,posn) ((arg) ^ (1L << (posn)))
+
+  OK, let's analyze things...
+
+  The common expression in all of these that you seem to be having problems
+with is "(1L << (posn))". All this does is create a mask with a single bit on
+and which will work with any integer type. The "posn" argument specifies the
+position where you want the bit. If posn==0, then this expression will
+evaluate to:
+
+        0000 0000 0000 0000 0000 0000 0000 0001 binary.
+
+If posn==8, it will evaluate to
+
+        0000 0000 0000 0000 0000 0001 0000 0000 binary.
+
+  In other words, it simply creates a field of 0's with a 1 at the specified
+position. The only tricky part is in the BitClr() macro where we need to set
+a single 0 bit in a field of 1's. This is accomplished by using the 1's
+complement of the same expression as denoted by the tilde (~) operator.
+
+  Once the mask is created it's applied to the arugment just as you suggest,
+by use of the bitwise and (&), or (|), and xor (^) operators. Since the mask
+is of type long, the macros will work just as well on char's, short's, int's,
+or long's.
+
+  The bottom line is that this is a general solution to an entire class of
+problems. It is, of course, possible and even appropriate to rewrite the
+equivalent of any of these macros with explicit mask values every time you
+need one, but why do it? Remember, the macro substitution occurs in the
+preprocessor and so the generated code will reflect the fact that the values
+are considered constant by the compiler - i.e. it's just as efficient to use
+the generalized macros as to "reinvent the wheel" everytime you need to do
+bit manipulation. 
+
+  Unconvinced? Here's some test code - I used Watcom C with full optimization
+and without using _cdecl so the resulting disassembly would be as clean as
+possible:
+
+----[ TEST.C ]----------------------------------------------------------------
+
+#define BOOL(x) (!(!(x)))
+
+#define BitSet(arg,posn) ((arg) | (1L << (posn)))
+#define BitClr(arg,posn) ((arg) & ~(1L << (posn)))
+#define BitTst(arg,posn) BOOL((arg) & (1L << (posn)))
+#define BitFlp(arg,posn) ((arg) ^ (1L << (posn)))
+
+int bitmanip(int word)
+{
+      word = BitSet(word, 2);
+      word = BitSet(word, 7);
+      word = BitClr(word, 3);
+      word = BitFlp(word, 9);
+      return word;
+}
+
+----[ TEST.OUT (disassembled) ]-----------------------------------------------
+
+Module: C:\BINK\tst.c
+Group: 'DGROUP' CONST,CONST2,_DATA,_BSS
+
+Segment: _TEXT  BYTE   00000008 bytes  
+ 0000  0c 84             bitmanip_       or      al,84H
+ 0002  80 f4 02                          xor     ah,02H
+ 0005  24 f7                             and     al,0f7H
+ 0007  c3                                ret     
+
+No disassembly errors
+
+----[ finis ]----------------------------------------------------------------- 

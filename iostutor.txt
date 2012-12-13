@@ -1,0 +1,260 @@
+PROLOGUE --------
+
+This tutorial started out as a "small" example of how to interface an I/O
+object into the AT&T iostream classes currently provided with almost every
+C++ compiler. When I say "small", I mean just that - but the scope of the
+information I wanted to present really didn't fit well into that little hole,
+so it turned out a little larger than I had initially hoped. However, I think
+the effort was worth it - I know it was for me, since although I've done code
+which deals with ostream, I hadn't fooled at all with istream derived
+facilities, and learned some new things in the process.
+
+I can't really cite any single reference on iostreams that might prove useful
+for those wanting to go further other than the AT&T iostreams reference
+manual (my copy is out on loan at the moment so I can't quote the ISBN
+number). I have never come across one which is more complete than this
+reference, and most other references (including documentation from MSC/C++C,
+Borland, IBM etc.) tend to quote from it fairly liberally, but lack any of
+the important information needed to put it all together. While Microsoft's
+C++ tutorial reference has some great hints for getting started in iostream
+manipulators, it lacks in providing any information on interfacing to the
+iostream classes themselves.
+
+Hopefully the information I've provided below will make some sense. It is as
+complete as I could make it without really going overboard. Most of the
+ostream related code is gleaned from my own library, but the rest is brand
+new.
+
+The text of this tutorial and the accompanying source code are donated to the
+public domain.
+
+
+Tutorial in iostreams ---------------------
+
+This little project started out with the following aims:
+
+A)  To define a simple input/output object, one that consumes bytes sent to
+    it and generates data for input into a sample program. It should there-
+    fore feature a "read" and "write" function.  The object created is simply
+    a loopback buffer - input is queued immediately for output in FIFO (first
+    in first out) fashion.
+
+B)  To create a streams interface for this object, so that existing facili-
+    ties for I/O in the AT&T streams classes can be used directly in a
+    polymorphic fashion (ie. make use of C++ inheritance & virtual dispatch).
+
+    Specifically, I wanted to demonstrate the following aspects of iostreams:
+
+    - Use of buffered vs. unbuffered I/O
+
+    - Using the streams buffer for both input and output operations.  (an
+      interface to iostream, rather than just istream or ostream)
+
+    - How the put, get and putback buffers work
+
+C)  To write a trivial application which uses both components and provide a
+    means of interactively demonstrating how it all works.
+
+
+A - The I/O Object ----------------
+
+class Myio;
+
+This class is simply a front-end for a circular buffer. Input bytes are added
+at the head, and read from the tail. It is fixed in size, set by the
+constructor.
+
+Two read/write functions are provided to access any contained data:
+
+    int Myio::read (char * buf, int max);
+    int Myio::write (char const * buf, int len);
+
+These are both non-blocking calls which return the number of bytes read or
+written. They know nothing about line delineation - only about raw bytes, as
+would be the case for almost any I/O device.
+
+In addition, an internal flag is maintained to indicate when a write results
+in a buffer 'overflow' (an attempt to write more bytes than will fit in the
+buffer) and 'underflow' (an attempt to read an empty buffer). These flags
+reflect the last write and read calls respectively, and are reset or set on
+each write or read call.  The members Myio::readok() and Myio::writeok()
+return the settings as a boolean value.
+
+A Myio object can also optionally create a stream. It is created and comes
+into life when the member function Myio::stream() is called. If it was
+previously created, this function simply returns a reference to the existing
+stream. The stream, if it exists, is deleted by the destructor.
+
+Myio's stream is an iostream, which inherits all of the abilities of both
+ostream (for output) and istream (for input), including all operators. This,
+of course, is the primary benefit of using streams!
+
+
+B -  The Streams Interface -----------------------
+
+class Mystreambuf; class Mystreambase; class Mystream;
+
+Three classes as above are used. Mystreambuf derives from streambuf, and is
+responsible for the input output operations and buffering on behalf of a Myio
+object.  Mystreambase is used as a base class for Mystream to assist in the
+initialisation of the (My)streambuf passed to the iostream constructor.
+
+The iostream side is in fact very simple. Nothing really needs to be
+overridden, and all of the work is done in Mystreambuf, where all the action
+really takes place.
+
+The relationship between the ios/stream classes and the streambuf family is
+one of delegation rather than inheritance. The user/application accesses
+streambuf I/O via the stream object, not directly.  A class diagram showing
+the basic iostream classes and our classes would look like:
+
+
+         _ istream _ / \ ios -- ostream -- iostream \ \ \ Mystream \_____
+Mystreambase _/ | | (owns) | streambuf -- Mystreambuf
+
+
+All relationships, except the one marked "(owns)", indicate inheritance. The
+'owns' relationship is where the delegation occurs.  ios is inherited
+virtually, so that there is only one combined 'ios' object at the root of the
+streams inheritance tree.
+
+Within Mystreambuf, we need to override the functions responsible for actual
+input and output.  But first, let's discuss how this streambuf works.
+
+Mystreambuf uses a single buffer, using the default buffer size allocated for
+any streambuf (under most operating systems, this will be 1024 bytes). Since
+we are dealing with both input and output operations, and these operations
+are independent so far as the streambuf is concerned (as is the case with,
+for example, serial I/O, but *not* the case with files), the buffer is split
+into two; the first half is used for writing, the second for reading.
+
+The buffer used for writing is called the "put" buffer. Nothing mysterious
+there - when full, streambuf::overflow() function is called, and via virtual
+dispatch calls our Mystreambuf::overflow() which takes the contents of the
+buffer and writes it to the output device.
+
+The read - or "get" - buffer is slightly more complex. There are occasions in
+dealing with an input stream where it is convenient to know what's next
+without actually removing it from the stream.  That way, you can use the next
+character as an indication of what to do next. For example, if you're parsing
+a number, you want to know whether or not the next character is a valid
+digit, and stop parsing if it isn't. The read side therefore incorporates the
+idea of a "putback" buffer - after being read, the character can be placed
+back into the input stream.
+
+The putback buffer is entirely the responsibility of any streambuf derived
+class. It most you need to support a one character putback buffer - it is not
+valid to remove, and then restore, more than one character from the stream.
+It is also not valid put 'putback' any character but the one that was the
+result of the last 'get'.  It really must be "put back", not any old
+character "pushed" (you could actually support 'pushing' data into the stream
+if you wanted to, but you shouldn't use putback to do it).
+
+The get buffer is set up as:
+
+    Offset 0 1 2 3 ....  n | | | | to end of buffer |
++---+---+---+---------------------+ ^ ^ | +- Start of get buffer (where data
+is read in) | +- Where data is putback
+
+Each time streambuf runs out of characters to give to its client, the
+underflow() function is called. This fills the get buffer (get buffer size -
+1, starting at offset 1) and reserves the first byte in case the previously
+read character needs to be put back.
+
+streambuf provides internal pointers into the put, get and putback areas. All
+of the I/O functions it provides handle these automatically. In our
+underflow() and overflow() functions, we need to set these pointers according
+to where and how much data is read in.
+
+I mentioned above that in our case, the input & output streams are
+independant. That's not entirely the case - it may happen that when reading
+from the Myio buffer we run out of data and need additional data in the
+output stream buffer not yet written to Myio. We therefore flush the output
+stream before retrieving any data by calling overflow() directly from within
+underflow().
+
+The sync() function is also overridden. This simply empties all buffers by
+flushing the output buffer and discarding any buffered input.
+
+
+C - The Application -----------------
+
+The application itself is a simple menu, offering choice to send a line of
+output to the IO object (via its stream), read one in, and dump/display
+information both about the stream and Myio object.
+
+This added two other classes to the project:
+
+    - myApplication: the actual application, implemented as a class.  The
+      only way to go in C++. :-)
+
+    - myList: a simple line input class, whose sole purpose in life is to
+      extract a linefeed delimited line from any istream object and return it
+      as a char const *.  (I posted this code last week, but have since fixed
+      one minor bug I found in the process of developing Myio).
+
+A couple of subtle points - class myApplication uses a pointer to member
+function it its menu selection. This is not the only way of doing this of
+course, but I thought it was a good way of demonstrating a very C++ specific
+concept, operator ->*, which does not exist at all in C.
+
+Additional notes are included in the source comments.
+
+
+Making the application ----------------------
+
+Hopefully this is a fairly simple thing to do - just compile the modules:
+
+    Myiodemo.cpp Myio.cpp Mystream.cpp myLine.cpp
+
+and link them together. A simple makefile is provided - take a look at the
+definitions at the top, adjust as desired, and type "make" (or nmake). If you
+use any of Borland's compilers, just add the above files to a new project
+called "Myiodemo.PRJ", set it to produce a .EXE (*not* Windows or PM based)
+and press F9.
+
+Assuming a C++ compiler compatible with cfront 2.1 and the presence of an
+iostreams 1.2 library, the only non-portable part of this app is the use of
+getch() from conio.h. This isn't easily provided under a UNIX system. You can
+either fudge it by writing a getch() which switches into/out of 'raw' mode,
+or use getchar() and clear everything up to and including a CR or NL after
+the first character (the user still has to hit CR for input to get to the
+program).
+
+
+
+EPILOGUE --------
+
+Just some notes as to use of this code. If you need an output or input only
+class, then you use ostream or istream wherever iostream is mentioned in this
+example.  Also, if you use buffered mode (you can support it or not - you can
+even ignore the streambuf setting at your discretion), then you can use the
+entire buffer rather than just half each for input output.
+
+If you interface to an input only object, you only need to override
+streambuf::underflow(). Conversely, you override streambuf::overflow() for an
+output only object. I have noticed that *some* implementations of iostreams
+define the overflow() and underflow() methods as pure virtual functions,
+whereas the AT&T default defines each as simply returning EOF.
+
+If portability is any concern, you may need to override the function you
+aren't using in this fashion. The default sync() simply returns 0 (success),
+but again, this is sometimes defined as a pure virtual, so you may need to
+define it in your implementation.
+
+In some cases, you may wish to "switch" between unbuffered and buffered
+modes. This is easily done by defining a function in Mystream which does it,
+and this object is of course accessible in your I/O object (in this case
+Myio). The only thing you need to remember is to flush all the buffers by
+calling sync() when switching from buffered to unbuffered mode.
+
+Note also that some streambuf constructors take an existing buffer. This
+means that you can use buffers already provided in your I/O object directly
+rather than being forced to "double buffer" anything.  Your buffer can also
+be any size you like, subject to memory and other architecture constraints.
+
+
+Enjoy!
+
+David Nugent - 3:632/348@fidonet.org
+Moderator ('93-'94) of the FidoNet international C++ EchoMail conference

@@ -1,0 +1,228 @@
+
+                        ANSI.SYS's Escape Sequences File.
+
+
+
+        WARNING: You must press the ESC key, the [, the number wanted,
+                 then the tiny M key.
+
+                                 Graphics functions:
+
+           0 : All Attributes Off
+           1 : Bold On
+           4 : Underscore (Monochrome Display Only)
+           5 : Blink On
+           7 : Reverse Video On
+           8 : Concealed On
+
+          That's all for the Graphics Functions existing in ANSI.SYS.
+
+                                 Foreground colors:
+
+                30 : Black                             34 : Blue
+                31 : Red                               35 : Magenta
+                32 : Green                             36 : Cyan
+                33 : Yellow                            37 : White
+
+                                 Background colors:
+
+                40 : Black                             44 : Blue
+                41 : Red                               45 : Magenta
+                42 : Green                             46 : Cyan
+                43 : Yellow                            47 : White
+
+                  ( Background is finally the Foreground + 10 )
+
+                                 --------------------
+
+       Code     Description
+    ----------------------------------------------------------------------
+        Pn   :   Numeric Parameter - a Decimal Number that you Specify
+                 with ASCII digits.
+
+        Ps   :   Selective Parameter - a Decimal Number that you use to
+                 select a Subfunction. You may specify More than One Sub-
+                 function by separating the parameters with semicolons.
+
+        Pl   :   Line Parameter - a Decimal Number that you Specify with
+                 ASCII digits.
+
+        Pc   :   Column Parameter - a Decimal Number that you Specify
+                 with ASCII digits.
+
+                                   ------------------
+
+        Don't Forget! All theses sequences are precede by the ESC key.
+
+                                   ------------------
+        Sequence   Function
+    ----------------------------------------------------------------------
+        [Pl;Pc H : Cursor Position (CUP)
+
+        [Pl;Pc F : Horizontal & Vertical Position (HVP).
+                   CUP and HVP move the cursor to the position specified
+                   by the parameters. When no parameters are provided,
+                   the cursor move to the home position (the upper-left
+                   corner of the screen).
+
+        [Pn A    : Cursor Up (CUU)
+                   This sequence moves the cursor up Pn lines without
+                   changing columns. If the cursor is Already on the Top
+                   line, then it ignores the CUU sequence.
+
+        [Pn B    : Cursor Down (CUD)
+                   This sequence moves the cursor down Pn lines without
+                   changing columns. If the cursor is already on the
+                   bottom line, then it ignores the CUD sequence.
+
+        [Pn C    : Cursor Forward (CUF)
+                   The CUF sequence moves the cursor forward Pn columns
+                   without changing lines. If the cursor is already in 
+                   the far right column, then it ignores the CUF sequence.
+
+        [Pn D    : Cursor Backward (CUB)
+                   This escape sequence moves the cursor back Pn columns
+                   without changing lines. If the cursor is already in
+                   the far left column, then it ignores the CUB sequence.
+
+        [6n      : Device Status Report (DSR)
+                   The console driver outputs an RCP sequence when it
+                   receives the DSR escape sequence.
+
+        [s       : Save Cursor Position (SCP)
+                   The console driver saves the current cursor position.
+                   This position can be restored with the RCP sequence.
+
+        [u       : Restore Cursor Position (RCP)
+                   This sequence restores the cursor position to the
+                   value it had when the console driver received the
+                   SCP sequence.
+
+        [2j      : Erase Display (ED)
+                   The ED sequence erases the screen. The cursor then
+                   goes to the home position.
+
+        [K       : Erase Line (EL)
+                   This sequences erases from the cursor to the end of
+                   the line (including cursor position).
+
+  [Ps; ... ; Ps m: Set Graphics Rendition (SGR)
+                   The SGR escape sequence calls the graphic functions
+                   specified by the following numeric parameters. These
+                   functions remain until the next occurrence of an SGR
+                   escape sequence.
+
+        [=Ps h     Set mode (SM)
+        [=h        The SM escape sequence changes the screen width or
+        [=0h       type to one of the following numeric parameters:
+
+                 Screen Width Parameters
+            ----------------------------------
+            0  : 40 x 25 B&W
+            1  : 40 x 25 color
+            2  : 80 x 25 B&W
+            3  : 80 x 25 color
+            4  : 320 x 200 color
+            5  : 320 x 200 B&W
+            6  : 640 x 200 B&W
+            7  : Wraps at the end of Each line
+            14 : 640 x 200 color
+            15 : 640 x 350 mono
+            16 : 640 x 350 color
+            17 : 640 x 480 color
+            18 : 640 x 480 color (both 17-18 are good)
+            19 : 320 x 200 color
+            ------------------------------------
+
+        [= Ps 1  : Reset mode (RM)
+                   Parameters for RM are the same as for SM (Set Mode)
+                   except parameter 7 resets the mode that causes
+                   wrapping at the end of each line.
+
+ [code;string;...p: Allows redefinition of keyboard keys to a specified
+                    string where:
+                    'string' is either the ASCII code for a single
+                    character or a string contained in quotation marks.
+                    For example, both 65 and "A" can be used to
+                    represent an uppercase. 'code' is one or more
+                    of the following values that represent keyboard
+                    keys. Semicolons shown in this table must be
+                    entered in addition to the required semicolons
+                    in the command line.
+
+         Key                     Code
+   -----------------------------------------------------------------------
+                   Alone     Shift-   Ctrl-     Alt-
+   -----------------------------------------------------------------------
+          F1        0;59      0;84     0;94    0;104
+          F2        0;60      0;85     0;95    0;105
+          F3        0;61      0;86     0;96    0;106
+          F4        0;62      0;87     0;97    0;107
+          F5        0;63      0;88     0;98    0;108
+          F6        0;64      0;89     0;90    0;109
+          F7        0;65      0;90    0;100    0;110
+          F8        0;66      0;91    0;101    0;111
+          F9        0;67      0;92    0;102    0;112
+          F10       0;68      0;93    0;103    0;113
+          F11       0;133     0;135   0;137    0;139
+          F12       0;134     0;136   0;138    0;140
+         Home       0;71      55      0;119    -----
+      Up Arrow      0;72      56      -----    -----
+      Page Up       0;73      57      0;132    -----
+     Left Arrow     0;75      52      0;115    -----
+    Right Arrow     0;77      54      0;116    -----
+     Down Arrow     0;80      53      -----    -----
+          End       0;79      49      0;117    -----
+     Page Down      0;81      51      0;118    -----
+        Insert      0;82      48      -----    -----
+        Delete      0;83      46      -----    -----
+    Printscreen     -----     -----   0;114    -----
+
+            ------------------------------------------
+            and for the keyboard's alphabetical keys:
+            ------------------------------------------
+
+         Key                     Code
+   ----------------------------------------------------------------------
+                   Alone     Shift-   Ctrl-     Alt-
+   ----------------------------------------------------------------------
+          A         97        65       1        0;30
+          B         98        66       2        0;48
+          C         99        67       3        0;46
+          D         100       68       4        0;32
+          E         101       69       5        0;18
+          F         102       70       6        0;33
+          G         103       71       7        0;34
+          H         104       72       8        0;35
+          I         105       73       9        0;23
+          J         106       74      10        0;36
+          K         107       75      11        0;37
+          L         108       76      12        0;38
+          M         109       77      13        0;50
+          N         110       78      14        0;49
+          O         111       79      15        0;24
+          P         112       80      16        0;25
+          Q         113       81      17        0;16
+          R         114       82      18        0;19
+          S         115       83      19        0;31
+          T         116       84      20        0;20
+          U         117       85      21        0;22
+          V         118       86      22        0;47
+          W         119       87      23        0;17
+          X         120       88      24        0;45
+          Y         121       89      25        0;21
+          Z         122       90      26        0;44
+          1         49        33      -----     0;120
+          2         50        64      -----     0;121
+          3         51        35      -----     0;122
+          4         52        36      -----     0;123
+          5         53        37      -----     0;124
+          6         54        94      -----     0;126
+          7         55        38      -----     0;127
+          8         56        42      -----     0;128
+          9         57        40      -----     0;129
+          0         48        41      -----     0;130
+          .         45        95      -----     0;131
+          =         61        43      -----     -----
+          TAB       9         0;15    -----     -----
+          NULL      0;3       -----   -----     -----

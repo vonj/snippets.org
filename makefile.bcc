@@ -1,0 +1,16 @@
+# Makefile for Borland C++ for OS/2 1.0
+
+all: qmenup.exe
+
+COPTS=-O2
+
+.c.obj:
+  bcc $(COPTS) -w -c $<
+
+objs=qmenu.obj    \
+     vidmgr.obj   \
+     vmgros2.obj  \
+     vioimage.obj
+
+qmenup.exe: $(objs)
+  bcc $(COPTS) -w -eqmenup.exe $(objs)

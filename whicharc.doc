@@ -1,0 +1,98 @@
+================ whicharc.doc =====================================
+
+   --------------------------------------------------------------------
+   Modules:    ARCHIVE.CPP, WHICHARC.CPP
+   Subject:    tries to determine the archiver used to compress files
+   Author:     Heinz Ozwirk
+               free for all participants of the C_ECHO
+   Started:    28.09.1991   13:35:57
+   Modified:   13.10.1991   14:15:57
+   Modified:    5 January, 1992 11:50am by David Gersic
+                   Added return codes for self  extracting archive files.
+   Modified:   16 January, 1992, 4:15pm by David Gersic
+                   Added Pak and ARC ver. 6 with information from Richard
+                   Vanhouten @1:272/38. I'm not sure that this code works
+                   perfectly for those formats, as his message seems to
+                   indicate that the entire archive has to be scanned for
+                   headers to check before the type can be perfectly
+                   determined. It seems to work for test archives produced
+                   here, but may not work for all archives.
+   Modified:   02 September, 1994 by Jari Laaksonen (2:221/360.20)
+                   - partially rewritten, archive types are now C++ classes
+                   - added checking of some newer archivers (I'm not sure
+                     about the offsets for some SFX archives, but it is
+                     now easy to add new archive types).
+   --------------------------------------------------------------------
+   Prototype:  int WhichArc (char *pName)
+      pName    address of full path name of file to examine
+      Result   -1:      file not found
+               UNKNOWN: unknown packer
+               ARC:     ARC or PKARC
+               ARC6:    ARC ver. 6 or higher
+               PAK:     Pak
+               HPK:     Hpack
+               ZOO:     Zoo
+               ARJ:     ARJ
+               RAR:     RAR
+               UC2:     UC2
+               SQZ:     SQZ
+               LHA:     LHA
+               LHARC:   LHARC
+               ZIP1:    PKZIP 1.1x
+               ZIP2:    PKZIP 2.xx
+               SFXARC:  Self Extracting PKARC
+               SFXARC6: Self Extracting ARC ver. 6 or higher
+               SFXPAK:  Self Extracting Pak
+               SFXARJ:  Self Extracting ARJ
+               SFXLHARC:Self Extracting LHARC
+               SFXLHA:  Self Extracting LHA
+               SFXZIP1: Self Extracting ZIP 1.1x
+               SFXZIP2: Self Extracting ZIP 2.xx
+               EXE:     MS DOS executable of unknown type
+
+   LHARC/LHA
+      No archive header. WhichArc examines the checksum of the first
+      file header. If the checksum is valid and if the string -lh?-
+      is found, LHA or LHARC is assumed.
+      SFX offsets: LHARC         0x653
+                   LHA v.???     0x799
+                   LHA v.2.10    0x665
+                   LHA v.2.12->  0x664
+
+   ARJ
+      If a file starts with 0x60, 0xEA, ARJ is assumed.
+      SFX offsets: ->ARJ 2.22    0x39BA
+                     ARJ 2.41    0x4F4
+
+   ZIP1
+      If the file begins with "PK\x03\x04\x0A", PKZIP 1.1x is assumed.
+      SFX offsets: PkZip 1.1x    0x31F0
+
+   ZIP2
+      If the file begins with "PK\x03\x04\x14", PKZIP 2.xx is assumed.
+      SFX offsets: PkZip 2.04c   0x3CCB
+                   PkZip 2.04g   0x3D9A
+                   PkZip SFXJr   0xBBA
+
+   ZOO
+      Zoo'ed archives always start with "ZOO x.xx Archive". WhichArc
+      only looks for "ZOO".
+
+   ARC
+      No header. Files starting with 0x1A are assumed to be ARCed.
+      SFX offsets:               0x261E
+
+   ARC6
+      Similar to ARC, but if the second byte of the header is 0x14 or
+      higher, it was created by Arc version 6 or higher.
+      SFX offsets:               0x261E
+
+   PAK
+      Similar to ARC files, but if the second byte of the header is 0x0a or
+      0x0b, it was created by Pak.
+      SFX offsets:               0x1AD3
+
+   SFX*
+      All of the SFX files start with a small decompressor. Seek past
+      the decompressor and repeat the above checks.
+   --------------------------------------------------------------------

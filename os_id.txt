@@ -1,0 +1,78 @@
+                    Multi-Tasker Detection Routines
+                             by David Gibbs
+                          FidoNet: 1:115/439.0
+             Internet: David.Gibbs@f439.n115.z1.fidonet.org
+
+The following is a set of C routines that will enable a programmer to
+detect a multi-tasking environment and release the time slice when
+desired.  Currently DESQview, Windows, & OS/2 are the environments
+supported.
+
+Routines consist of two functions, two global int variables, one global
+structure, and a table of character pointers.
+
+void t_get_os(); This routines detects the operating environment, sets
+on the appropriate bits in the t_os_type field, and sets the t_os field
+to the dominant environment.
+
+void t_slice(); This routine will release the remainder of the current
+tasks time slice in the manner appropriate to the dominant environment.
+
+The following fields & structures are available...
+
+int t_os_type; is a bit mapped integer that indicates the presence of
+various operating environments.  If Bit 0 is on, DOS is present, Bit 1 =
+OS2, bit 2 = DESQview, bit 3 = Windows standard, bit 4 = Windows 386
+Enh.  These bits can be tested by using logical operations with the
+symbolic constants is_DOS, is_OS2, is_DV, is_WINS, and is_WIN3.
+
+int t_os; represents the dominant environment.  The dominant environment
+is defined as the multi-tasking system that takes precedence.  For
+instance, you can run Windows *UNDER* DESQview, but DESQview would be
+dominant, the same goes true for OS/2 & Windows.  This value can be
+tested by comparing to the symbolic constants: DOS, OS2, DV, WINS, and
+WIN3.
+
+struct t_os_ver ts_os_ver[]; indicates the versions of the various
+environments present.  Major & minor versions are found in the
+structure members 'maj' and 'min'.  The structure is subscripted, so you
+can access the version of environments using the symbolic constants use
+in 't_os'.
+
+const char *t_os_name[]; contains the names of the environments
+detectable.  These too are subscripted and can be accessed using the
+symbolic constants above.
+
+A sample program that uses these routines follows:
+
+#include <stdio.h>
+#include "tasker.h"
+
+void main() {
+        get_os();
+
+        printf("%s %d.%d detected",t_os_name[t_os],
+                                   t_os_ver[t_os].maj,
+                                   t_os_ver[t_os].min);
+
+        while(!kbhit()) {
+                printf("Hit a key!\r\n");
+                t_slice();
+        }
+}
+
+
+Special thanks go to Geoffery Booher (1:2270/233) for assistance with
+Windows & OS/2 detection & Time slicing.
+
+This routine is released to the public as CommentWare - If you use it,
+please send me a comment as to what you thought of it... oh yeah, you
+might think of giving me credit for the routines.
+
+Also, if you can think of a enhancement or correction, please let me
+know.  I can be reached at the above mentioned email addresses.
+
+Copyrights: DESQview by Quarterdeck Office Systems
+            Windows by Microsoft
+            OS/2 by IBM
+            TurboC++ by Borland

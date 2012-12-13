@@ -1,0 +1,137 @@
+---------
+QUESTION:
+---------
+
+  I haven't been able to find anything that explains the memory models to my
+satisfaction.
+
+-------
+ANSWER:
+-------
+
+  It's pretty simple. 80x86 CPUs (in real, as opposed to protected or flat,
+mode) form 32-bit segmented addresses of the form ssss:oooo, where ssss is
+the 16-bit segment address and oooo is the 16-bit offset address. The "real"
+address is (16 * ssss) + oooo, so the actual range is limited to only 20 bits
+of significance.
+
+  Given this fact, the code still has to access data and program memory. It
+has to access program memory in order to call other functions, perform
+conditional branches, etc. It also obviously has to access the data stored in
+memory.
+
+  To facilitate memory access, the 80x86 CPUs provide segment registers, the
+principle ones being the CS and DS registers which hold the segment values of
+the Code Segment and Data Segment respectively.
+
+  If your code or data are small enough to each fit within 64K, your program
+can become more efficient by simply setting the segment registers once and
+then forgetting them for the rest of the program's execution. Internally,
+whenever your programs needs data, it only specifies a 16-bit offset and the
+segment is provided by the DS register. Similarly, when you need to call
+another function, you only need to provide a 16-bit offset address and its
+segment is provided by the CS register.
+
+  If either your code or your data outgrow the bounds of a single 64K
+segment, your program is then forced to access them with a full 32-bit
+ssss:oooo address. A further complication is if any of your data objects
+overflow a 64K segment. In such a case, you have to readjust your DS register
+every time you access such a data object based on where within the object you
+need to access.
+   
+  This is where memory models come in.
+
+Tiny:           Code and Data both fit within the same 64K segment.
+Small:          Code and Data each fit within their own 64K segments.
+Compact:        Code fits in a 64K segment but Data doesn't.
+Medium:         Data fits in a 64K segment but Code doesn't.
+Large:          Neither Code nor Data will fit in a 64K segment.
+Huge:           Same as large, but individual objects may be over 64K.
+
+(Note: Symantec/Zortech C++ breaks several of the above rules; 1) its Tiny
+model works just like Small model, 2) Huge model isn't suported, 3)
+additional features are supported as additional memory models - V model for
+smart overlays, X model for 32-bit extended DOS applications, R model for
+16-bit extended DOS apps, etc.)
+
+
+---------
+QUESTION:
+---------
+
+  How do memory models relate to near and far pointers? What's the
+difference? And what are the various _fmem???() and _fstr???() functions used
+for?
+
+-------
+ANSWER:
+-------
+
+  It's simple once you understand the concept of segment registers. A near
+pointer is simply a pointer that doesn't require a segment to be specified. A
+far pointer includes both a segment and offset.
+
+  Relating this to the previous question, in Small and Tiny models, all
+pointers are near pointers. In Large and Huge models, all pointers are far
+pointers. In Compact model, function (code segment) pointers are near
+pointers and data pointers are far pointers. In Medium model, function (code
+segment) pointers are far pointers and data pointers are near pointers.
+
+  Sometimes, however, you may need to use a far pointer in a memory model
+that otherwise uses near pointers. Some examples would be:
+
+1.  Your program is written in Tiny, Small, or Medium model, yet you want to
+    access the PC's video memory which requires specifying the video RAM
+    segment to use. You would have to specify the video RAM address using a
+    far pointer. Since standard library funtions assume that all pointers
+    conform to the current memory model, functions such as memcpy() will not
+    work. What's needed in this example would be a memcpy() work-alike that
+    uses explicit far pointers - in other words, you need to use _fmemcpy().
+    Note that in Compact, Large, or Huge memory models, such functions
+    already expect far pointers and so the use of the _fstr???() and
+    _fmem???() functions is unnecessary, although benign.
+
+2.  You're writing an interrupt service routine (ISR). All ISR's specify a
+    far function pointer. This is why you'll always see them specified in
+    portable code in a manner similar to this:
+
+extern void (_interrupt _far *oldint9)(void);
+
+
+---------
+QUESTION:
+---------
+
+  I always have used the tiny memory model, and when I use libraries I use
+the small memory model because that's as small as these particular libraries
+support.
+
+-------
+ANSWER:
+-------
+
+  The difference between Tiny and Small models is in the startup code - the
+libraries for each are identical since each assumes that CS and DS will be
+set once and for all by the startup code.
+
+
+---------
+QUESTION:
+---------
+
+  What I want to know is how big does my program have to be before I would
+start using a larger memory model?  So far small has been more than adequate
+even though I consider some of my programs quite large. Although maybe not
+nearly as large as I think.
+
+-------
+ANSWER:
+-------
+
+  Maybe not. :-) You'll know when 1) you begin to get linker errors about
+segment overflows, 2) you get runtime errors when memory allocation functions
+begin failing.
+
+  For folks needing to port code from other systems, Large or Huge are the
+ticket since they make no assumptions about addressing. Using Large or Huge
+model is always safe, but will obviously pay a run-time performance penalty.

@@ -1,0 +1,16 @@
+# Makefile for EMX GNU C/C++ for OS/2 0.9b
+
+all: qmenup.exe
+
+COPTS=-O2
+
+.c.obj:
+  gcc $(COPTS) -s -Wall -Zomf -Zcrtdll -c $<
+
+objs=qmenu.obj    \
+     vidmgr.obj   \
+     vmgros2.obj  \
+     vioimage.obj
+
+qmenup.exe: $(objs)
+  gcc $(COPTS) -s -Wall -Zomf -Zcrtdll -Zlinker "/pm:vio" -o qmenup.exe $(objs)

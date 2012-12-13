@@ -1,0 +1,60 @@
+            Syntax for SNIPPETS' UUENCODE and UUDECODE utilities
+            ----------------------------------------------------
+
+
+Users not familiar with Unix utilities or filters in general have expressed
+some problems using the implementations of UUENCODE and UUDECODE in SNIPPETS.
+This file is a quick syntax reference for these implementations.
+
+
+UUENCODE:
+---------
+
+The syntax for this utility may be either...
+
+      UUENCODE [input_file] file_name > uuencoded_file
+
+...or...
+
+      UUENCODE file_name < input_file > uuencoded_file
+
+The UUENCODE utility encodes a binary file using only printable characters to
+facilitate transmission of such files (e.g. .ZIP archives) across trans-
+mission media designed for the transmission of textual data only. Although
+the internal format of the uuencoded file is not important, it does carry
+with it both the name of the uuencoded file as well as its encoded data.
+
+The first, optional, argument is the local file name of the file to be
+encoded. If the file name is not supplied, the input will be taken from
+stdin, i.e. it will act as a true filter (see note below!)
+
+The second, required, argument is the name to use when decoding the file.
+This is the name that is stored in the first line of the uuencoded file.
+
+All other arguments are used with the redirection operators, ">" and "<". If
+a local file name isn't specified, one must be redirected to stdin using the
+"<" operator. The output of uuencode is always to stdout. To send it to a
+file rather than appearing on the console, you should use the ">" operator.
+
+NOTE: There is one side effect of this implementation that can cause problems
+      in some environments. If the local file name is explicitly specified as
+      the optional first argument, everything proceeds as expected. However,
+      if the input file is redirected, it may cause unwanted translation of
+      newline characters. For example, on my DOS machine, uuencoding a
+      redirected text file, then decoding with the SNIPPETS utilities will
+      result in the CR/LF pairs terminating each line to be changed to LF
+      characters. The solution is to explicitly provide the input file name
+      rather than redirecting it.
+
+
+UUDECODE:
+---------
+
+UUDECODE is used to decode a file which has been encoded using the UUENCODE
+utility. Its syntax is...
+
+UUDECODE < uuencoded_file
+
+Note that no command line arguments are used and the file to be decoded is
+simply redirected to the utility. The decoded output is written directly to a
+file whose name is speciified in the first line of the uuencoded file.

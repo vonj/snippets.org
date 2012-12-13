@@ -1,0 +1,50 @@
+  Let's look at DBLROUND.C without the #include's or conditional macros for 
+NCEG...
+
+
+double dround(double x)
+{
+      Boolean_T flag;
+      static volatile double X;
+
+      SAVEROUND();
+      if (True_ == (flag = (x < 0.0)))
+            X = -x;
+      else  X = x;
+      X += 1.0 / DBL_EPSILON;
+      X -= 1.0 / DBL_EPSILON;
+      RESTOREROUND();
+      return ((flag) ? -X : X);
+}
+
+
+  The `flag' is obviously there just to keep track of whether `x' is positive 
+or negative.
+
+  The key to the algorithm is the reciprocal of DBL_EPSILON. Since
+DBL_EPSILON is the smallest fractional number which can be represented, its
+reciprocal is therefore the smallest number that cannot have a fractional
+part. Once you add this reciprocal to `x', its fractional part is stripped
+off. Simply subtracting the reciprocal back out returns `x' without its
+fractional component.
+
+  Simple, clever, and elegant - thanks to Ross Cottrell, the original author.
+The additional features added for SNIPPETS include:
+
+1.  The SAVEROUND and RESTOREROUND macros are provided for compilers which
+    support the NCEG floating point extensions and provide that for the
+    duration of the function, rounding will be performed to the nearest
+    value.
+
+2.  An intermediate variable X, declared volatile, is used rather than simply
+    using the passed variable x in order to prevent some smart compiler
+    optimizer from optimizing the function into oblivion. It's also declared
+    static since some compilers will not honor the volatile keyword for an
+    auto (stack-based) variable. Since X is declared static, dround() is not
+    re-entrant.
+
+  All PC compiler vendors use IEEE 754-1985 for their standard floating-point
+format. You can get a copy of every standard ever published by IEEE, ANSI,
+ISO, API, ASTM, and every other standards organization you can name from
+Global Engineering Documents. Be forewarned, however, that they're not cheap.
+I think the cheapest standard document I ever got from them was over $50.

@@ -1,0 +1,51 @@
++++Date last modified: 05-Jul-1997
+
+What's new in SNIPPETS Jul 97 edition?
+======================================
+
+
+General stuff:
+--------------
+
+This is, for the most part, a maintenance release to correct some bugs which
+crept into the November, '96 release. Two new major initiatives have been
+added to SNIPPETS, however. Read all about them in the new LIBRARYS.NFO and
+STUDENTS.NFO files!
+
+The process of adding more C++ code continues. Although high-quality free C++
+code is still scarce, I collect the best of these and include them in
+SNIPPETS.
+
+
+New stuff:
+----------
+
+You'll notice a lot of new pieces in the math function section, including
+additionl BCD math functions, and new packages for statistic, trig, parity
+calculation, and logarithmic scaling. A new entry in the pi computation to
+ridiculous extremes has also been added, with more to come! Finally, an
+improved drop-in function for converting to roman numerals has replaced the
+old stand-alone program. A complementary function has been added to convert
+from roman numerals to long integers, should anyone need such a thing.
+
+Continuing the expanded emphasis on SNIPPETS as an educational resource, Auke
+Reitsma has contributed a demo program for his excellent linked-list package.
+I also added a .MAN file to explain the usage of my getopts_lite() function.
+From Peter Yard comes a full-featured double-ended queue package.
+
+
+
+You'll find many more changes and additions along with bug fixes and general
+clean-up.
+
+-------------------------------  Enjoy!  -----------------------------------
+
+
+Bob Stout
+FidoNet:    1:106/2000.6
+            C_Echo moderator (1990-1991, 1996-1997)
+Internet:   rbs@snippets.org
+            rbs@brokersys.com
+SnailMail:  MicroFirm
+            P.O. Box 428
+            Alief, TX 77411

@@ -1,0 +1,45 @@
+ #define FastClearbuf() \
+ (*(unsigned far*)0x0040001AL = *(unsigned far*)0x0040001CL)
+
+ #define FastKBhit() \
+ (*(unsigned far*)0x0040001AL != *(unsigned far*)0x0040001CL)
+
+Q: Please explain the logic behind these statements. I have not seen
+   statements like these before and my textbooks have nothing like this in
+   them. Is 0x0040001A a long address cast as a far pointer to a pointer? Now
+   I'm really lost...
+
+A: In a PC using DOS (this is obviously *very* environment-specific code!),
+the BIOS maintains the keyboard buffer in an area of page 40h. The actualy
+16-bit key codes are stored in a 32-bit cirular buffer using head and tail
+pointers to point to new characters waiting to be fetched. Using head and
+tail pointers allows this buffer to be relocated to other areas of RAM and/or
+resized.
+
+  A convention of PC C compilers is that real mode addresses (such as those
+on page 40h) are represented as a concatenation of their segment and offset
+addresses, expressed as a long int. The far pointers to the head and tail of
+the circular buffer are...
+
+Head pointer storage location = 0040:001Ah (cast to unsigned long=0x0040001aL)
+Tail pointer storage location = 0040:001Ch (cast to unsigned long=0x0040001cL)
+
+...Since the key codes are all 16 bits wide, these must be cast to far
+pointers to unsigned ints or unsigned shorts.
+
+  Since the keyboard buffer is a circular buffer, in order to quickly tell if
+there are any keypresses waiting, all you need to do is simply compare the
+value of the head and tail pointers. If they're both pointing at the same
+place, there's nothing in the buffer. Similarly, in order to clear the
+buffer, simply set them equal to the same value and all pending keypresses
+disappear.
+
+  Now let's put it all together, using the FastKBhit() macro as an example...
+First of all, we cast the long int values shown above into far pointers to
+unsigned ints. We then dereference each to obtain the value located at each
+storage location. Finally, we #define the macro as the inequality of the two
+values, i.e. if they're different, there are one or more keypresses waiting.
+
+  Two notes... These are functions rather than macros in later versions of
+SNIPPETS, and these will obviously not work in protected or flat mode or any
+32-bit environment.

@@ -1,0 +1,123 @@
+      C Language Topic:  Clearing a Text Mode DOS PC screen
+====================================================================
+
+  Compiled by Mike Demski - 75324.3574@compuserve.com
+
+ The following question is often asked in the FidoNet C_ECHO and
+ other C/C++ programming forums/areas:
+
+ "How do I clear a "text mode DOS PC" screen using the C Language?"
+
+ Answers to the above question vary.  First, if portability is of
+ concern, a portable clear screen function "clrscr()" exists within
+ the SNIPPETS archive.  Within SNIPPETS, please refer to:
+
+ "Vidport.C - DOS: Portable gotoxy(), clrscr(), etc. equivalents"
+
+ Also, many compiler vendors supply a clear screen function,
+ which is "compiler specific" (i.e. - non portable).  (See below.)
+
+====================================================================
+   Compiler (Vendor)     *  Clear Screen Function  *   Header File
+====================================================================
+ Borland Turbo C++ 3.0,  *        clrscr()         *    conio.h
+ Borland C++ 3.x, 4.xx   *                         *
+--------------------------------------------------------------------
+ M.S. Quick C 2.5,       *                         *
+ M.S. Visual C++ 1.52,   *     _clearscreen()      *    graph.h
+ Watcom C/C++ 10.x       *                         *
+--------------------------------------------------------------------
+ Mix Power C 2.2.0       *        clrscrn()        *    bios.h
+--------------------------------------------------------------------
+ Symantec C++ v7.x,      *  [ See example below ]  *    disp.h
+ Zortech C 2.18          *    disp_xxxx() family   *
+--------------------------------------------------------------------
+
+Examples of specific vendor approaches to clearing a PC screen in DOS:
+
+--------------------------------------------------------
+/* Example - Borland Turbo C++ 3.0, Borland C++ 3.1, and
+             Borland C++ 4.x Clear Screen (DOS PC)   */
+
+#include <conio.h>
+
+int main(void)
+{
+  clrscr();
+
+  return 0;
+}
+--------------------------------------------------------
+--------------------------------------------------------
+/* Example - M.S. Quick C 2.5, M.S. VC++ 1.52, and
+             Watcom 10.x Clear Screen (DOS PC)   */
+
+#include <graph.h>
+
+int main(void)
+{
+  _clearscreen(_GCLEARSCREEN);  /* or _clearscreen(0) */
+
+  return 0;
+}
+--------------------------------------------------------
+--------------------------------------------------------
+/* Example - Power C 2.2.0 Clear Screen (DOS PC)  */
+
+#include <bios.h>
+
+int main(void)
+{
+  clrscrn();
+
+  return 0;
+}
+--------------------------------------------------------
+
+To clear the PC screen in DOS with Symantec C++ or
+Zortech C++, use the disp_xxxx() functions to set the
+cursor to the beginning of the screen and then call the
+disp_eeop() function to erase to the end of the screen.
+--------------------------------------------------------
+/* Example - Symantec C++ and Zortech C++ (all versions)
+             Clear Screen (DOS PC)   */
+
+#include <disp.h>
+
+int main(void)
+{
+   disp_open();
+   disp_move(0, 0);
+   disp_eeop();
+   disp_close();
+
+   return 0;
+}
+--------------------------------------------------------
+========================================================
+
+Furthermore, when using ANSI.SYS (or an equivalent), one
+may clear the screen using ANSI screen control codes.
+Within the SNIPPETS archive, please refer to ANSICODE.H,
+which defines: ANSI_cls(), or note the following equivalent
+ANSI screen control code clear screen example:
+
+--------------------------------------------------------
+/* Example - Using ANSI screen control codes to
+             Clear Screen (DOS PC)
+
+     Note:   ANSI.SYS or equivalent must be loaded
+             for this example to clear the PC screen.  */
+
+#include <stdio.h>
+
+#define  ESC  27
+
+int main(void)
+{
+
+  printf("%c[2J", ESC);
+
+  return 0;
+}
+--------------------------------------------------------

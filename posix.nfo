@@ -1,0 +1,53 @@
+  Posix is the common name for IEEE Standard 1003.1-1988, the IEEE Portable
+Operating System Interface for Computing Environments. It was published as an
+ANSI standard in 1988 and by ISO in 1990 as IEEE Std. 1003.1-1990. Posix
+defines a standard way for an application program to obtain basic services
+from the operating system. More specifically, Posix describes a set of
+functions derived from a combination of AT&T Unix Sys.V and BSD Unix. All
+Posix-conforming systems must implement these functions and programs that
+follow the Posix standard use only these functions to obtain services from
+the OS and underlying hardware.
+
+  You'll often see discussions of Posix.N, where "N" is some number from 0 to
+11. These are specific sections of the standard, as follows:
+
+Posix.0     Is not a standard, but an introduction to the following
+            standards.
+
+Posix.1     Defines the interface between portable applications and the
+            operating system. The API is defined in terms of a superset of
+            ISO/IEC 9899:1990 (ANSI) standard C.
+
+Posix.2     Specifies a shell command language based on the Unix SysV
+            shell with elements of the C and Korn shells.
+
+Posix.3     Provides detailed testing and verification requirements for the
+            Posix family.
+
+Posix.4     Is a set of real-time extensions for real-world problems.
+
+Posix.5     Is a set of Ada language bindings for Posix.1 services.
+
+Posix.6     Is a set of security enhancements to the basic system.
+
+Posix.7     Provides standard system administration facilities.
+
+Posix.8     Is a set comprising four subgroups specifying standard network
+            interfaces.
+
+Posix.9     Is a set of FORTRAN language bindings for Posix.1 services.
+
+Posix.10    Is a supercomputing Application Environment Profile (AEP)
+            specifying the requirements that supercomputer users (i.e. vector
+            and/or parallel architecture machines) of the other Posix
+            standard, typically Posix.4 and Posix.8.
+
+Posix.11    Is the transaction processing AEP specification.
+
+  As you might guess, there's a lot of overlap between the Posix standard
+functions and ANSI/ISO standard C. In addition, Posix also contains most of
+the low-level functions ANSI left out such as open(), close(), read(),
+write(), etc. as well as things ANSI/ISO C doesn't begin to address. The
+opendir(), closedir(), readdir(), telldir(), seekdir() and rewinddir()
+functions in SNIPPETS conform the Posix standard for these functions, as does
+their associated header, dirent.h.

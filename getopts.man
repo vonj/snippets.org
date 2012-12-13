@@ -1,0 +1,366 @@
+FUNCTION:   getopts()
+
+
+ABSTRACT:    Command line argument processor. Handles switches, options,
+             literal data, file names with or without wildcards. Switches and
+             options may have default values and range checking is supported.
+             Numeric arguments may be expressions.
+
+
+CALL WITH:   int getopts(int argc, char *argv[])
+
+             argc and argv are passed from main()
+
+             Option switches set up in an array of Option_Tag structures.
+
+
+PROTOTYPED:  In GETOPTS.H. Also see GETOPTST.C for a working sample
+             application.
+
+
+ALSO USES:   FNSPLIT.C, FERRORF.C, ERR_EXIT.C, UNIX2DOS.C, DBLROUND.C,
+             EVAL.C, and RMALLWS.C.
+
+PORTABILITY: Using the newest version of DIRPORT, GETOPTS.C has been
+             successfully used on DOS, Win32, and Solaris systems.
+
+
+PROCESSING LITERAL DATA AND FILE NAMES
+USING getopts() WITHOUT OPTION PROCESSING:
+------------------------------------------
+
+You can call getopts() without option processing by simply adding the
+following line to your program:
+
+struct Option_Tag options[] = {{ NUL, False_, Error_Tag, NULL, NULL,
+                                 NULL, NULL}};
+
+This is an empty options list which tells getopts() not to look for options.
+When called this way, only the global xargc and xargv[] data are saved.
+
+Optionally, you may also add:
+
+struct Voption_tag options[] = {{ NULL, False_, Error_Tag, NULL, NULL,
+                                 NULL, NULL}};
+
+This is an empty list of verbose options, which are explained below.
+
+If xarg processing is on, all arguments will be treated as file names and
+getopts will try to expand them. This is the default operation. To suppress
+argument expansion, add the following line to your program:
+
+xargs_on = False_;
+
+Using the xargs_on variable, it is even possible to add a command line option
+which will turn xargs processing on or off based on a specific command. Since
+options are processed left-to-right, all arguments preceding such a switch
+may be processed differently from arguments following the switch. See the
+section below on options processing for more information on specifying
+command line options.
+
+When xargs processing is active, the global variable xargc will be the total
+number of arguments returned, including expanded filenames, plus 1. The full
+list of arguments, including expanded filenames, is returned in the global
+xargv array. Just as with argv, xargv[0] is the executing program's file name,
+copied from argv[0].
+
+If xargs processing is turned off, or if the arguments cannot be expanded,
+the xargv array will hold the same contents as the original argv array. Note
+that command line options are stripped from the xargv array, so if your
+command line had 10 arguments, of which 5 were options, the xargv array would
+contain only 6 elements (remember xargv[0]), assuming no wildcard expansion
+occurred.
+
+
+PROCESSING NORMAL OPTIONS USING getopts():
+------------------------------------------
+
+Each program using getopts() must specify an options[] array of Option_Tag
+structures. Each of these structures must contain the following 8 fields:
+
+Field 1 -   An integer specifying the letter used to control the option. For
+            example if you wanted to add a optional filename specification
+            using "-Ofilename", you would place 'O' in field 1.
+
+Field 2 -   A Boolean_T type field (see SNIPTYPE.H) which controls whether
+            the option is case sensitive. In the above example, specifying
+            False_ in this field would also cause "-ofilename" to be
+            recognized.
+
+Field 3 -   This field contains the enumerated type of data to be changed.
+            Valid values are:
+
+            Boolean_Tag  Used to specify True_/False_ switches.
+            Bitfield_Tag Used to specify 32-bit bit fields.
+            Int_Tag      Used to specify int values.
+            Short_Tag    Used to specify signed short values.
+            Long_Tag     Used to specify signed long values.
+            Byte_Tag     Used to specify unsigned char values.
+            Word_Tag     Used to specify unsigned short values.
+            DWord_Tag    Used to specify unsigned long values.
+            Float_Tag    Used to specify float values
+            DFloat_Tag   Used to specify double values.
+            String_Tag   Used to specify strings (character arrays).
+            Error_Tag    Used only in terminating records (see above).
+
+Field 4 -   Additive, a Boolean_T which controls whether the datum is
+            cumulative. Used with a numeric argument, the sum of all options
+            are stored. Used with a string, each argument is concatenated to
+            the previous string, if any.
+
+Field 5 -   The address where the option data is to be stored.
+
+Field 6 -   If not NULL, this address points to a string specifying the
+            minimum allowable value for the option. In the case of boolean
+            variables, this field is ignored. In the case of strings, this
+            specifies the minimum permissible string length. If the argument
+            is shorter than this value, the string is truncated to "". The
+            format of this string is the same as for a command line
+            specification. See the section on type formatting below for
+            further details.
+
+Field 7 -   If not NULL, this address points to a string specifying the
+            maximum allowable value for the option. In the case of boolean
+            variables, this field is ignored. In the case of strings, this
+            specifies the minimum permissable string length. If the argument
+            is shorter than this value, the string is truncated to "". The
+            format of this string is the same as for a command line
+            specification. See the section on type formatting below for
+            further details.
+
+Field 8 -   If not NULL, this address points to a string specifying the
+            default value to be assigned to the datum. In the case of boolean
+            data, this field is ignored. In the case of numeric data, the
+            format of this string is the same as for a command line
+            specification. See the section on type formatting below for
+            further details.
+
+Build your options[] array by specifying each option structure. When you're
+done, terminate the array with a terminating record as shown above. See the
+GETOPTST.C test file for an example.
+
+
+OPTION STRING FORMATTING BY TYPE:
+---------------------------------
+
+Boolean_Tag       N.A.
+
+Int_Tag           Decimal numeric expression.
+
+Short_Tag         Decimal numeric expression.
+
+Long_Tag          Decimal numeric expression.
+
+Byte_Tag          Hexidecimal numeric constant.
+
+Word_Tag          Hexidecimal numeric constant.
+
+DWord_Tag         Hexidecimal numeric constant.
+
+Float_Tag         Decimal numeric expression.
+
+DFloat_Tag        Decimal numeric expression.
+
+String_Tag        String literal.
+
+
+Hexidecimal numeric constants consist of 2-8 hexidecimal (depending on the
+data type) digits, with or without an optional trailing 'h'.
+
+
+String literals are saved just as typed. The only problem is with strings
+containing spaces. Most operating systems split command line arguments at
+whitespace, so if you wanted to specify a string containing spaces, the
+entire argument, including the switch itself, may be enclosed in quotes, e.g.
+
+"-oThis is a string".
+
+Per Unix convention, it is also permissible to include whitespace between the
+switch and its string argument, e.g.
+
+-o "This is a string"
+
+However, care should be exercised in this case. The program logic for such
+occurances is:
+
+1.  Is the switch followed by non-whitespace? If so, use the remaining
+    characters as the string.
+
+2.  If followed by whitespace, is the next field a switch or response file?
+    If so, then use the default sting, if any.
+
+3.  If followed by whitespace and the next field is neither a switch or
+    response file, then use the next field (if it exists) as the argument.
+
+Decimal numeric expressions are processed by EVAL.C and may therefore consist
+of any numerical expression, either a constant or mathematical formula,
+conforming to the evaluate() function's syntax. Note that since the numeric
+expression starts out as a string, the same limitations regard embedded
+spaces apply.
+
+
+
+SPECIAL OPTIONS CONSIDERATIONS:
+-------------------------------
+
+All options are of the basic form, <switch_char><option>, and are processed
+left-to-right in sequence. The getopts() function now only allows the use of
+'-' (Unix- style) option switch characters. The response file lead-in
+character, '@' is also treated as an option switch character. Should you need
+to enter a filename which uses any of these three switch characters, simply
+precede it with a '-'. Thus getopts() will perform the translation, e.g.
+
+--file.ext  =>    -file.ext
+-@file.ext  =>    @file.ext
+
+Per standard Unix practice, an option consisting only of back-to-back switch
+characters, "--", is interpreted as a command to turn off further option
+processing. Therefore a command tail consisting of...
+
+-ofoo -ibar -xyz -- -oops
+
+...where "-o", "-i", and "-x" are valid option characters defined in the
+options[] array, would process the first three options, then return the fifth
+argument as the string literal "-oops" in the xargv array.
+
+Boolean options take the extended form, <switch_char><option>[<action>],
+where the optional third action switch controls whether to turn the switch
+off (the default action is to turn it on). Thus if you have a boolean option
+defined which is controlled by the letter, 'a',
+
+-a    turns on the option, while
+-a-   turns off the option.
+
+The getopts() function does not currently allow for spaces between the switch
+character and the following argument except in the case of strings as noted
+above. Therefore, if you have defined an option of type double, which is
+controlled by the letter, 'n',
+
+-n98.6      is valid, while
+-n 123.45   is invalid.
+
+If you feel the need to include the space, you may hack GETOPS.C, or simply
+get the argument as a string and perform the conversion yourself.
+
+All options except boolean switches allow a default value to be specified in
+the options[] array. You thus have 3 possible actions with two effective
+defaults. Consider the following options[] array and specified values:
+
+double num       = 3.14159;
+char   numdflt[] = "2.71828";
+char   nummin[]  = "-100.0";
+char   nummax[]  = "1e6";
+
+struct Option_Tag options[] = {                 /* Valid options        */
+      {
+            'N',                                /* Option letter        */
+            False_,                             /* Case sensitivity     */
+            DFloat_Tag,                         /* Data type            */
+            False_,                             /* Cumulative           */
+            (void *)&num,                       /* Storage address      */
+            nummin,                             /* Range - min          */
+            nummax,                             /* Range - max          */
+            numdflt                             /* Default value        */
+      },
+      {
+            NUL,                                /* Terminating record   */
+            False_,
+            Error_Tag,
+            False_,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+      }
+};
+
+If you enter a non-boolean option with no value, the default value will be
+used. If no default value is specified, an error will be returned. Therefore
+the following arguments will result in the specified assignment to the num
+variable:
+
+[no "-n" options specified]   num = 3.14159     (initialized default value)
+-n                            num = 2.71828     (option default value)
+-n((1+sqrt(5))/2              num = 1.618034    (note use of formula!)
+
+Also note that in the code sample above, minimum and maximum values are
+specified for num. If range checking is enabled (i.e. if the min and/or max
+fields are non-NULL) an option which specifies an out-of-bounds value will be
+coerced to the nearest bounds value. To check if this has happened, examine
+the getopts_range_err global variable. If True_, a range error occurred and a
+value had to be coerced.
+
+
+PROCESSING VERBOSE OPTIONS USING getopts():
+-------------------------------------------
+
+Verbose options are a legacy from Posix compliant utilities. In addition no
+normal options of the form "-O<argument>", verbose options of the form,
+"--<match_string>=<argument>. Each program using getopts() may also specify
+a voptions[] array of Voption_Tag structures. If no verbose options are
+supported, simply use:
+
+struct Voption_Tag voptions[] = {
+      {
+            NULL,                               /* Terminating record   */
+            False_,
+            Error_Tag,
+            False_,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+      }
+};
+            
+As with the options[] array, each of these structures must contain 8 fields.
+Fields 2-8 are identical to those for the options[] array. Only field 1 is
+different:
+
+Field 1 -   An match string used to control the option. For example if you
+            wanted to add a optional filename specification using
+            "--filename=<file_name>", you would place "filename in field 1.
+            Note that by specifying the case sensitivity as False_,
+            "FILENAME" would also generate a match.
+
+Also per Posix practice, it is considered good practice to create a normal
+option for each verbose option supported. For example, a help display might
+be displayed with either a normal option of "-?", or a verbose option of
+"--help".
+
+USING RESPONSE FILES:
+---------------------
+
+Often times, you need to specify more options than can fit on the command
+line, therefore getopts() supports the use of response files. To use a
+response file, simply enter @<file_name> in the command line. As with all
+options, response files are processed left-to-right and multiple response
+files may be specified. The format of a response file is one option on each
+line of the file, with each line processed top-to-bottom. For example, here
+is a response file I used when testing getopts() with the GETOPTST test
+program:
+
+---[ begin ]---
+-a-
+-b
+-c987
+-d98765
+-e(1+sqrt(5))/2
+-f0cch
+-gThis is a response file
+*.h
+----[end ]----
+
+Also note that in response files, strings should *not* be quoted!
+
+
+HELPER FUNCTIONS:
+-----------------
+
+GETOPTS.C also contains a helper function you may find handy to use in your
+own code. Normally, the evaluate() function takes a string and a storage
+address, and returns a status code. Within getopts(), we use getopts_eval()
+which takes the string to evaluate and simply returns a double. In the event
+of error, ErrExit() is called to terminate the program after telling you
+which expression it could not evaluate. Notice how getopts_eval() is used
+within the GETOPTST.C demo/test program.

@@ -1,0 +1,8 @@
+Borland C++
+call bc
+MicroEMACS
+call emacs
+BOXER Text Editor
+call boxer
+System Shell
+call %comspec

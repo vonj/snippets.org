@@ -1,0 +1,86 @@
+                        SNIPPETS Rationale
+                        ------------------
+
+
+Where do SNIPPETS come from?
+
+I'm constantly on the lookout for new SNIPPETS material. The goal of SNIPPETS
+has been to collect useful pieces of code that would be free for reuse. This
+limits consideration to code that is either explicitly in the public domain
+or which carries a free use license with few or no restrictions which would
+prevent its use. Current SNIPPETS material has been collected from the
+FidoNet C_Echo, comp.lang.c on the Internet, various public domain archives,
+and my own commercial library (MFL).
+
+
+How are SNIPPETS selected?
+
+As the collection has evolved, it's taken on distinguishing characteristics
+based largely, I'm afraid, on what sorts of things interest me. A primary
+focus of SNIPPETS is portability - first of all between DOS compilers, and
+secondly with the larger world of Unix and other platforms. I tend to be
+interested in the same problem domain as Posix - system and utility
+functions. What I'm not interested in trying to include are things which
+really require massive amounts of code to do right (e.g.  GUIs, databases,
+interrupt-driven comm I/O, game-quality graphics, multimedia, etc.) and are
+therefore better addressed by large single-purpose packages, whether
+commercial or otherwise.
+
+In addition to the utility stuff, I also snag anything that seems moderately
+obscure (e.g. ISBN validation, wind chill, sunrise/set time, etc.) Whether I
+need to know these things or not, someone sometime will need to be able to do
+these and I like to be able to provide the option of a simple canned solution
+rather than sending them on a research spree.
+
+
+What makes one SNIPPETS entry "better" than other candidates?
+
+Anything that enhances portability or usability is better in my book. Note
+that I'm not necessarily soliciting completion to full library standards. As
+the name SNIPPETS implies, many of the entries knowingly have minimal
+bullet-proofing. Most of the entries I've excerpted from MFL differ only in
+that my commercial code provides bullet-proof error trapping at the cost of
+slightly obfuscating the algorithms. In cases where error trapping would, in
+my opinion, make the algorithm harder to follow, I've generally opted for
+clarity over safety. This was a conscious decision since the target audience
+for SNIPPETS includes both newbies and experienced programmers. The pros will
+recognize the shortcomings and know to add the error trapping, but the tyros
+can tend to get lost. My yardstick on this has been feedback. If too many
+tyros have to ask how it works, then I try to simplify and/or make the
+underlying algorithm stand out. If too many folks complain about it being
+unsafe, I add more bullet-proofing. When I hear as little from both sides as
+possible, I figure I've achieved the desired balance. 
+
+
+Is the SNIPPETS collection only for PC's?
+
+No. More and more portable code has been introduced into the collection over
+the years so that now there is more portable code (although some will require
+minor work) than PC-specific code. Beginning with the October, 1995 release,
+operating system and/or environmental dependencies are listed in the SNIPPETS
+master index file, SNIPPETS.NDX. Beginning with the same release, SNIPPETS
+testing has become more thorough with the goal of verifying portability
+claims. The current testing regimen seeks to assure a minimum level of
+portability between all major DOS/Windows compilers, extended DOS, OS/2,
+Linux, and as many Unix systems as I can find with people willing to test
+(currently I have testers signed up using HP/UX, Solaris, AIX, and Linux).
+Increased testing is also underway under Win 32 (Windows 95 & NT), with more
+added all the time.
+
+
+Is SNIPPETS only a collection of C code?
+
+No. There have always been a few PC-specific assembly routines in SNIPPETS,
+and the current collection includes a growing number of reusable C++ classes.
+In some cases, SNIPPETS includes both a C and C++ solution to a particular
+programming question.
+
+
+Bob Stout
+FidoNet:    1:106/2000.6
+            C_Echo moderator (1990-1991, 1996-1997)
+Internet:   rbs@snippets.org
+            rbs@brokersys.com
+SnailMail:  MicroFirm
+            P.O. Box 428
+            Alief, TX 77411

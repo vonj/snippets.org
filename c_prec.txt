@@ -1,0 +1,79 @@
+          Operator Precedence and Associativity Rules in C / C++
+ ============================================================================
+    ::        scope resolution (C++, e.g. name::member)     left-to-right
+    ::        global (C++, e.g. ::name)
+ ----------------------------------------------------------------------------
+    ( )       function call                                 left-to-right
+    [ ]       array element
+     .        class, structure or union member
+    ->        pointer reference to member
+    ::        scope access / resolution (C++)
+  sizeof      size of object in bytes
+  sizeof      size of type in bytes
+ ============================================================================
+ NOTE: In C the following operators have the same precedence as those in
+       the preceding group. In C++, they have the same precedence as those
+       in the following group.
+ ----------------------------------------------------------------------------
+    ++        post increment (lvalue++)                     right-to-left
+    --        post decrement (lvalue--)
+ ============================================================================
+    ++        pre increment (++lvalue)                      right-to-left
+    --        pre decrement (--lvalue)
+     ~        bitwise complement
+     !        logical not
+     -        unary minus
+     +        unary plus
+     &        address of
+     *        contents of
+    new       create object (C++)
+  delete      destroy object (C++)
+  delete[]    destroy array (C++)
+  (type)      cast to type
+ ----------------------------------------------------------------------------
+    .*        member pointer (C++)                          left-to-right
+    ->*       pointer reference to member pointer (C++)
+ ----------------------------------------------------------------------------
+     *        multiply                                      left-to-right
+     /        divide
+     %        remainder
+ ----------------------------------------------------------------------------
+     +        add                                           left-to-right
+     -        subtract
+ ----------------------------------------------------------------------------
+    <<        bitwise left shift                            left-to-right
+    >>        bitwise right shift
+ ----------------------------------------------------------------------------
+     <        scalar less than                              left-to-right
+    <=        scalar less than or equal to
+     >        scalar greater than
+    >=        scalar greater than or equal to
+ ----------------------------------------------------------------------------
+    ==        scalar equal                                  left-to-right
+    !=        scalar not equal
+ ----------------------------------------------------------------------------
+     &        bitwise and                                   left-to-right
+ ----------------------------------------------------------------------------
+     ^        bitwise exclusive or                          left-to-right
+ ----------------------------------------------------------------------------
+     |        bitwise or                                    left-to-right
+ ----------------------------------------------------------------------------
+    &&        logical and                                   left-to-right
+ ----------------------------------------------------------------------------
+    ||        logical inclusive or                          left-to-right
+ ----------------------------------------------------------------------------
+   ?  :       conditional expression                        right-to-left
+ ----------------------------------------------------------------------------
+     =        assignment operator                           right-to-left
+              also   +=    -=    *=    /=    %=
+                     &=    ^=    |=   >>=   <<=
+ ----------------------------------------------------------------------------
+     ,        sequential expression                         left-to-right
+ ----------------------------------------------------------------------------
+
+All of the operators in this table can be overloaded (C++) except:
+
+          .     C++ direct component selector
+         .*     C++ dereference
+         ::     C++ scope access/resolution
+         ?:     Conditional

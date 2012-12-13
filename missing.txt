@@ -1,0 +1,18 @@
+                              M.I.A. Files
+                              ------------
+
+
+Several folks have asked about the files that inevitably disappear from one
+SNIPPETS release to the next.  Some have gone so far as to suggest I include
+a brief rationale within SNIPPETS.NDX why each deleted entry (marked with a
+'-' in the first column) was dropped.  This would be impractical since
+SNIPPETS.NDX is more than a simple index - it also acts as the control file
+for SNIPDIFF.
+
+This file is therefore a separate list of all the files deleted from SNIPPETS
+since the last release along with the reason they were removed:
+
+Bcd.C             : Renamed to BCDL.C
+Dequeue.H         : Properly renamed to DEQUE.H
+Dequeue.C         : Properly renamed to DEQUE.C
+Roman.C           : Replaced by L2ROMAN.C (see also ROMAN2L.C)

@@ -1,0 +1,55 @@
+Some of my favorites...
+-----------------------
+
+typedef enum {ERROR = -1, SUCCESS, FALSE = 0, TRUE} logical;
+#define BOOL(x) (!(!(x)))                       /* always TRUE or FALSE */
+
+/* (trivial) Example code follows               */
+
+#define MAX_VAL 10000                           /* data upper bound     */
+#define MIN_VAL -37                             /* data lower bound     */
+
+logical testfunc(int intvalue)
+{
+        if (MAX_VAL < intvalue || MIN_VAL > intvalue)
+                return ERROR;                   /* if out of bounds     */
+        else    return BOOL(intvalue);          /* zero returns FALSE,
+                                                   anything else is TRUE*/
+} 
+
+/* Examples using SUCCESS/ERROR                 */
+
+        if (SUCCESS == strcmp(my_string, "something"))
+                do_something();
+        if (ERROR == open("my_file", O_READ))
+                abort();
+
+  And, speaking of enumerated data types (which we can feel free to do
+since they're now "official" with the adoption of ANSI C), these are very
+handy when defining lists of data which may need to be appended in the
+future. If you define your enums this way:
+
+enum CARS {CARS_MIN = -1, FORD, CHEVY, PLYMOUTH, CARS_MAX};
+
+...then you can write "expandable" code as follows:
+
+logical real_car(enum CARS my_car)
+{
+        if (CARS_MIN >= my_car || CARS_MAX <= my_car)
+                return FALSE;
+        else    return TRUE;
+}
+
+By including `CARS_MIN' and `CARS_MAX' as dummy enumerations, you can
+change the declaration to:
+
+enum CARS {CARS_MIN = -1, FORD, CHEVY, PLYMOUTH, FERRARI, CARS_MAX};
+
+...and all your existing code will still work properly, allowing you to
+spend your time writing new code to support the new enumerations rather
+than going back to fix any bounds checking you may have already written.
+In addition if, within the enum declaration, you declare `CARS_MIN = -1',
+then you can also include this handy little bit of expandable code:
+
+        printf("Right now, I know about %d type%s of CARS\n", CARS_MAX,
+                &"s"[1 == CARS_MAX]);

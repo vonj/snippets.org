@@ -1,0 +1,177 @@
++++Date last modified: 05-Jul-1997
+
+=== Some notes on Linked Lists ===========================================
+
+Introduction
+
+Linked lists consist of any number of 'nodes' which contain data and one
+pointer for singly linked lists or two pointers for doubly linked lists.
+The first or only pointer serves to connect one node to a next node; in a
+doubly linked list the second pointer serves to connect the node to a
+previous node.
+A 'first node pointer' serves as anchor to the entire list. A 'last node
+pointer' is optional; but it is common in doubly linked lists.
+One or more 'current node pointers' -- sometimes allocated on the fly --
+simplify access to specific nodes.
+
+The three most common operations on linked lists are:
+- creating a new node AFTER the current node,
+- creating a new node BEFORE the current node,
+- deleting the current node.
+
+Operations to create a node as first or last node, or deleting a first or
+last node are also common. And of course there are operations to change
+the current node -- i.e. changing the value of the current node pointer --
+and operations to access the data of the current node and optionally the
+data of the first or last nodes.
+
+
+Singly Linked Lists, simple design and complicated implementation
+
+Generally speaking, creating a new node AFTER the current node is rather
+simple. It consists of:
+- allocating an appropriately sized piece of memory for a node,
+- filling in its data part (actually optional: it could be done later),
+- copying the value of the current node's next node pointer to the new
+  node's next pointer,
+- copying the address of the new node to the current node's next pointer,
+- optionally changing the current node pointer's value to the address of
+  the new node.
+
+Creating a new node BEFORE the current node is also rather simple:
+- make the preceding node the current node,
+- then insert the new node after the current node.
+
+And deleting the current node:
+- copy the value of the current node's next pointer to the preceding
+  node's next pointer,
+- de-allocate the current node's piece of memory,
+- change the current node pointer in a sensible way, e.g. change it to the
+  address of the next node.
+
+There are, however, a number of problems:
+1 The obvious first is the necessity to find the preceding node when you
+  want to delete the current node, and when you want to create a new node
+  before the current node.
+2 What will be the value of the current node pointer after deletion of the
+  first node or the last node -- both in the sense of 'only' node and
+  'end-of-the-list' node?
+3 What special things should be done when the list is empty?
+4 What special handling is necessary when creating a new node _before_ the
+  current node when the current node is the _first_ node?
+5 What special handling is necessary when creating a new node _after_ the
+  current node when the current node is the _last_ node?
+  (This 'problem' is included for symmetry reasons. The answer is: "None,
+  unless a 'last node pointer' and/or a dummy head node are used.")
+6 What are the consequences of allowing the current node pointer to become
+  invalid? For example after deleting the last node (see 2), or after
+  changing the current node pointer to the 'next' node if it was pointing
+  to the last node. (See also 4 and 5.)
+
+In a simple design these problems should be handled when the situations
+occur. Note that for some special purpose designs some of these problems
+can be ignored.
+
+Singly Linked Lists, complicated design and simple implementation I
+
+Problem 6 can be handled by taking care that it does not occur.
+After deletion of a node the current node pointer is commonly set to point
+to the node following the old current node. If after deletion of the last
+(end-of-list) node the new current node is set to be the node preceding
+the deleted node, the problem is avoided.
+This complicates the implementation for deletion of a node slightly, but
+it simplifies the implementation for creating a new node after the current
+node -- and optionally the implementation for creating a new node at the
+end of the list -- as the situation does not need to be detected and
+handled any more. In a good implementation it does not affect the code for
+changing the current node pointer to the next node. (One of my first
+implementations wasn't good in that respect ...)
+Note that this solution for Problem 6 also partially solves Problem 2. And
+essentially merges the remaining part of Problem 2 with Problem 3.
+Note also that the solution may have some unwanted side effects as the
+'motion' of the current node pointer will be reversed at the end of the
+list.
+
+Singly Linked Lists, complicated design and simple implementation II
+
+Problem 2 can be handled by giving node pointers a NULL value as indica-
+tion of its pointing to an 'invalid' node. An alternative is using other
+'invalid' pointer values. With invalid meaning that the data at that
+address is irrelevant. But the 'invalidity' must usually be detectable!
+Note however that whenever detection is required, a NULL value is the most
+efficient. But when detection is NOT required another value may be better.
+
+Singly Linked Lists, complicated design and simple implementation III
+
+Problem 3 can be handled with a dummy head node. I.e. a node which is the
+physical first node, but does NOT contain relevant data. For practical
+purposes the node following this node is the actual or logical first node.
+Now let the current node pointer have a similar extra level of indirection
+-- otherwise it wouldn't make any sense. Also the current node pointer
+itself does not have then to be updated in come cases. As there is now no
+more structural difference between the logical first node and any other
+node Problem 3 is completely solved. As is a part of problem 4.
+Note that implementation for creating a new node BEFORE the current node
+now 'physically' is a _simplified_ version of the implementation for
+creating a new node AFTER the current node without a dummy head node. And
+that the implementation for creating a new node AFTER the current node is
+merely a matter of changing the value of the current node pointer to the
+address of the next node -- IF POSSIBLE -- and creating it before the now
+current node.
+Note also that Problem 1 -- with exception of deletion of the last node --
+is completely solved. And that the remaining problem with deletion of the
+last node is actually the same as Problems 6 AND 5.
+When having a valid last node pointer is useful Problem 6 should be solved
+as indicated. In my opinion it should always be solved, as the performance
+penalty is quite low.
+
+Singly Linked Lists, conclusion
+
+For general purpose implementations of Singly Linked Lists, it is very
+sensible to use a dummy head node. As an extra level of indirection is
+added there is a slight performance penalty. On the other hand the code
+size is definitely reduced, and the performance advantage -- by not having
+to test for special conditions -- may be more than the penalty.
+
+For special purpose Singly Linked Lists the choice of whether or not to
+use dummy head nodes is quite dependent on its purpose and on performance
+requirements.
+
+In the literature (Sedgewick, _Algorithms in C_, ISBN 0-201-51425-7, p.20)
+it is suggested that having a dummy tail node as well is useful.
+This is however only the case when the environment has 'garbage collec-
+tion' capabilities. I.e. it is useful only when explicit de-allocation of
+memory is not necessary (or even possible). Without garbage collection, or
+without a way to reverse a de-allocation, it causes MORE problems than it
+solves!
+The same book also suggests having the last (the dummy if it is used) node
+pointing to itself. That only makes sense in some special implementations.
+It has the advantage of not requiring a test to prevent the current node
+pointer from 'leaving' the list. But as this test is required anyway in
+most implementations and environments, it normally does not make any
+sense.
+
+
+Doubly Linked Lists
+
+The operations relevant to Doubly Linked Lists are essentially the same as
+those for Singly Linked Lists. Only the 'previous node pointers' need to
+be handled in addition.
+The problems are generally also the same. Only Problem 1 isn't there any
+more. Doubly Linked Lists are a specific solution to that problem! The
+only new questions are whether there should be a last node pointer and
+whether there should be a dummy tail node as well. The answer to which is:
+neither or both.
+
+Dummy head nodes are as useful in Doubly Linked Lists as they are in
+Singly Linked Lists and for the same reasons: no more special handling for
+first node pointers. Dummy tail nodes are also useful for the same reason:
+no more special handling for last node pointers.
+Having for the current node pointer an extra level of indirection -- by
+having it actually point to the preceding node -- isn't a necessity any
+more. The preceding node is now easily accessible. It still can have some
+advantages though: it does not have to be updated after creating a new
+node. But the extra level of indirection can be bothersome.
+
+
+=== A.Reitsma, Delft, The Netherlands. 94-08-11 ====== Public Domain =====

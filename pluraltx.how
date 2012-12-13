@@ -1,0 +1,39 @@
+Q: How do the plural_text(), plural_text2(), and plural_text3() macros work?
+
+A: OK, it's pretty straightforward. The thing relies on two defined behaviors
+   of standard C:
+
+1.  Logical comparison operators return 0 for false and 1 for true. Although
+    any non-zero value will test true, logical comparisons are defined to
+    return (int)1.
+
+2.  A quoted string is simply a shorthand method of defining an anonymous
+    constant array of char whose length is that of the string plus one for the
+    terminating NUL character.
+
+  Given these facts, let's go through it... The "s" and "es" in the macros
+are strings - constant character arrays. Like any character array, you can
+select specific elements of the array by subscripting it. In order to form
+proper plurals, you need to determine if the number is one or something else
+since, in English, only the quantity one is singular (makes sense). The
+comparison to one returns either 1 or 0 which is used to index into the
+character array. In the case of single-character plurals, it will point to
+either the 's' or the terminating NUL. In 2-character plurarls, it is
+multiplied by 2 (i.e. shifted left by 1) so it will point to either the 'e'
+or the terminating NUL. Since an indexed array points to a single element of
+that array, the ampersand is there to take to the address of the character
+pointed to. The character plurals also mulitply by two, but the embedded NUL
+character causes either "y" or "ies" for the singular and plural cases.
+
+  Now, walk through it... If the number is not 1, the comparison will be
+false and the zero'th element of the array will be selected. Taking the
+adrress of the zero'th element of either array will simply point to the whole
+string. If the number is exactly 1, the comparison will test true and the
+returned address will be that of the terminating NUL in either case.
+Returning a character pointer to a NUL character is the same as using the
+string "", i.e. nothing gets printed.
+
+  There are alternative ways to express this same algorithm in a macro.
+Here's one that uses pointer arithmetic rather than array subscripts.
+
+#define plural_text(n)  "s"+(1==(n))

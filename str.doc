@@ -1,0 +1,1056 @@
+TITLE
+
+    class str
+
+DESCRIPTION
+
+    A simple but highly useful C++ string class
+
+FILES
+
+    str.h     class str definition
+    str.cpp   class str implementation
+
+AUTHOR
+
+    David Nugent
+
+CONTACT
+
+    FidoNet 3:632/348,
+    davidn@csource.pronet.com
+    PO Box 352,
+    Doveton, VIC, Australia
+    Voice +61-3-793-2728
+
+STATUS
+
+    Donated to the public domain, no restrictions on any use
+
+SYNOPSYS
+
+    class str is a simple yet powerful C++ string class,
+    providing many forms of conversions (from other base
+    types) to strings and a large variety of manipulators,
+    making it very useful as a stand-alone string class, for
+    output formatting with iostreams, for cheap copying,
+    concatenation and splitting operations, as a general
+    purpose class useful in data presentation and line-based
+    parsing.
+
+GENERAL STRUCTURE
+
+    class str is designed to be small, which makes it a
+    practical data type which can be used in large arrays
+    even on small memory systems.
+
+    In addition, the typical implementation will result in a
+    much smaller str again if "VIRTUAL_DESTRUCTOR" is not
+    enabled, which prevents the destructor str::~str() from
+    being declared virtual, avoiding generation of a vtable
+    and vtable pointer for the class. Without a vtable
+    pointer, class str on most implementations is generally
+    the same size as sizeof() a data pointer, ie. as cheap
+    and small as a char*. The disadvantage of not making the
+    destructor virtual is that this places some limitations
+    on use of derived classes - however these are not severe,
+    and the main benefits of code reuse are still available
+    even without a virtual destructor. If a derived class
+    allocates resources, however, some care should be taken
+    to avoid upcasts if at all possible to ensure that the
+    correct destructor is called.
+
+    These limitations are circumvented by defining
+    VIRTUAL_DESTRUCTOR to any non-zero value, with the
+    disadvantage that an object of class str will (usually)
+    be twice as big.
+
+    Reference String
+
+    Class str itself contains a single data member, being a
+    pointer to an internal "reference string". Reference
+    strings (embodied in class refstr) contains the actual
+    string data, and provides a mechanism for cheap copy and
+    assignment - instead of copying the data each time, more
+    than one str object is allowed to reference the same
+    physical data, and delays copying until one of the str
+    objects is modified, at which time a new refstr object is
+    created and copied from the old, and only that copy
+    changed. In many situations, that copy is never
+    modified, so physically copying of the string data never
+    becomes necessary, saving both in execution time and memory.
+
+    The following diagram shows how 3 str objects share the
+    same reference string:
+
+        str string1("This is a string");    // const char * __ctor
+        str string2(string1);               // str const & __ctor
+        str string3 = string1;              // str const & __ctor
+
+    At this point, the relationship of these three objects and
+    the internal refstr is:
+
+        string1
+            refstr  --.            refs   = 3
+        string2        \           length = 16
+            refstr  ------ refstr1 size   = 32
+        string3        /           data   = This is a string\0.....\0
+            refstr  --'
+
+    The reference container object contains a counter for the
+    number of times the object is referenced by the str
+    wrapper. Any attempt to modify a refstr via any string
+    object while the number of references exceeds 1 results
+    in the refstr first being copied and the original left
+    untouched apart from the reference count being
+    decremented. Modifications are made on the copy only,
+    which has a reference count of 1.
+
+    If, for example, string3 were to be modified by the
+    string " 3" being added (concatenated) to it, the diagram
+    would then look like:
+
+        string1
+            refstr  --.
+        string2        -- refstr1 2/16/32/This is a string\0.....\0
+            refstr  --'
+        string3
+            refstr  ----- refstr1 1/18/32/This is a string 3\0...\0
+
+
+    Reference strings are a variable sized object. Size
+    variations of refstr objects are handled via a placement
+    operator new, which causes an additional amount of memory
+    to be allocated for the string data itself. Members of
+    class refstr (refs, length size, flags) coexist in memory
+    contiguous with the data itself, which is appended to the
+    end. Reference to and calculation of offsets of the data
+    itself is handled by wrapper functions in class refstr.
+
+    The use of reference strings in this case provides a data
+    type which is almost always cheaper than using references
+    for parameter passing. For example, given two functions:
+
+        void hello1(str x);
+        void hello2(str & x);
+
+        str mystring("Hello world");
+
+        hello1(mystring);
+        hello2(mystring);
+
+    While the actual call to function hello2() is slightly
+    cheaper since it involves passing reference only, the
+    code within hello1 will not have to deal with the
+    additional indirection. Also the parameter passed to
+    hello1() may be freely modified without affecting the
+    original string even if both variables (the original and
+    the copy passed on the stack) initially reference the
+    same physical reference string.
+
+    Pre-allocated size
+
+    Note that by default, strings have a pre-allocated
+    internal size of at least STDLEN, which is defined in
+    str.cpp, the implementation file. This can be overridden
+    as desired using the additional optional parameter for
+    most of the class constructors. As shipped, the default
+    size of the memory allocated for the data in a refstr
+    object, unless overridden by the constructor, is 32
+    bytes. This amount is automatically grown to accommodate
+    insertions and concatenations (see the internal function
+    _chksize() for details).
+
+    Preallocating memory for strings leads to efficiencies in
+    string manipulation, avoiding having to call for
+    reallocation for trivial modification.
+
+    Conversions
+
+    To accommodate conversion of a str object to a C style
+    'string' (a variable length char array with a NUL
+    terminator), class refstr is maintained at least one byte
+    larger than the amount required to contain the exact
+    string length. This fixes the overhead of adding the NUL
+    terminator as required rather than the overhead being
+    dependent on allowing the refstr object to become larger
+    in order to accommodate it if needed. Note that although
+    this additional byte is maintained, the string is NOT
+    NECESSARILY NUL TERMINATED, and that is exactly why the
+    c_str() member assures that it is. Dealing with the data
+    in this way and maintaining a separate length variable in
+    class refstr tends to eliminate any possibility of
+    continually scanning the string to determine length, as
+    is typical of a lot of C and C++ code which uses char*'s.
+    The member function to obtain the string length is a very
+    cheap operation.
+
+    Conversion to char const *
+
+    Class str provides no automatic type conversion operators
+    which are a common feature of many string classes. This
+    was considered far too dangerous to implement, as it can
+    occasionally cause invalid memory access - modification
+    or reading of string data which no longer 'exists'.
+    Instead, this functionality was moved to memory c_str(),
+    which must be explicitly called and yet still has a few
+    caveats. See notes under the explanation of c_str() below.
+
+    Maximum string size
+
+    For compactness, the maximum size of a string is fixed at
+    32K, even on 32-bit systems. This is a design feature
+    intended to meet the intended use of this class.
+    Manipulation of larger buffers is best done with classes
+    designed for this; the algorithms incorporated in class
+    str are not at all optimised for large text buffer
+    manipulation.
+
+    Binary strings
+
+    Because class str is not dependent on a terminating NUL,
+    it can be used for manipulation of binary strings. Note,
+    however, that any conversion to char const * via c_str()
+    will negate this advantage if the string contains a NUL -
+    a pointer to the string data may still be obtained by
+    c_str() or (since the NUL is not expected) c_ptr() which
+    is slightly cheaper.
+
+
+DESCRIPTION OF MEMBERS
+
+    PUBLIC INTERFACE
+
+    Class str was written primarily for practical use where
+    strings are most often used in other languages - data
+    presentation. After all, a string is not a computational
+    entity, but (usually) one which contains data that is
+    manipulated and presented in some way to a human, or at
+    least readable by machine or human.
+
+    Consequently, the emphasis of members included in the
+    class provide direct conversion of built-in types to
+    strings via a large number of constructors. For
+    conversion from other classes, it is suggested that an
+    "operator str() const" be implemented for the class,
+    allowing a string to be directly created from it.
+
+    Formatting output using class str, even with iostreams,
+    is much more easily done with class str than with
+    somewhat more clumsy iomanipulators. Padding, filling and
+    justification functions are all provided and are easy,
+    intuitive and safe to use, even with temporaries.
+    Moreover, str's are perfect for formatting before
+    insertion into an ostream - some manipulators, such as
+    width (via setw()), operate only on the next insertion,
+    and formatting within a string variable ensures that one
+    entire object is inserted in one insertion, therefore
+    respecting the state of the stream. Similarly, stream
+    justification, fill and other characteristics do not need
+    to be saved, set and restored around insertion operations.
+
+    Constructors
+
+    class str defines a default constructor, providing
+    convenient support for allocation of arrays. All other
+    constructors provide some form of conversion, including
+    conversion of char*'s, all built-in integral types
+    (short, int, long and unsigned versions thereof), and all
+    forms of char. Note that char is not handled as an
+    integral. Conversion of integral types allows
+    specification of a radix, so support for non- decimal
+    numeric conversions other than base 10 are fully supported.
+
+    str (void);
+
+        Default constructor. Allocates a zero-length string
+        with an internal size determined by the pre-allocated
+        length. In almost all cases it is more efficient to
+        use one of the initialising constructors if possible.
+
+            str mystring;
+
+    str (char const * s, short len =-1);
+    str (unsigned char const * s, short len =-1);
+    str (signed char const * s, short len =-1);
+
+        These constructors provide conversion from C strings.
+        The length parameter allows extraction of only a
+        portion of a string (sub- string). The default value
+        of -1 assumes that the source string is NUL terminated.
+
+            str mystring("Hello world!");
+            str mystring = "Hello world!");
+            str mystring("Hello world!", 5);    // Contains 'Hello' only
+
+    str (int val, int radix =10);
+    str (unsigned int val, int radix =10);
+    str (short val, int radix =10);
+    str (unsigned short val, int radix =10);
+    str (long val, int radix =10);
+    str (unsigned long val, int radix =10);
+
+        These provide automatic conversion for all integral
+        types with a default radix of 10. Negative values of
+        signed types will cause the resulting string to have
+        a leading '-' sign.
+
+        For a non-decimal radix, no indication of the
+        number's base is automatically inserted. If you wish
+        to use "0x" for hexadecimal numbers, for example, you
+        will need to use one of the insert() members. When
+        using a non-decimal radix, it is highly recommended
+        that one of the unsigned converters be used to
+        prevent generation of the sign prefix.
+
+            str mystring(10999);        // result '10999'
+            str mystring(255,16);       // result 'ff'
+            str mystring = -14587;      // result '-14587'
+            str mystring = (unsigned)-1;// implementation dependent
+
+    str (char c);
+    str (unsigned char c);
+    str (signed char c);
+
+        These constructors are not integral conversions but
+        convert a single character into a string with a
+        length of 1.
+
+            str mystring('g');          // 'g'
+            str mystring = 'k'          // 'k'
+
+    str (str const & s);
+
+        This is the copy constructor. Note that this causes
+        the new string to be initialised with the same refstr
+        as contained by the string being copied, and so is
+        the cheapest constructor available.
+
+            str mystring1 = "Hello world!";
+            str mystring2 = mystring1;  // 'Hello world!'
+            str mystring3(mystring1);   // 'Hello world!'
+
+    ~str (void);
+
+        Class destructor. This will deallocate the contained
+        reference string if it is the only string which
+        references it, otherwise only the reference strings
+        'reference count' is decremented.
+
+    str & clear(void);
+
+        This member provides the ability to quickly clear the
+        contents of a string. Not that if the contained
+        reference string is not referenced by any other str
+        object, the length is reduced to zero but the string
+        size (size of the actual refstr) is untouched. This
+        makes this function suitable when using a string as a
+        temp variable - it will grow to accommodate the
+        largest item placed into it and therefore not require
+        constant reallocation in a loop for example, except
+        where the items are made progressively bigger.
+
+            str         tempstr;
+            ifstream    input("myfile.txt");
+
+            while(!input.rdstate())
+            {
+                    // Clear the string and read next line
+                input >> tempstr.clear();
+                    // Process the string ...
+
+    str & operator= (str const & s);
+    str & operator= (char const * s);
+    str & operator= (char c);
+    str & operator= (unsigned char const * s);
+    str & operator= (signed char const * s);
+
+        Assignment operators do pretty much the same as the
+        constructors noted above.
+
+        Assignment operators for integral conversions are not
+        provided simply because this is already taken care of
+        by constructors, and their functionality would be
+        otherwise duplicated. To assign an integral type,
+        therefore, simply cast the right hand side first:
+
+            str     myintstr;
+
+            myintstr = str(10);
+
+        This also allows specification of a radix if desired
+        and does pretty much what would otherwise occur
+        internally anyway.
+
+    short length (void) const;
+
+        Returns the length of the string, simply by reading
+        the field in the contained reference string.
+
+            str result = "The string 'rest' is exactly ";
+            str rest   = " characters long";
+
+            result << rest.length() << rest;
+            // 'The string 'rest' is exactly 16 characters long'
+
+    short size (void) const;
+
+        This returns the internal size of the string - ie.
+        the maximum number of characters (less 1) which can
+        be assigned to the string before it needs to be
+        reallocated.
+
+        This is usually of little or no value to the user of
+        the str class as strings are grown to accommodate.
+        However, it may be helpful in some circumstances for
+        optimisation purposes.
+
+    str & operator<< (char const * s);
+    str & operator<< (unsigned char const * s);
+    str & operator<< (signed char const * s);
+    str & operator<< (str const & s);
+    str & operator<< (int val);
+    str & operator<< (unsigned int val);
+    str & operator<< (short val);
+    str & operator<< (unsigned short val);
+    str & operator<< (long val);
+    str & operator<< (unsigned long val);
+    str & operator<< (char c);
+    str & operator<< (unsigned char c);
+    str & operator<< (signed char c);
+
+        These operators provide string concatenation. Values
+        on the right hand side of a << operation are appended
+        to the end of the string, much like stream insertion
+        operators. Integral types larger than char may also
+        be concatenated and are automatically converted to
+        str prior concatenation.
+
+            str mystr "Now is the ";
+
+            mystr << "time for all good men.\n"
+                  << 10 << " times " << 10 << '=' << 100;
+
+
+    char const & operator[] (short pos) const;
+    char & operator[] (short pos);
+
+        The subscript operators provides a way of referencing
+        individual characters within a str object, similar to
+        usual C string semantics. There are, however, some
+        differences:
+
+            Negative indices in the range -length() to -1
+            allows reference to character positions
+            calculated from the end of the string, for
+            example mystr[-1] addresses the last character in
+            the string, mystr[-2] addresses the character
+            previous to that etc.
+
+            For the const operator (used on the rhs of an
+            expression) indices specified which are outside
+            of the allowed range of -length() to length()
+            return a reference to the character position at
+            length(), ie. the end of the string.
+
+            The non-const operator (used on the lhs of an
+            assignment) indices specified which are outside
+            the range of -length() to length() cause the
+            string to be extended and space padded.
+
+    char * c_ptr() const;
+    char const * c_str() const;
+    unsigned char const * u_str() const;
+    signed char const * s_str() const;
+
+        These members provide direct pointers to the string
+        data itself. They are only guaranteed to remain valid
+        while the string itself remains unmodified!
+
+        c_ptr() does not NUL terminate the string and returns
+        a non-const pointer, and therefore may be used to
+        modify the string. The responsibility for ensuring
+        that memory outside of that owned by the string is
+        entirely the programmers'. This function is
+        particularly useful in manipulation of binary strings.
+
+            str     mybinstr;
+
+            mybinstr.left(10,0);
+                // Grows string to 10 bytes, zero filled.
+            mybinstr.c_ptr()[3] = 6;
+                // places 6 (^F) into the 4th position
+                // This is equivalent to mybinstr[3] = 6,
+                // however in some contexts, c_ptr() may
+                // be simpler to deal with (for example when
+                // using memcpy() to fill the string
+
+        c_str(), u_str() and s_str() provide const pointers
+        to the string in order to allow its use as a normal C
+        string. c_str() returns a const pointer to char, the
+        sign of which is implementation defined, u_str()
+        returns a pointer to unsigned char, and s_str()
+        returns a pointer to signed char.
+
+        It cannot be emphasised enough that care must be
+        taken by the user of these members that a string is
+        NOT TO BE MODIFIED IN ANY WAY while a pointer
+        returned by any of them is in use. Modification of
+        the string may well cause it's relocation in memory,
+        and any pointer will be left undefined. To avoid this
+        deficiency, a method of 'freezing' the string (a la
+        strstreams) was considered; however, this is
+        generally less convenient and leads to clumsy syntax
+        in most situations, and the existence of this caveat
+        was considered to be the best compromise. For this
+        reason also no automatic conversion to "char const *"
+        has been implemented since the compiler would then be
+        provided with a means of extracting a "char const *"
+        whenever it wished, making it much less easy to guard
+        against.
+
+            void
+            func(str mystr);
+            {
+                char    myarray[128];
+
+                strncpy(myarray, mystr.c_str(), 127);
+                myarray[127] = '\0';
+                // ...
+
+
+    int copy(char * dest, short maxlen =-1) const;
+
+        This member allows a convenient way of copying a str
+        object into a char array. 'maxlen' specifies the
+        maximum length of the destination array - you would
+        be well advised to use this. The default value of -1
+        causes the length to be disregarded and the length of
+        the contained string used instead.
+
+        After copying, the destination string is guaranteed
+        to be NUL terminated. If maxlen is specified, then up
+        to maxlen-1 characters are copied to the memory
+        location pointed to by 'dest' and a terminating NUL
+        added. If the str object is less than (maxlen-1)
+        characters long, the terminating NULL will be placed
+        at dest+length().
+
+        str::copy() should be used in preference to
+        str(n)copy and str::c_str() as it will almost always
+        be more efficient, and provides the functionality of
+        strncpy() without the need to explicitly terminate
+        the string with NUL. Compare the following to the
+        previous example for c_str().
+
+            void
+            func(str mystr)
+            {
+                char    myarray[128];
+
+                mystr.copy(myarray, 128);
+                // ...
+
+    short insert (short pos, char const * s, short len =-1);
+    short insert (short pos, str const & s);
+    short insert (short pos, unsigned char const * s, short len =-1);
+    short insert (short pos, signed char const * s, short len =-1);
+    short insert (short pos, char c);
+    short insert (short pos, unsigned char c);
+    short insert (short pos, signed char c);
+
+        Insertion operators provide a way to safely insert
+        other strings (C strings or str objects) into a str
+        object. 'pos' is specified as the number of bytes
+        offset from the start of the string. Any negative
+        value of pos or values which exceed the current
+        length of the string causes concatenation to the end
+        (ie. insertion after the last character).
+
+        For insertion of C strings, the len argument provides
+        the ability to insert only a portion of a string. If
+        the default argument or -1 is used, the NUL
+        terminator will be used instead to determine the
+        source string length.
+
+            str mystr("time for all good men.");
+
+            mystr.insert(0,"Now is the ");
+                // 'Now is the time for all good men.'
+
+    short remove (short pos =0, short len =-1);
+
+        The str::remove() member provides the ability to
+        excise a portion of a string. If used with the
+        default arguments, the string is entirely cleared
+        (but not reallocated so, like str::clear(), the
+        memory allocated to the string is left the same).
+        'pos' defaults to 0, being the start of the string.
+        len's default value of -1 causes the string's length
+        to be used, in which case all characters at and
+        following the position 'pos' are removed.
+
+            str mystr = "The quick brown fox jumps over the lazy dog";
+
+            mystr.remove(10, 6);
+                // 'The quick fox jumps over the lazy dog'
+            mystr.remove(19);
+                // 'The quick fox jumps'
+            mystr.remove();
+                // '' - blank.
+
+    short replace (short pos, char const * s, short clen =-1, 
+                                                          short len =-1);
+    short replace (short pos, str & s, short clen =-1);
+    short replace (short pos, unsigned char const * s, short clen =-1, 
+                                                          short len =-1);
+    short replace (short pos, signed char const * s, short clen =-1,
+                                                          short len =-1);
+    short replace (short pos, char c, short clen =-1);
+    short replace (short pos, unsigned char c, short clen =-1);
+    short replace (short pos, signed char c, short clen =-1);
+
+        These members do the equivalent of str::remove() and
+        str::insert() in one operation. 'pos' specifies the
+        position at which replacement is to start, 'clen'
+        specifies the number of characters to replace in the
+        original string (ie. how many to remove before
+        inserting), 's' (or 'c') is the string to insert, and
+        where applicable, 'len' is the number of characters
+        from 's' which are to replace the characters removed.
+        If 'len' is -1, then the number of characters used is
+        determined by the NUL terminator in 's' (ie. the
+        result of strlen()). If 'clen' is -1, then all
+        characters up until the end of the string are replaced.
+
+        Using str::replace() is far more efficient than using
+        remove() then insert().
+
+            str mystr = "The quick brown fox jumps over the lazy dog".
+
+            mystr.replace(10, "black", 5);
+                // 'The quick black fox jumps over the lazy dog'
+
+    str & left (short len, char padch =' ');
+    str & right (short len, char padch =' ');
+    str & mid (short pos, short len, char padch =' ');
+
+        These members mutate the string and provide string
+        truncation and padding.
+
+        Firstly, please note that these functions do NOT work
+        in the same manner as the BASIC style string
+        functions of the same name. The functionality is
+        similar, but certainly not identical.
+
+        These functions, left() and right() in particular,
+        will probably be used mostly for string formatting.
+        There are non-member functions of the same name
+        ::left(str, len, pad) and ::right(str, len pad) which
+        provide the same functionality, but rather than
+        mutating the string itself, instead returns a copy of
+        the original string appropriately modified.
+
+        While these functions will truncate a string if the
+        string()'s length exceeds 'len', they will also pad
+        the string with 'padch' to extend it to 'len' if it
+        is shorter. The left() member extends the string on
+        the right hand side while the right() member extends
+        it to the left(). mid() removes any characters to the
+        left of the starting position and from that point
+        works pretty much like left(), padding on the right
+        if required.
+
+            str mystr = 2000;
+
+            cout << "There are " << mystr.right(8) << " pieces;
+                // Output:
+                // 'There are     2000 pieces'
+            str name = "David Nugent"
+            str addr = "davidn@csource.pronet.com"
+            str fund = 0;
+
+            cout << left(name, 25)
+                 << left(addr, 32)
+                 << right(fund, 8)
+                 << endl;
+                    // Output padded appropriately.
+                    // Note that by using the global functions,
+                    // the original string remains unmodified
+
+    str substr(short start, short len =-1) const;
+
+        substr() returns a substring, much like mid() except
+        that no padding is provided. substr() in fact
+        provides similar functionality to BASICS's left(),
+        right() and mid() in one function.
+
+        If 'start' is negative, the actual starting position
+        is calculated from the end of the string, otherwise
+        the offset is from the left. If 'len' is negative or
+        larger than the length of the string, all characters
+        to the right of the specified start position are
+        returned in the resulting string. The returned string
+        is never padded.
+
+            str mystr = "This shows how the str::substr() member works";
+
+            cout << "mystr.substr(19,13)=" << mystr.substr(19,13)
+                 << '\n'                    // 'str::substr()'
+                 << "mystr.substr(41)=" << mystr.substr(41)
+                 << '\n'                    // 'works'
+                 << "mystr.substr(-5)=" << mystr.substr(-5)
+                 << endl;                   // 'works'
+
+    short removech (char const * clist ="\r\n");
+
+        This member provides a convenient method of removing
+        all occurrences of a set of characters from a string.
+        The default character list removes end of line
+        characters. The value returns represents the number
+        of characters removed (ie. the amount by which the
+        length has been decreased).
+
+            str mystr = "Testing\n";
+
+            mystr.removech();           // 'Testing'
+            mystr.removech("ing");      // 'Test'
+
+    short countch (char const * clist);
+
+        str::countch() returns the number of times any
+        character from the supplied character list occurs in
+        the string. This can be used to test the presence of
+        one or more characters.
+
+            str mystr = "testing\n";
+
+            cout << "The letter 't' appears in '"
+                 << mystr << "' " << mystr.countch("t") << " times."
+                 << endl;
+
+    bool operator== (str const & s) const;
+    bool operator== (char const * s) const;
+    bool operator== (unsigned char const * s) const;
+    bool operator== (signed char const * s) const;
+    bool operator!= (str const & s) const;
+    bool operator!= (char const * s) const;
+    bool operator!= (unsigned char const * s) const;
+    bool operator!= (signed char const * s) const;
+    bool operator< (str const & s) const;
+    bool operator< (char const * s) const;
+    bool operator< (unsigned char const * s) const;
+    bool operator< (signed char const * s) const;
+    bool operator<= (str const & s) const;
+    bool operator<= (char const * s) const;
+    bool operator<= (unsigned char const * s) const;
+    bool operator<= (signed char const * s) const;
+    bool operator> (str const & s) const;
+    bool operator> (char const * s) const;
+    bool operator> (unsigned char const * s) const;
+    bool operator> (signed char const * s) const;
+    bool operator>= (str const & s) const;
+    bool operator>= (char const * s) const;
+    bool operator>= (unsigned char const * s) const;
+    bool operator>= (signed char const * s) const;
+    int compare (str const & s) const;
+    int compare (char const * s) const;
+    int compare (unsigned char const * s) const;
+    int compare (signed char const * s) const;
+
+            [The 'bool' value returned by these functions
+            represents the boolean type passed recently by
+            the ANSI C++ committee - if not supported by your
+            compiler yet, it must be #defined explicitly. The
+            'bool' type has two possible values; False or
+            True - False is zero, True is non-zero. Unless
+            supported by the compiler, a bool value should
+            never be directly tested against 'True' as this
+            will often provide erroneous results where 'True'
+            has been defined as a specific non-zero value.]
+
+        These functions provide basic string comparison
+        functionality. The basic compare() function returns
+        values comparable with strcmp() or stricmp(),
+        depending on the setting of the internal "case
+        sensitivity" flag maintained for each string.
+
+        static void setdefaultcase (bool s = True);
+
+        By default, each string is case sensitive. A static
+        member function provides the ability to set the
+        default flags for each string (currently only ICASE -
+        case insensitivity - is implemented), and will be
+        applied to all strings created after this is called.
+
+        void setcase (bool s =True);
+
+        Case sensitivity can be enabled or disabled for
+        individual strings by using str::setcase().
+        setcase(True) makes the string case sensitive - this
+        is normally the default, depending on whether the
+        set::setdefaultcase() function has been used - and
+        setcase(False) makes the string case INsensitive. In
+        comparing strings, if either one of the strings
+        compared is flagged as case insensitive, the
+        comparison is case insensitive. If both strings are
+        flagged as case sensitive, then the comparison is
+        case sensitive.
+
+        Any of the str::compare() overloads returns a value <
+        0 if the current string is compares less than the
+        string argument, 0 if they are equal and >0 if the
+        string argument is greater than the current string.
+        If the comparison is case insensitive, the precise
+        value of comparisons for strings commencing with
+        ASCII values between 'Z' and 'a' (not inclusive)
+        depend on your vendor library's implementation of
+        stricmp(), specifically depending on whether strings
+        are converted to upper or lower case before
+        comparison of individual characters.
+
+        The comparison operators ==, !=, <, >, >= and <= are
+        provided as short-hand notations of the built-in
+        str::compare() member.
+
+            str mystr1("Hello WORLD!");
+            str mystr2("HELLO world!");
+
+            if (mystr1 != mystr2)
+                cout << "Comparison is case sensitive" << endl;
+            else
+                cout << "Comparison is case insensitive" << endl;
+
+            mystr1.setcase(False);  // Turn case sensitivity off
+
+            if (mystr1 == mystr2)
+                cout << mystr1 << " = " << mystr2 << endl;
+            if (mystr1 > "abcdef")
+                cout << mystr1 << " is greater than abcdef" << endl;
+
+    short strstr (str const & s) const;
+    short strstr (char const * s) const;
+    short strstr (unsigned char const * s) const;
+    short strstr (signed char const * s) const;
+
+        This group of str::strstr() overloads provides a way
+        of doing simple substring searches within a str
+        object. As with comparison, the case of substrings is
+        determined by the case sensitivity of the string
+        being searched, and in the case of strstr(str const
+        &) also the case sensitivity of the substring being
+        searched for.
+
+        While similar to the stdc library strstr, this
+        function returns the offset at which the substring is
+        found rather than a pointer to the found string - if
+        a pointer to the located string is desired, add the
+        offset to the return from c_str().
+
+        A return value of -1 indicates that the substring was
+        not located - anything else is the offset at which
+        the substring starts.
+
+
+    PROTECTED INTERFACE
+
+    This section deals with functions and data members
+    accessible from derived classes.
+
+    In deriving classes from class str, please note the
+    comments in the above section "GENERAL STRUCTURE" which
+    deal with the issue of class str's virtual (or not)
+    destructor, and check the #define at the top of str.h. If
+    the destructor is defined as a virtual function, then you
+    can freely use and upcast a derived class to a str. If
+    not, then you should be careful how you deal with strings
+    classes derived from str, and if you upcast to class str,
+    ensure either that your derived class needs no destructor
+    to clear and deallocate resources, or that you implement
+    some means of garbage collecting for your derived class
+    (eg. use some form of resource tracking). The choice of
+    whether to make the destructor virtual or not is yours -
+    it is the only virtual function that is used in class
+    str, so consequently derived classes from str will
+    normally only add functionality rather than any serious
+    attempt at using polymorphism. str was not created with
+    polymorphism in mind.
+
+    The protected interface of class str provides complete
+    access to the str object, including refstr, internal
+    reference string and members. Provided the user obey
+    certain rules, there should be no problem with this.
+    These rules are:
+
+    o   A refstr is not exclusively "owned" by a string object
+        unless the reference count in the refstr is equal to
+        1. Mutation or modification of ANY sort of the refstr
+        pointed to by the strdata member must be guarded
+        against by a call to the protected member _chksize.
+        THIS MEANS ANY CHANGE WHATSOEVER NO MATTER HOW TRIVIAL.
+
+    o   If you intend to append or insert data into the current
+        string, then you can call _chksize(?), where ? is the
+        final size you intend to use. As well as allocating a
+        new refstr object if the reference count exceeds on
+        and copying the old data to the new refstr,
+        _chksize() will ensure that the string data size is
+        large enough to accommodate anything that you wish to
+        do with it.
+
+    o   When calling _chksize(), _never_ assume that any internal
+        pointer to data will remain valid across the call.
+        Either work with offsets only instead, or convert any
+        pointers to offsets from the previous start of string
+        to offsets and back again into pointers. One example
+        of this being done can be found in the implementation
+        of str::removech() in str.cpp.
+
+    o   If you use _chksize() with a size, add 1 to the size
+        requested to ensure that the refstr is at least large
+        enough to hold one additional byte beyond the string
+        data itself. This additional byte allows for addition
+        of a NUL for conversions to char const* without
+        causing reallocations.
+
+    o   Avoid calling _chksize() unless you really are going to
+        modify the string. Since _chksize() ensures mutually
+        exclusive ownership of the string data by the current
+        string object, it is pointless to cause loss of CPU
+        cycles and memory when in fact nothing is done. Once
+        the enclosed refstr is owned by a str object,
+        however, calling _chksize() causes little overhead
+        except when the string needs to be resized.
+
+    o   _strinit() (either overload) needs to be used with care.
+        Don't call these unless you intend deallocating the
+        current strdata and have saved it, or have already
+        deallocated strdata - it is over-written and never
+        deallocated. The deallocation is entirely your
+        responsibility.
+
+    static unsigned short default_flags;
+
+        default_flags is the value passed to _strinit() during
+        string setup. You can override these flags if you
+        need to by calling _strinit() directly.
+
+    refstr * strdata;
+
+        strdata is the member which contains the address of the
+        reference string, which is in fact the internal
+        string entity which may be shared by multiple 'str'
+        objects. Before modifying this, or modifying the
+        object it points to, refer to the discussion
+        immediately before this.
+
+    int _chksize (short sz =0);
+
+        _chksize() forms pretty much the core of what manages
+        refstr() objects (_strinit() creates them, this
+        manages). _chksize() is responsible for two things:
+
+            Once called during management of a str, _chksize()
+            ensures that the str has it's very own refstr
+            pointed to by strdata. This allows code to modify
+            the string without causing side- effects on other
+            strs which happen to reference the same data.
+
+            _chksize() also does as its name implies - checks
+            the size of the refstr to ensure that it is large
+            enough to contain at least the number of bytes
+            stated by its parameter.
+
+    int _concat (char const * s, short len =-1);
+
+        This is the fundamental string concatenation routine.
+        All concatenation operators end up passing through
+        this one after conversion to char const*.
+
+        Note that a serious limitation in using this function
+        in the previous release of this class has been
+        removed - _concat() now checks to see if the pointer
+        passed references it's own data (full string or
+        substring), and if so, first copies that substring
+        before performing the concatenation to ensure that
+        the pointer 's' remains valid. It is therefore now
+        possible to concatenate a string (or substring
+        thereof) it itself.
+
+    int _compare (str const s) const;
+
+        This is the fundamental string compare function.
+        Comments regarding the public interface for
+        str::compare() above apply.
+
+    short _strstr (str const s) const;
+
+        This is the fundamental substring search function.
+        Comments regarding the public interface for
+        str::_strstr() apply.
+
+    void _strinit (char const * s =0, short slen =0, short siz =-1,
+                               unsigned short flgs =default_flags);
+    void _strinit (unsigned long val, bool positive, int radix);
+
+        These functions are the initial allocators for new
+        refstr objects. The first is called by the second,
+        and optionally allows a string to be initialised or
+        set to a specific length according to the caller's
+        requirements. The second _strinit() overload is for
+        integral conversions. If signed numbers are passed to
+        this function, you should already have converted them
+        to absolute values and passed the sign in the boolean
+        'positive' (True if positive, otherwise negative).
+        'radix' is the base of the number used during the
+        conversion.
+
+    GLOBAL FUNCTIONS
+
+    str.h contains prototypes for several functions defined at file
+    scope with deal with strings. The philosophy used is that member
+    functions are generally used to mutate a string, but the global
+    equivalents of the same name return a new string, copied from the
+    old and mutated, leaving the original str object untouched.
+
+    In addition, iostream insertion and extraction operators provides
+    a simple, intuitive and straight-forward interface to the iostreams
+    library.
+
+    str left (str s, short len, char padch =' ');
+    str right (str s, short len, char padch =' ');
+    str mid (str s, short pos, short len, char padch =' ');
+
+        These are inline equivalents for the member functions of the same
+        name. Each returns a mutation of the original string. Typically
+        these are used for temporary formatting for streams etc.
+
+            str mystream(100);
+
+            cout << "      Cost Total\n"
+                 << right(mystream, 10)
+                 << ' '
+                 << left(mystream, 10)
+                 << endl;
+
+    int compare(str s, str b);
+    int compare(str s, char const * b);
+    int compare(str s, unsigned char const * b);
+    int compare(str s, signed char const * b);
+
+        These provide comparison functions, and in some contexts
+        may be easier to use than the str.compare() overloads.
+
+    ostream & operator<< (ostream & os, str const & s);
+    istream & operator>> (istream & is, str & s);
+
+         These are the iostream interface operators. operator>>
+         extracts a line of text from an input stream, removing
+         the newline, if any. The string is automatically grown
+         to accommodate input but will not shrink for smaller
+         lines. Contents of the string prior an extraction
+         operation are discarded.
+
+         The insertion operator<< outputs the contents of the
+         string, assumed to be a NUL terminated C string, to
+         the stream.

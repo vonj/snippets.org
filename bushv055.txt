@@ -1,0 +1,466 @@
+_____ BUSHY TREE DEMO V.0.55 _____
+_____ by Frank Mitchell (mitchell.frank@bigwig.net) _____
+
+This software demonstrates how to build and test a B-Tree, a Data Retrieval
+Index Structure for Random Access to Keys in Database Files. It's a Console
+Program in ANSI-C, and users are welcome to adapt any of its functions for their
+own Applications under the enclosed Free-Use License. It's also intended as a
+Design Tool, enabling users to compare the performance of B-Trees with varying
+Key Lengths and Node Sizes. It might help somebody to design Disk Cache software
+too.
+
+This B-Tree Project arose from my intention to write a Small Business Accounting
+Package for Linux. But I couldn't obtain any simple Free-Use B-Tree Code for my
+project, either from Linux sources or from an Internet search. So I decided to
+invent a B-Tree of my own, and soon this became a project in itself. My design
+isn't actually based on any Computing Science theory. It follows from a set of
+guidelines issued by the Institute Of Chartered Accountants In England & Wales,
+who have definite ideas about Accounting Software capability.
+
+The Chartered Accountants weren't interested in SQL, but they were very
+concerned about preserving and securing data. It follows that a Data File should
+contain Sequential Records, regularly backed up, while each B-Tree Index should
+go in a separate file which can easily be rebuilt after a System Crash. Deletion
+happens to be an awkward operation, but conveniently, the Chartered Accountants
+weren't interested in Deletions. They believed every data item should be
+preserved, albeit in Hidden form. This implies that Records should simply be
+flagged as Hidden or Deleted, at least until you decide to purge unwanted items.
+Coincidentally this is how things happen in COBOL.
+
+A B-Tree has a similar function to a Binary Tree. The Records in your Random
+Access File contain Keys in no particular order, and you want to process these
+Records as if the Keys were sorted. If everything fitted into Memory, you could
+find the position of any Record using a Binary Tree corresponding to the Binary
+Chop method for Sorted Data.
+
+But a B-Tree is not a Binary Tree. It's a Bushy Tree, a Multi-Way Tree designed
+to locate Records on Disk effectively. Your Hard Disk is a mechanical device,
+and therefore very slow compared to electronics, especially when seeking a File
+Position. A Binary Search would require a needless number of Hard Disk Accesses,
+one for every Tree Level. A Multi-Way Search saves alot of Seek Time by
+accessing larger blocks of Sorted Data, referred to as Nodes. The Binary Chop
+method is then used to search for Keys within each Node.
+
+The Nodes of a B-Tree Index are organised in a hierarchy, like the UNIX or
+Windows Directory Tree. Starting from the single Root Node you access its Child
+Nodes and further Sub-Nodes below, until you reach the Leaf Node which contains
+the Data File Position for your desired Key. I've chosen the simplest B-Tree
+type, in which all the Data File Positions are stored at the lowest level of the
+Tree, numbered Level-0. Higher Level Nodes just contain the File Positions of
+other Child Nodes, with the corresponding Maximum Key of each Child. This gives
+sufficient information to search down the B-Tree Node hierarchy.
+
+The Nodes are actually sections of a Random Access File, and they're all the
+same length. Unlike a UNIX or Windows Directory, they can fill up completely as
+more entries are added. So when a Node gets completely full, you need to split
+it in two. Each Sibling Node gets half the data, and an extra entry is added to
+the Parent Node for the extra Sibling. Likewise when the Parent Node is full,
+the Parent needs to split, requiring an extra entry on the level above. These
+Insertions propagate up the hierarchy, until the Root Node itself splits. Then a
+new Root Node needs to be created as a Parent for the two halves of the old Root
+Node.
+
+So a Bushy Tree grows the opposite way to a Binary Tree. The Leaves stay at the
+same Level (Level-0) while the Root grows upwards. This means a Bushy Tree is
+always balanced. You often find B-Trees being referred to as Balanced Trees, or
+Bayer Trees, after their inventor.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ Overview of Bushy Tree Version 0.55 _____
+
+This software is packaged as a Self-Testing Demo Program. It builds and checks
+the structure of a B-Tree with Keys which are randomly generated ASCII Strings.
+Some sections of the Code could be adapted for wider use, for instance the
+algorithm for scanning Nodes at Level-0 for Duplicate Keys. But at this stage of
+development the User will need to understand the coding and adapt it for
+himself. I decided to get the whole thing working properly and then release it,
+to see what Feedback I got about the need for further routines, or handy
+techniques which I might not be aware of. I'd be interested to hear from COBOL
+Programmers in particular.
+
+For the Binary Chop method to work effectively, an Overall Maximum Key must be
+fed into the B-Tree Index before anything else. So the first Data Record must
+contain such a value for each Field which is intended to carry an Index. For
+Strings this is '\x7F', which is at the top of the Collating Sequence in COLX7F.
+For Long Integer keys it would be LONG_MAX. I refer to this Overall Maximum as
+the Sentinel Key, and the initial System Record as the Sentinel Record. Because
+every Node is identified in its Parent by its Maximum Key, every Level in the
+Bushy Tree ends with the Sentinel Key. This is handy for testing purposes,
+because it marks the End Of Records condition within the Bushy Tree, which isn't
+usually at the End Of File. Note that the Sentinel Record must be Flagged with a
+System and/or Hidden Attribute to keep it out of Database calculations.
+
+Certain features of the Code merely serve to eliminate Warning Messages produced
+by the four Compilers which I used for testing it. The many size_t declarations
+are an example. The four Compilers were: Borland Turbo C++ (DOS) version 1.01;
+Borland C++ 5.5 for Win32 (C++ Builder Free Command Line Tools); DJGPP
+Development Kit version 2.03 (DOS Port of GNU C Compiler gcc-2.95.2); lcc-win32
+updated Wed 13 Jun 2001. I encountered a problem using the LCC Compiler under
+Windows Me. The Compiled Code reacted badly to certain Node Sizes. But I haven't
+observed this symptom with Bushy Tree Version 0.55, so it may have been
+something in my coding. I developed the Bushy Tree under Windows FAT-32, then
+tested it under SuSE Linux. Linux seems to prefer a Node Size of 63 rather than
+47, which affects the comparison. But generally, Bushy Tree operations can work
+around twice as fast under the ext2fs File System with its Disk Cache.
+
+I usually put Comment Statements at the end of the section they describe, like
+Footnotes, after the Closing Brace. Also I use several Uppercase suffixes to
+indicate variable types: 'P' for Pointer; 'F' for File Pointer; and 'Q' for File
+Position, which of course is something entirely different.
+
+Version 0.55 of the Bushy Tree Code is the Second Release. It comprises five
+files of ANSI-C, written so that the Data Creation, the Bushy Tree Build, and
+the Test Routines, all function independently.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ bstuff.h: _____
+
+This is the only Header File, and it defines essential B-Tree Structures for all
+Bushy Tree functions. Some items are included for illustrative purposes only.
+Note:
+
+ZLEN: This Data String Length is sufficiently long to give unique
+randomly-generated Keys for thousands of Records. But the derived Keys in the
+B-Tree can be arbitrarily short or long, and they needn't be unique.
+
+DATAHR: This Data File Header Structure is purely illustrative. But each B-Tree
+occupies a separate File, so obviously you need to store those Filenames
+somewhere. Probably you'll need to store some indicator about the intended
+Collation Method for each Field too. But you might want to put such information
+in a separate File.
+
+RECORD: This Record Structure is again purely illustrative. At present, the only
+functioning Field is the ASCII String Key. But the Attribute Flags will probably
+be needed. I suggest 1=Hide, 2=Delete, 4=Readonly, 16384=System. Note that
+unlike The Data Header, the Sentinel Record is not optional, and should always
+be Record-0.
+
+TREEHR: This is the Header Structure for each B-Tree File, and all the
+information here is essential. Though you might want to put these Structures in
+a separate File along with the Data File Header information.
+
+NODEHR: This Structure heads every Node, and you may never need to modify it
+whatever sort of Key you use. It's not strictly necessary to save the Node
+Level, but checking the Node Level gives an instant indication whenever
+something is out of sync during development.
+
+BRANCH: This Structure contains all the significant Node Data in Memory,
+including the working areas where the Nodes are modified before being written to
+Disk. You have a Dynamically Allocated Array of these Structures, which gets
+resized as the number of Bushy Tree Levels increases. Further space is
+Dynamically Allocated to the Pointers within this Structure, to store the
+contents of each Node at every Level in the current path down the Bushy Tree.
+All Nodes originate from the corresponding Level of a BRANCH Structure Array,
+and can be identified by their File Position. This means you don't need to keep
+reading the Root Node from Disk, or the Level-1 Parent when you scan Level-0 for
+Duplicate Keys. Note that the Node Size within BRANCH is one item longer than
+the Node Size on Disk. This allows a full Node in Memory to accept one final Key
+before it gets split into two Nodes on Disk. So a good choice of (Disk) Node
+Size might be 47, which becomes a round 48 in Memory.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ main (in maintest.c) _____
+
+main is just a Driver Routine which calls everything else.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ DATINIT (in maintest.c) _____
+
+DATINIT takes in a User Specification for WEIRD.DAT, the Data File of Records
+with random ASCII String Keys. Initially you don't specify the two Random Seeds,
+which are provided with Default Values. Subsequently, all values from the
+previous run are read back from SPECFIL.DAT, and you can change them or accept
+the previous values by inputting "0". This facilitates comparison runs.
+
+The data includes three Bushy Tree parameters, starting with the Number Of
+Records. You probably want to make this large enough to study the timings which
+are output for several B-Tree operations.
+
+The Node Size is variable, and as noted previously 47 is a reasonable choice.
+Both Windows with FAT32 and Linux with ext2fs show definite maximum performance
+values for the Node Size parameter. Maybe 127 is the largest Node Size to
+experiment with. The minimum Node Size is actually 3, because adding one extra
+item splits this into two Nodes of two Elements. Node Size 3 is useful for
+Debugging and Testing, to ensure that your B-Tree will work with many Levels,
+and that Duplicate Keys can be found even when they occur in subsequent Nodes.
+
+The length of your ASCII Key is also variable, and it needn't resemble the
+length of the ASCII String in the Data File. Realistically, you'd use truncated
+Key Lengths like 8 or 12, to simulate the short Keys in an Accounting System or
+a search for names beginning with "Mac". You can truncate your Keys to a single
+
+ASCII Character and the Bushy Tree still works. And it really is a single
+Character, because the Keys are stored as Character Arrays without the
+terminating '\0'. But you can also make your ASCII Keys ridiculously long if you
+want to study throughput effects. In this case strncpy will take the entire
+ASCII String from your Data File and pad the remainder with '\0's, giving proper
+Strings.
+
+The random String and Long Integer Keys are generated using KNURAN and written
+to WEIRD.DAT. The first 8 Records are also written to MESSAGE.DAT for your
+inspection. You can see the Sentinel Record at the start, with its peculiar
+Rubout Symbol for '\x7F'.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ MAKSTR (in maintest.c) _____
+
+MAKSTR creates a variable-length random String Key for the Data File WEIRD.DAT.
+I assume most applications would use ASCII Digits, Uppercase, and Lowercase, so
+the Bushy Tree Keys contain these Alphanumeric Characters, without Spaces.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ KNURAN (in knuran.c) _____
+
+If there's any Copyright in this Random Integer Generator it belongs to Donald E
+Knuth and his colleagues at Stanford University. See: "The Art Of Computer
+Programming" Volume 2: "Seminumerical Algorithms", ISBN 0-201-89684-2.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ BTRINIT (in btree.c) _____
+
+BTRINIT is an initialising function which allocates Dynamic Memory, opens Files,
+and initialises other Bushy Tree Structures which are declared as Global
+Variables. BTRINIT takes its data from the User Specification in SPECFIL.DAT. It
+writes preliminary versions of the Tree File Header and the initial Root Node,
+mainly to obtain File Positions in fpos_t form. Then BTRINIT calls BUSH to
+insert the Sentinel Record into the B-Tree, followed by all the other Records.
+BTRINIT measures the total Bushy Tree build time in seconds and displays it.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ BUSH (in btree.c) _____
+
+BUSH is a Driver Routine, which creates a B-Tree by inserting Node Data for one
+Record at a time into the Bushy Tree Structure. This builds BUSHY.DAT, a B-Tree
+Index for WEIRD.DAT. Note that BUSH and other functions use some Global
+Variables. BUSH takes the two parameters needed to insert a single Node Element,
+the ASCII String Key derived from the String in WEIRD.DAT, and the fpos_t File
+Position of the corresponding Data File Record.
+
+BUSH calls CHOPDOWN to pass control from the Root Node of the Bushy Tree to the
+correct Insertion Position at Level-0. The actual Node Insertion is done by
+calling function STICKIN. This process may need to be repeated, because whenever
+a Node splits, another Insertion will be needed on the next Level up. This
+requirement is signalled by putting more==1, and if it gets to Root Level, the
+Root Node is split by calling function NEWROOT.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ CHOPDOWN (in btree.c) _____
+
+CHOPDOWN uses the Binary Chop method to descend the Bushy Tree Node Hierarchy,
+storing Node Data at each Level in a BRANCH Structure. By checking the File
+Position stored for a given Level, CHOPDOWN may detect that BRANCH already
+contains the required Node Data in Memory. If not, CHOPDOWN reads the Node Data
+from Disk, halting the program if it finds a Node at the wrong Level.
+
+CHOPDOWN does not insert Node Elements. It finds the correct Insertion Position
+at Level-0 for a Key, but is equally useful for finding a Key which is already
+present. If Duplicate Keys exist, CHOPDOWN will locate the first one. You might
+want to insert a new Node Element at that point, or start scanning successive
+Keys until you find the one you wanted. You can also give CHOPDOWN the NULL
+Pointer as a Key, whereupon it will automatically choose Array Position-0 for
+all Nodes down the hierarchy. This is useful when scanning through consecutive
+Nodes.
+
+The Binary Chop method needs a Binary Comparison function for Strings, and this
+is provided by the Collation Routine COLX7F. To find the Insertion Position at
+Level-0, or the first Key in a series of Duplicates, you need to search for the
+smallest Key greater than or equal to your given Key. This means that every
+Level-0 Node must be represented in its Level-1 Parent by its Maximum Key. You
+need to use the same Binary Chop method at Level-1, because Duplicate Keys could
+occur at Level-1 too. Every Node must be represented by its Maximum Key for the
+Binary Chop to work down the hierarchy. This leads to the requirement for an
+Overall Maximum Key, which is the Sentinel. Without the Sentinel, the algorithm
+would fail to slot any temporary maximum into the endmost Node.
+
+CHOPDOWN starts with a given ASCII String Key and the fpos_t File Position of
+the next Node to search. This could be the Root Node, or any lower Level. Within
+each Node, CHOPDOWN searches for the Array Position corresponding to the given
+Key, and this yields the File Position of the next Node on the Level below. The
+Array Position found within any Node, will contain the smallest Key greater than
+or equal to the given Key.
+
+CHOPDOWN finishes with the Node Data at every Level stored in the BRANCH
+Structure Array. The required result is the Array Position within the Node at
+Level-0. Remember that Nodes on Level-0 differ from those on other Levels. The
+higher-Level Nodes contain File Positions for other Nodes within the Bushy Tree
+File. But the Level-0 Nodes contain File Positions of Records in the Data File
+which is Indexed by the Bushy Tree. So the real result is stored within the
+Global Variable BRANCH, not the Return Value of CHOPDOWN.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ STICKIN (in btree.c) _____
+
+STICKIN inserts a Node Element at any Level of the Bushy Tree hierarchy. If
+necessary it splits Nodes, and later inserts corresponding Node Elements further
+up the Bushy Tree.
+
+STICKIN works with the Node Data contained in Memory, in the BRANCH Structure
+Array. Initially STICKIN is called at Level-0. Its first task is to observe the
+Insertion Position found by CHOPDOWN, and shift along all Node Elements in equal
+or higher Array Positions. The new Key and File Position Data are then inserted
+at the correct Array Position in the working area of the BRANCH Structure. If
+the resulting Node Data will fit into one Disk Node, the corresponding Disk Node
+is rewritten.
+
+STICKIN may detect that the Node Data is now one Element too long to fit on
+Disk, so it splits the Node into two Siblings. The High Half must be written to
+Disk at the File Position of the old Node, because the High Half contains the
+Maximum Key which is expected at that File Position. The Low Half must be
+written to Disk at the next vacant B-Tree File Position, with its own Maximum
+Key from the middle of the old Node. An entry for this new Node needs to be
+inserted within the Parent Node, at the Insertion Position which was stored in
+the BRANCH Structure by CHOPDOWN.
+
+The Return Value of STICKIN signals this further Insertion requirement. The
+Maximum Key and File Position of the Low Half Node are returned as Pointer
+Parameters. Details of the Low Half Node remain stored in the BRANCH Structure.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ NEWROOT (in btree.c) _____
+
+NEWROOT is called when the Root Node gets full and must be split into two
+Siblings, both Children of a new Root Node. Its first task is to reallocate
+Dynamic Memory to add a new Level to the BRANCH Structure Array.
+
+The new Root Node always has two Elements. Element-0 contains the Maximum Key
+and File Position of the Low Half of the old Root Node, values which are
+obtained from the previous call to STICKIN. Element-1 contains the Sentinel Key,
+which is the Overall Maximum Key at every Level including the old Root, with the
+File Position of the old Root Node, which is obtained from the B-Tree File
+Header.
+
+The New Root is written at the next vacant B-Tree File Position, and the Tree
+Header is rewritten with the New Root details.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ COLX7F (in btree.c) _____
+
+COLX7F is a basic Collation Routine which arranges ASCII Characters below '\x7F'
+in order, particularly Alphanumeric Characters (1-9,Aa-Zz). As given, COLX7F
+won't collate accented letters and other non-English characters above '\x7F'.
+But it will collate punctuation in a reasonable way, with Separators towards the
+beginning of the Collation Sequence. Obviously it isn't very useful to collate
+Control Characters except for Testing Purposes, as I did here.
+
+COLX7F uses a Lookup Table to convert ASCII Values to Collation Rankings. Then
+it compares the Collation Rankings of successive Characters, generally operating
+like a clone of strncmp. The Collation Sequence is documented in a Comma
+Separated Variable File COLX7F.CSV, which you can feed into your Database or
+Spreadsheet to devise modifications, or extend the method to your desired Code
+Page.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ TREESCAN (in treescan.c) _____
+
+TREESCAN is the Driver Routine for validating the Bushy Tree. It opens the Data
+File and the Bushy Tree File, reading both File Headers and the Sentinel Record.
+A BRANCH Structure Array is set up for the known number of Levels in the Bushy
+Tree. Like the other functions in treescan.c, TREESCAN uses a number of Global
+Variables, which are deliberately distinguished from the Global Variables in
+btree.c.
+
+TREESCAN calls NODETREK to traverse the entire Bushy Tree, checking that all
+Bushy Tree Key references are located correctly in the Data File. Then TREESCAN
+goes through the Data File, calling SCANZERO to ensure that all Records
+including Duplicates are found in the Bushy Tree. TREESCAN displays the time
+taken for both these operations.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ NODETREK (in treescan.c) _____
+
+NODETREK scans all Nodes in the Bushy Tree hierarchy Recursively, though without
+using Recursive calls to itself. NODETREK also writes CHECKORD.DAT, an
+Externally Sorted version of WEIRD.DAT showing the String Keys collated in
+order.
+
+NODETREK calls CHOPDOWN with the Search Key set to NULL, which simply descends
+the B-Tree hierarchy via the first Element of every Node. All Node Data for this
+path is stored in the BRANCH Structure Array.
+
+At Level-0, each Node is scanned. Every Element is compared to its predecessor
+and its corresponding Record in the Data File. If the two Elements do not
+conform to the Collation Sequence of COLX7F, or if a Key does not correspond to
+the ASCII String in the Data File, the process stops with an Error Message. The
+
+Data File Record is then written to CHECKORD.DAT, giving an Externally Sorted
+version of WEIRD.DAT in Human Readable form. Now you can see the Sentinel Record
+at the end, with its peculiar Rubout Symbol for '\x7F'.
+
+At the end of each Level-0 Node, the algorithm ascends the Bushy Tree hierarchy
+until it detects an incompletely scanned Node at a higher Level. Along this
+path, it compares the End-Element Keys of Nodes to each other and to the Key of
+the final Higher Level Node. If these keys are not all identical, the process
+stops with an Error Message, because every Node should be referenced by its
+Maximum Key.
+
+NODETREK then increments the Array Position within the incompletely scanned
+Node, and loops back to call CHOPDOWN and descend the Node hierarchy again to
+repeat the process. In this way the Bushy Tree is scanned in a Recursive
+pattern, but using the BRANCH Structure Array for storage rather than the Stack.
+
+NODETREK terminates when the Root Node and its Children have all been scanned,
+and the algorithm attempts to ascend past the Root Level. The Key comparisons up
+this final path, should all match the Sentinel Key '\x7F', as the Sentinel
+should signal an End Of Records condition. The process stops with another Error
+Message if this does not happen.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ SCANZERO (in treescan.c) _____
+
+SCANZERO locates Keys at Level-0 of the Bushy Tree File, then scans through the
+Node and subsequent Nodes if necessary, to find Duplicate Keys.
+
+Initially SCANZERO calls CHOPDOWN to locate the first occurrence of the Key at
+Level-0. CHOPDOWN stores all the Node Data for its path down the B-Tree
+hierarchy, in the BRANCH Structure Array. SCANZERO then scans for a matching
+Key, returning 0 when it finds a mismatch. Otherwise SCANZERO returns 1 when it
+finds a Key with a File Position matching the correct Data File Record Position.
+
+When SCANZERO detects the End Element of a Node, it uses the Node Data stored in
+the BRANCH Structure Array to ascend the Node hierarchy until it detects an
+incompletely scanned Node at a higher Level. SCANZERO increments the Array
+Position within this Node, then calls CHOPDOWN with the Search Key set to NULL,
+descending the Node hierarchy to the first Element of the next Level-0 Node.
+
+SCANZERO loops back until it finds a return condition for a matching Data File
+Record or a mismatched Key.
+
+#### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%% #### %%%%
+
+_____ TODO _____
+
+I haven't really considered Deletions. I could suggest several possibilities, as
+there are various aspects to the Deletion Problem, depending on whether you want
+an Undelete Option, and whether you want to purge Deleted Records from your Data
+File as well as from all your B-Tree Indexes.
+
+But the simplest method is simply to flag Records as Deleted in the Data File,
+giving you the option of Undeletion. When the Deleted Records become inconvenient
+you can purge them by rewriting the Data File and rebuilding all the Bushy Tree
+Indexes. In practice I suspect this is the most effective approach.
+
+This version of the Bushy Tree builds one B-Tree Index, for ASCII Strings. But
+the same coding could be used for any Data Type provided you remember to convert
+all Keys to Big Endian form on a PC. Some Bit Manipulation will be required to
+convert Integers and Floats into their corresponding Keys, but the same routines
+should work. The format of Floating Point Numbers was actually designed to enable
+them to be collated this way.
+
+Finally this Documentation could probably be improved, especially for the benefit
+of non English speakers. Please email any Feedback to mitchell.frank@bigwig.net.
+

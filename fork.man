@@ -1,0 +1,51 @@
+FORK                     USER COMMANDS                   FORK
+
+
+
+NAME
+      fork - fork output to multiple files, including console.
+
+SYNOPSIS
+      [command |] fork [/?][/C] [filename.ext *filename.ext ...]
+
+DESCRIPTION
+      fork reads in from stdin (pipe) and places the data into a
+      buffer. When the buffer becomes full, fork will do a full
+      write to all of the files presented on the command line.
+      Also, unless specifically disabled, output will also go to
+      the console.
+
+OPTION
+      /?   Present help screen.
+      /C   Disable console output.
+
+EXAMPLE
+      The following example will take the output of type and place
+      it into the files out1 out2 out3 and out4. The file out3 will
+      be overwritten, and no output will reach the console.
+
+      type fork.c|fork out1 out2 *out3 out4 /c
+
+DIAGNOSTICS
+      fork will complain about not being able to allocate memory,
+      but will not notice files that do not exist or cannot be
+      opened (will ignore them).
+
+BUGS
+      A bug to many users will appear in the fact that switches cannot
+      be in the form of "-xxx". The character '-' is a valid filename
+      character, so I decided not to exclude it.
+
+COMPILATION
+      The source is ANSI/ISO C, so any conforming compiler should be
+      able to compile without errors. MAXPATH is MSDOS Mix PowerC
+      dependent, but in case it is not defined, it is defined in the
+      header, fork.h. This macro should be changed to the current
+      compilers definition to better suit the platform (in other
+      words, #define MAXPATH _MAXPATH if _MAXPATH is your compilers
+      name for the maximum path allowed).
+
+AUTHOR
+      Dustin Puryear <dpuryear@delphi.com>
+
+Release 1.02    Last Change: June 8, 1994

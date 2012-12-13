@@ -1,0 +1,17 @@
+# Makefile for Borland C++ for DOS 3.1
+
+all: qmenu.exe
+
+COPTS=-O2
+
+.c.obj:
+  bcc $(COPTS) -w -c $<
+
+objs=qmenu.obj    \
+     vidmgr.obj   \
+     vmgrdos.obj  \
+     vioimage.obj \
+     opsys.obj
+
+qmenu.exe: $(objs)
+  bcc $(COPTS) -w -eqmenu.exe $(objs)

@@ -1,0 +1,117 @@
+Q. Is it possible to set an environment variable from within a program? I've
+   tried setnev() and it doesn't work.
+
+
+A. Generally, the answer is no. First of all, you must understand how
+   environment variables work. The command shell (COMMAND.COM, 4DOS, or any
+   of the Unix shells) is what maintains the environment variables. They are
+   stored, usually concatenated, in a block of memory owned by the command
+   shell. When your program runs, it inherits a copy of the environment
+   block. This is a crucial concept! The command shell only copies its
+   "master environment" and passes the copy to the program. When the program
+   terminates, its copy, which was in memory it owned, is discarded along
+   with any changes which were made to it. This is why putenv() seems not to
+   work, since it only modifies the copy and the changes are lost upon
+   program termination. Ultimately, the question you must answer is which
+   copy of the environment you wish to modify? If you only wish to modify
+   your local environment, use putenv(). If you want to modify something
+   else, you have more questions to answer. Remember that several copies of
+   the command shell may be running at a time, so which one's environment
+   block do you want to modify? If you choose to modify your parent process'
+   environment block, that too will be lost when your parent process
+   terminates. If you want to modify the original master, then your changes
+   may still be lost when you terminate since your parent process may not be
+   the "master" command shell (see below for an illustration).
+
+   It's a can of worms that the makers of most operating systems (OS's),
+   including DOS, Unix, OS/2, Win95, et al, have wisely chosen to leave
+   sealed!
+
+
+
+Q. What good is putenv() if its changes are lost when the program ends?
+
+
+A. Its primary use is to set up environment variables prior to spawning
+   another subordinate process (program). In the PC world, you'd use it prior
+   to issuing a spawn call. In the Unix world, use it prior to using fork()
+   and exec().
+
+
+
+Q. I know I've seen DOS programs which do modify the master environment, so I
+   know it can be done!
+
+
+A. Yes it can, but not legally or with guaranteed results. Most OS's do have
+   undocumented ways of doing it. DOS is probably the safest to try since
+   it's not multiuser or multitasking, and so the only person you can screw
+   up is yourself! There are 4 ways to modify a non-local environment under
+   DOS. Only one is marginally legal and the others rely on undocumented DOS
+   features.
+
+
+
+Q. Why was only the DOS batch file and "Stuff-key-buffer method"
+   (SETENVAR.C) included in the original SNIPPETS?
+
+
+A. The reason that I only included the "batch&stuff" method in my SNIPPETS
+   collection is simply that it's the *only* method you can rely on if your
+   program is going to be distributed. Quite simply, there is *NO* safe,
+   documented way under DOS to set an environment variable in the master
+   environment block - period! By back-tracking PSPs or MCBs, you can try
+   to locate the master environment and change it. You can also try to use
+   Int 2Eh, the command processor's "back door". But all of these methods
+   suffer from several shortcomings:
+
+1)  Someone using the program might be using 4DOS, COMMAND PLUS, or some other
+    COMMAND.COM replacement. These don't always do things the same way as
+    COMMAND.COM and the differences can cause you to crash, roll, & burn! For
+    example, several COMMAND.COM replacements allow the master environment
+    block to be located in extended, expanded, or high memory. In such a case,
+    backtracking PSPs or MCBs is less than useless, they're guaranteed to
+    yield undefined errors.
+
+2)  Int 2Eh seems to be the most universally supported, but cannot be used in
+    a program invoked from a batch file. The book, "Undocumented DOS" details
+    some procedures for making an Int 2Eh call safer but, again, these
+    techniques rely on implementation features of COMMAND.COM which might not
+    be available in alternate command processors.
+
+3)  Even if everything else is safe, you still need a way of error trapping in
+    case your new environment variable might overwrite the end of the
+    available master environment block. This error trapping in inherent in
+    COMMAND.COM and alternate command processors (one reason why using the
+    Int 2Eh back door is potentially the safest way to try), but if you try to
+    modify things manually, you're on your own. If you do overwrite the end of
+    the master environment block, you'll have automatically corrupted your MCB
+    chain and possibly set yourself up for some *really* nasty surprises!
+
+4)  Finally, there's the very fundamental question of which environment block
+    really is the master? Say you're in your comm program and hit the "shell
+    to DOS" key. A secondary copy of the command processor, be it COMMAND.COM
+    or whatever, is spawned and you're off and running. If you now run your
+    program from this secondary DOS shell, is its environment block the master
+    or is it the one from which you ran your comm program? Worse yet,
+    depending on how you set up CONFIG.SYS, the secondary shell may have a
+    considerably smaller environment block than the original. Despite having
+    set the "/E:" switch, your secondary shell will likely only have an
+    environment block whose size is equal to the current block size rounded
+    up to the next paragraph boundary. If you trace PSPs, you'll find the
+    secondary shell which you stand a good chance of over-running due to the
+    difference in the block size. If you trace MCBs, you'll find the real
+    master block, but then your changes will have disappeared when you return
+    to your comm program, defeating the purpose of your program in the first
+    place. 
+
+   The inability to alter a parent program's environment block isn't a DOS
+   exclusive, BTW - it's an inheritance from Unix where the same limitation
+   applies.
+
+   Finally, SNIPPETS now includes several of these alternate unsafe ways of
+   setting the master environment. INT2E.ASM & CCOMCALL.C together provide
+   access to the DOS command processor back door, GLBL_ENV.C provides means
+   for TC/TC++/BC++ and MSC/QC programmers to modify the master environment
+   by backtracking PSP pointers, and MCB_ENV.C serves the same purpose only
+   using the MCB tracking method.

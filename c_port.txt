@@ -1,0 +1,340 @@
+
+=====[ Ed Hopper's BBS #1 ]=====[  8-04-91 ]=====[  9:55.22 ]=====
+
+
+Date: 08-02-91 (09:40)       C-Lang Number: 26406 (Echo)
+  To: ALL                      
+From: JOSEPH CARNAGE                  Read: 08-03-91 (10:56)
+City: DUNEDIN FL                   Last On: 02-28-91 (22:53)
+Subj: Portable, clean code #1  
+
+               How to write portable clean source code
+               ---------------------------------------
+
+A common concern with programmers new to Axiom is writing portable
+code.  There a number of tricks and guide lines which may help with
+this.  In no particular order:
+
+  --  Use full ANSI prototypes with all arguments declared.  For
+      function pointers, declare their expected arguments.  For
+      prototypes for functions which accept function pointers, do not
+      declare the expected arguments for the function pointer
+      argument.
+
+      It is good practice to put dummy variable names in prototypes as
+      this adds readability.
+
+  --  Explicitly type all variables and functions.  Never rely on them
+      defaulting to int.
+
+  --  Pay a little care to the ternary operator ? :, and parenthesize
+      heavily.  A very few compilers have problems with the default
+      order of evaluation for the ternary operator.
+
+  --  Never ever name a variable identically to a function.  This is
+      most especially true of statics or globals.  This sort of error
+      can cause weird hidden linker problems which cause bizarre
+      results at runtime and are difficult to trace.
+
+  --  Never ever name a screen, form, data field etc identically to a
+      variable or function as this can cause weird and non-reported
+      linker errors in the final executable which can be very
+      difficult to locate.
+
+  --  Do not nest comments.  If you want to block off a section of
+      code temporarily, use #ifdef/#endif.  eg.
+
+           ...code...
+         #ifdef JUNK /* Unwanted code */
+           ...more code...
+         #endif /* JUNK */
+           ...yet more code...
+
+  --  Run PC-Lint on all code, and handle ALL errors and warnings.
+
+  --  Read the "Frequently Asked Questions" document and understand
+      fully.
+
+  --  Read K&R thoroughly and everywhere it mentions "implementation
+      dependant", or "new" features not "supported by all compilers",
+      avoid those areas.  Examples are bit fields, passing structures
+      to functions, returning structures from functions, and the
+      volatile type.  These are not supported by all compilers.
+
+  --  In areas where the ANSI standard advances on the old K&R, but
+      still allows the K&R form, follow K&R.  An example is using
+      function pointers.  If you are unsure what areas this covers,
+      don't worry, just stick with K&R.  eg.
+
+      Given:
+
+        int (*prj_afunc) (); /* Pointer to function which returns int */
+
+      ANSI allows the pointed to function be called as so:
+
+        prj_afunc (xxx, yyy);
+
+      K&R specifies that it should be called:
+
+        *prj-afunc (xxx, yyy);
+
+      Use the K&R form, which ANSI still allows, and all compilers
+      support.
+
+  --  Do not use the new // comments.  Stay with the /* comment */
+      form.
+
+  --  Do not indent #ifdefs, #defines, #pragmas, or other preprocessor
+      directives.  Some compilers allow code as such:
+
+        #ifdef DEBUG
+          #define TEST 1
+        #endif
+
+      or
+
+        #ifdef FINAL
+        #  ifdef DEBUG
+        #    define TEST 1
+        #  endif
+        #endif
+
+      But by no means all.  Use white space if needed to delineate
+      #ifdef/endif blocks and comment liberally:
+
+        #ifdef FINAL
+
+        #ifdef DEBUG
+        #define TEST 1
+        #endif /* DEBUG*/
+
+        #endif /* FINAL */
+
+  --  Do not use the ANSI string literal concatenation features.  eg.
+
+        printf ("This is ANSI but"
+        "unportable code.\n");
+
+      for long string literals.  Under ANSI the compiler should
+      concatenate the two string literals into one, but not all ANSI
+      compilers support this feature yet.  If you need a very long
+      string literal use a form as so:
+
+        printf ("%s%s",
+        "this is",
+        "portable code.\n");
+
+      or just use a very long string literal.
+
+  --  Stay away from ints except for trash and temp values.  Ints vary
+      in size depending upon the memory model under DOS, and legally
+      may be any size between shorts and longs inclusive.
+
+      Try to use shorts or longs if possible, as these are of fairly
+      constant size on most platforms.  On most platforms, but by no
+      means all, shorts are usually words and longs word pairs.
+
+  --  Beware of assigning a pointer of one type to a pointer of a
+      higher type.  Most platforms seem to insist that the addresses
+      stored in pointers are aligned per the pointer's base type.
+
+      What this means is that the value stored in a pointer to a long,
+      in itself will be aligned as a long is.  If longs are aligned
+      on even word boundaries, then so will the value of long pointer.
+
+      This can result in memory alignment errors which can be
+      extremely difficult to track down.  Casting will not help.
+
+      DOS has few memory alignment requirements, but for Unix and VMS
+      you can expect types to be aligned to their sizes (see the
+      compiler manuals for specifics).  What this means to pointers is
+      that with code such as:
+
+        short *pj2_value;  /* Assume that shorts are aligned to words */
+        long *pj4_number;  /* and longs to even word boundaries */
+
+        pj4_number = pj2_value;
+
+      that the value assigned to pj4_number may be as far as two bytes
+      different from that in pj2_value.  ie
+
+        Let's say that the address stored is pj2_value is:
+
+          *pj2_value == 0000:0006 /* Aligned to word */
+
+        and you make the assignment:
+
+          pj4_number = pj2_value;
+
+       After this, the value of pj4_number will be either 0000:0004,
+       or 0000:0008 to shift it to even word alignment.  The
+       direction of the shift seems to be compiler/implementation
+       dependant.
+
+       This bug is often erratic at runtime depending upon the
+       alignment of automatics.  This sort of bug is especially
+       difficult to track when coming up from a void pointer.
+
+  --  Be wary of relying on memory alignment in structures and
+      unions.  Different compiler implementations align differently,
+      and #pragmas or command line arguments to the compiler can
+      change alignment at compile time.  See the compiler manuals for
+      specific details.
+
+      This will usually require you to either read in each member
+      individually, or to perform explicit padding when reading
+      structure data from disk.  eg. lic1.c & v_lic_pad() in the Axiom
+      library.
+
+  --  Where possible use sizeof(identifier) rather than sizeof(type)
+      or a #defined constant. This can help in tracing down bugs and
+      makes for greater readability.  eg.
+
+          #define M_DATA 100
+          short aj2_numbers[M_DATA];
+
+        /* This example requires the reader to remember that
+        aj2_numbers has M_DATA elements, is overly complex, and
+        presumes that aj2_numbers will always be shorts.  This code
+        will likely break if anything is later changed. */
+
+          memcpy (aj2_numbers, pj2_input, M_DATA * sizeof (short));
+
+        /* This is ideal -- sizeof(aj2_numbers) will return the total
+        space allocated to the array, no matter what the type may be,
+        or what is changed later.  It makes no assumptions of the
+        reader. */
+
+          memcpy (aj2_numbers, pj2_input, sizeof (aj2_numbers));
+
+  --  Beware of comparing structures or unions with functions such as
+      memcmp() as the padding/alignment spaces will have random and
+      likely different values.  If you need to compare structures
+      you'll have to do it member by member.
+
+  --  Never assign structures to each other directly.  Some compilers
+      allow structure assignments, some don't.
+
+        struct t_data s_struc1;
+        struct t_data s_struc2;
+
+        s_struc2 = s_struc1; /* Unportable code */
+
+      Note however that you can copy structures via pointers as need
+      be:
+
+        struct t_data *ps_struc1;
+        struct t_data *ps_struc2;
+
+        ps_struc1 = xxx;
+        ps_struc2 = yyy;
+
+        *ps_struc2 = *ps_struc1; /* Copy structure 1 to 2 */
+
+      Rather than assigning each member over individually.  The
+      functions memcpy() and memmove() are other portable ways.
+
+  --  Beware of passing chars or shorts to functions.  These get
+      promoted to ints, and with some compilers problems from there on
+      out abound horrendously.  This is especially true of chars where
+      some compilers occasionally extract the wrong byte from the
+      promoted int in the receiving function.
+
+  --  Be careful passing floats to functions as some compilers promote
+      floats to doubles when passing them as an argument.  This can
+      cause spurious warnings and strange side effects.
+
+  --  Explicitly cast assignments and expressions as needed, and
+      carefully watch that you really don't need to make those
+      identifiers of that type originally.  While the promotion order
+      is constant across implementations, the size of the types
+      aren't.  This can cause difficult side effects.
+
+      If your code needs a lot of casts to get past Lint, then you
+      probably need to rethink some of your approaches.
+
+  --  Take care to cast all #defined constants if in doubt.  For large
+      values (longs), always cast as longs, or place an 'L' at the end
+      of the constant.  Some compilers handle this area erratically if
+      left up to them.
+
+  --  Never ever rely on order of evaluation of function parameters.
+      This can occur when listing a function call as a parameter to
+      another function, or as an unintentional side effect from passing
+      assignments or function calls as parameters.
+
+        char *pc_modify (char *);
+
+        printf ("This string [%s] becomes [%s]\n",
+        pc_string, pc_modify (pc_string)); /* Bad code */
+
+  --  Do not use NULL for anything but pointers.  Do not use NULL for
+      string terminations: use the ASCII constant NUL, '\0', or a
+      #defined type which equates to that.
+
+  --  Never EVER pass a #defined macro an incremented or decremented
+      value (++,or  --) or an assignment as a parameter.  This is
+      because many #defined macros may reference their arguments
+      multiple times.  This is especially true of the macros #defined
+      in ctype.h.
+
+      eg.
+
+        #define iscsymf(c)   (isalpha(c) || ((c) == '_'))
+
+     If called as so:
+
+       iscsym(var++);
+
+     it will be expanded by the preprocessor to:
+
+        (isalpha(var++) || ((var++) == '_'))
+
+     with var being incremented twice.
+
+  --  Avoid passing any functions incremented or decremented values
+      ("++" or "--"), or assignments.  Some standard and commercial
+      library calls are actually #defined macros.  This type of
+      "error" can lead to order of evaluation problems as different
+      compilers process function arguments in different orders.
+
+  --  Explicitly initialise pointers.  Do not rely on calloc(),
+      memset() or other such functions to initialise pointers.
+      Initialise them explicitly.
+
+"K&R" as mentioned above refers to "The C Programming Language"
+written by Brian W Kernighan & Dennis M Ritchie.
+
+"PC-Lint" is a commercial version of Lint for the PC, as sold by
+Gimpel Software.  PC-Lint is generally acknowledged as the tightest
+and most discerning Lint on any platform.
+
+There are several books which cover the areas of portable code which
+may also help:
+
+      "C Programming Guidelines"
+      by Thomas Plum
+      pub. by Plum Hall
+      ISBN 0-911537-03-1
+
+      "Portability and the C Language"
+      by Rex Jaeschke
+      pub. by Hayden Books
+      ISBN 0-672-48428-5
+
+      "Portable C Software"
+      by Mark R. Horton
+      pub. by Prentice Hall
+      ISBN 0-13-868050-7
+
+      "Portable C"
+      by Henry Rabinowitz & Chaim Schaap
+      pub. by Prentice Hall
+      ISBN 0-13-685967-4
+
+      "Portable C and Unix System Programming"
+      by J.E. Lapin
+      pub. Prentice-Hall
+      ISBN 0-13-686494-5
+
+[END]

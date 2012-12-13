@@ -1,0 +1,44 @@
+About a year or so ago I published an ANSI viewer here called "showansi", the
+purpose of which was to view ANSI files compatible with the DOS ANSI.SYS.
+These files are used not only for artwork of various types, but are used for
+displaying screens with various BBS packages.
+
+What follows is a reworked version of that viewer, again in a class 
+implementation and adds the following features:
+
+    o   Bugs in the ANSI interpreter have been fixed; namely, an
+        '8' is no longer misinterpreted as a backspace (whoops!)
+        and the ansi sequence parser has been fixed and simplified.
+        A minor bug in the video class was also corrected and the
+        scroll() member was enhanced to allow scrolling downwards.
+
+    o   Wildcard expansion has been added, thanks to the DIRPORT
+        package in Bob Stout's SNIPPETS. Since these were modified
+        for 32-bit OS/2 support, I have included them here also.
+        You can now say: "showansi *.ans", for example.
+
+    o   The "ansisys" class was broken up into two classes for
+        allowing the system to be extended to other types of
+        screen interpreters. A base class "scrinterp" was defined
+        with all the basic 'get' and standard put functions
+        implemented, leaving interpretation of special characters
+        to derived classes.
+
+    o   In view of the previous item, an AVATAR level 0+ (well,
+        almost :-)) was added, allowing avatar/mecca/oansi files
+        to be viewed as well. A special switch was added (-a) to
+        allow the input file type to be toggled.
+
+This was tested and ported for Watcom C++ under OS/2 and MSDOS in both 16 and
+32 bit modes (although a DOS4G executable is probably going a wee bit far
+:-)), and OS/2 emx 32-bit. The resulting emx executable will not run under
+DOS since the video calls the OS/2 API directly - this could probably be
+changed by changing those calls to emx's 'portable' video interface; perhaps
+someone interested will port it and send diffs or whatever. For Watcom,
+compile in large model for the 16-bit executable under OS/2, and you will
+need a copy of the 16-bit OS/2 toolkit (OS/2 toolkit 1.3).
+
+Enjoy!
+
+
+                                                         David Nugent
