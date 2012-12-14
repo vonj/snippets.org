@@ -14,7 +14,7 @@
 #ifndef BITOPS__H
 #define BITOPS__H
 
-#include <stdio.H>
+#include <stdio.h>
 #include <stdlib.h>                             /* For size_t           */
 #include <limits.h>                             /* For CHAR_BIT         */
 #include "sniptype.h"                           /* For TOBOOL()         */
