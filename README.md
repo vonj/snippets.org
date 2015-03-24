@@ -8,3 +8,7 @@ The SNIPPETS archive was maintained for years by Bob Stout, but when he died, th
 
 This is an effort to put the SNIPPETS archive back online.
 
+
+Patches and additions welcome!  Any stand alone C or C++ gist is welcome.
+
+(Patches to make old snippets compile on modern targets, should you find any problem.)
